@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
+import { PageTransition } from "@/components/app/page-transition";
+import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -16,6 +18,9 @@ import {
   Image as ImageIcon,
   Zap,
   Eye,
+  HandHelping,
+  Rocket,
+  Clock,
 } from "lucide-react";
 import { GeneratedLanding } from "@/components/generated/generated-landing";
 import { DEFAULT_BUILDER } from "@/lib/builder-storage";
@@ -24,17 +29,17 @@ export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: [
-      { title: "Lumen.pages — Build insurance lead pages in minutes" },
+      { title: "Lumen.pages — A modern website builder for insurance agents" },
       {
         name: "description",
         content:
-          "A clean, simple platform for Medicare and ACA agents to create modern landing pages that help capture leads.",
+          "A clean, simple website builder for insurance agents — Medicare, ACA, Life, Health, Auto, Home, and more. Launch a modern lead-gen site in minutes.",
       },
-      { property: "og:title", content: "Lumen.pages — Built for insurance agents" },
+      { property: "og:title", content: "Lumen.pages — A modern website builder for insurance agents" },
       {
         property: "og:description",
         content:
-          "Launch beautiful, mobile-friendly Medicare and ACA landing pages in minutes — no designer required.",
+          "Launch a beautiful, mobile-friendly website for your insurance practice in minutes — no designer required.",
       },
     ],
   }),
@@ -44,15 +49,19 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main>
-        <Hero />
-        <SocialProof />
-        <Features />
-        <HowItWorks />
-        <PreviewShowcase />
-        <Pricing />
-        <FinalCta />
-      </main>
+      <PageTransition>
+        <main>
+          <Hero />
+          <SocialProof />
+          <NichesStrip />
+          <StartChoice />
+          <Features />
+          <HowItWorks />
+          <PreviewShowcase />
+          <Pricing />
+          <FinalCta />
+        </main>
+      </PageTransition>
       <AppFooter />
     </div>
   );
