@@ -1,6 +1,26 @@
 import { useEffect, useState } from "react";
 
-export type InsuranceType = "medicare" | "aca";
+/**
+ * Free-form insurance niche string. We keep the field name `insuranceType`
+ * for backward compatibility with previously stored builder drafts, but it
+ * now accepts any of the presets in INSURANCE_NICHES (or a custom string).
+ */
+export type InsuranceType = string;
+export type InsuranceNiche = string;
+
+export const INSURANCE_NICHES = [
+  "Medicare",
+  "ACA",
+  "Life",
+  "Health",
+  "Final Expense",
+  "Auto",
+  "Home",
+  "Commercial",
+  "Independent Agency",
+  "Other",
+] as const;
+
 export type ContactMethod = "call" | "text" | "email";
 
 export interface BuilderData {
@@ -28,7 +48,7 @@ export const DEFAULT_BUILDER: BuilderData = {
   email: "jordan@sterlinginsurance.com",
   city: "Austin",
   state: "TX",
-  insuranceType: "medicare",
+  insuranceType: "Medicare",
   businessType: "Medicare insurance agency",
   logoDataUrl: null,
   headshotDataUrl: null,
@@ -40,15 +60,32 @@ export const DEFAULT_BUILDER: BuilderData = {
   freestyleInstructions: "",
 };
 
-const KEY = "lp_builder_data_v2";
+const KEY = "lp_builder_data_v3";
+const LEGACY_KEY = "lp_builder_data_v2";
+
+function migrateLegacyType(t: unknown): string {
+  if (typeof t !== "string") return DEFAULT_BUILDER.insuranceType;
+  if (t === "medicare") return "Medicare";
+  if (t === "aca") return "ACA";
+  return t;
+}
 
 export function loadBuilder(): BuilderData | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return null;
+    let raw = window.localStorage.getItem(KEY);
+    // Migrate from v2 if v3 is missing
+    if (!raw) {
+      const legacy = window.localStorage.getItem(LEGACY_KEY);
+      if (!legacy) return null;
+      raw = legacy;
+    }
     const parsed = JSON.parse(raw) as Partial<BuilderData>;
-    return { ...DEFAULT_BUILDER, ...parsed };
+    return {
+      ...DEFAULT_BUILDER,
+      ...parsed,
+      insuranceType: migrateLegacyType(parsed.insuranceType),
+    };
   } catch {
     return null;
   }

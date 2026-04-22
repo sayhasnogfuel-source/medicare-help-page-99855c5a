@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
+import { PageTransition } from "@/components/app/page-transition";
+import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,11 +13,11 @@ import { Card } from "@/components/ui/card";
 import { Upload, ArrowRight, ImageIcon, X, Sparkles, Send } from "lucide-react";
 import {
   DEFAULT_BUILDER,
+  INSURANCE_NICHES,
   loadBuilder,
   saveBuilder,
   type BuilderData,
   type ContactMethod,
-  type InsuranceType,
 } from "@/lib/builder-storage";
 
 export const Route = createFileRoute("/builder")({
@@ -42,7 +44,7 @@ const FREESTYLE_SUGGESTIONS = [
 ] as const;
 
 function BuilderPage() {
-  const navigate = useNavigate();
+  const { transitionTo } = usePageTransition();
   const [data, setData] = useState<BuilderData>(DEFAULT_BUILDER);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
@@ -82,12 +84,13 @@ function BuilderPage() {
       return;
     }
     saveBuilder(data);
-    navigate({ to: "/preview" });
+    transitionTo({ to: "/preview" });
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
+      <PageTransition>
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
           <div className="mb-10">
@@ -148,15 +151,29 @@ function BuilderPage() {
               </div>
             </Section>
 
-            <Section title="Template style">
-              <RadioCardGroup
-                value={data.insuranceType}
-                onChange={(v) => update("insuranceType", v as InsuranceType)}
-                options={[
-                  { value: "medicare", label: "Medicare", description: "For agents helping people 65+" },
-                  { value: "aca", label: "ACA", description: "For agents helping individuals & families" },
-                ]}
-              />
+            <Section title="Insurance niche">
+              <p className="text-sm text-muted-foreground">
+                Pick the niche that best matches your business. We'll tailor the page copy and benefits to it.
+              </p>
+              <div className="grid gap-2.5 sm:grid-cols-3">
+                {INSURANCE_NICHES.map((n) => {
+                  const selected = data.insuranceType === n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => update("insuranceType", n)}
+                      className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                        selected
+                          ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)] text-foreground shadow-[var(--shadow-xs)]"
+                          : "border-border bg-background text-foreground/75 hover:border-foreground/30 hover:text-foreground"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  );
+                })}
+              </div>
             </Section>
 
             <Section title="Branding">
@@ -229,6 +246,7 @@ function BuilderPage() {
           </form>
         </div>
       </main>
+      </PageTransition>
       <AppFooter />
     </div>
   );
