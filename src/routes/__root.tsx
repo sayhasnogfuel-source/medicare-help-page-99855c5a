@@ -29,18 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumen.pages — Landing pages for insurance agents" },
+      { title: "Lumen.pages — A modern website builder for insurance agents" },
       {
         name: "description",
         content:
-          "A clean, modern platform for Medicare and ACA agents to launch beautiful lead-generation landing pages in minutes.",
+          "A clean, modern platform for insurance agents to launch beautiful lead-generation websites in minutes — Medicare, ACA, Life, Health, Auto, Home, and more.",
       },
       { name: "author", content: "Lumen.pages" },
-      { property: "og:title", content: "Lumen.pages — Landing pages for insurance agents" },
+      { property: "og:title", content: "Lumen.pages — A modern website builder for insurance agents" },
       {
         property: "og:description",
         content:
-          "Build modern Medicare and ACA landing pages in minutes. Designed for independent insurance agents.",
+          "Build modern lead-generation websites in minutes. Designed for every kind of insurance agent.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
