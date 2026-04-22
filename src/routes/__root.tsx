@@ -29,18 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "901 Healthcare — ACA Open Enrollment Help" },
+      { title: "Lumen.pages — Landing pages for insurance agents" },
       {
         name: "description",
         content:
-          "ACA Open Enrollment ends December 15. 901 Healthcare helps you review your health insurance options and enroll on time.",
+          "A clean, modern platform for Medicare and ACA agents to launch beautiful lead-generation landing pages in minutes.",
       },
-      { name: "author", content: "901 Healthcare" },
-      { property: "og:title", content: "901 Healthcare — ACA Open Enrollment Help" },
+      { name: "author", content: "Lumen.pages" },
+      { property: "og:title", content: "Lumen.pages — Landing pages for insurance agents" },
       {
         property: "og:description",
         content:
-          "Get personal help reviewing your ACA health insurance options before the December 15 deadline.",
+          "Build modern Medicare and ACA landing pages in minutes. Designed for independent insurance agents.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

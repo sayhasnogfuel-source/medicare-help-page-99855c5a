@@ -1,0 +1,351 @@
+import { useEffect, useRef, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app/app-header";
+import { AppFooter } from "@/components/app/app-footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card } from "@/components/ui/card";
+import { Upload, ArrowRight, ImageIcon, X } from "lucide-react";
+import {
+  DEFAULT_BUILDER,
+  loadBuilder,
+  saveBuilder,
+  type BuilderData,
+  type ContactMethod,
+  type InsuranceType,
+} from "@/lib/builder-storage";
+
+export const Route = createFileRoute("/builder")({
+  component: BuilderPage,
+  head: () => ({
+    meta: [
+      { title: "Page Builder — Lumen.pages" },
+      { name: "description", content: "Enter your business details, upload your branding, and generate your insurance landing page." },
+    ],
+  }),
+});
+
+const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to keep localStorage happy
+
+function BuilderPage() {
+  const navigate = useNavigate();
+  const [data, setData] = useState<BuilderData>(DEFAULT_BUILDER);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const existing = loadBuilder();
+    if (existing) setData(existing);
+    setHydrated(true);
+  }, []);
+
+  function update<K extends keyof BuilderData>(key: K, value: BuilderData[K]) {
+    setData((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function validate(d: BuilderData) {
+    const errs: Record<string, string> = {};
+    if (!d.businessName.trim()) errs.businessName = "Required";
+    if (!d.agentName.trim()) errs.agentName = "Required";
+    if (!d.phone.trim()) errs.phone = "Required";
+    if (!/^\S+@\S+\.\S+$/.test(d.email.trim())) errs.email = "Enter a valid email";
+    if (!d.city.trim()) errs.city = "Required";
+    if (!d.state.trim()) errs.state = "Required";
+    if (!d.headline.trim()) errs.headline = "Required";
+    if (!d.subheadline.trim()) errs.subheadline = "Required";
+    if (!d.ctaText.trim()) errs.ctaText = "Required";
+    return errs;
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const errs = validate(data);
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      const first = document.querySelector(`[data-field="${Object.keys(errs)[0]}"]`);
+      first?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    saveBuilder(data);
+    navigate({ to: "/preview" });
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <AppHeader />
+      <main className="flex-1">
+        <div className="mx-auto max-w-3xl px-5 py-12 sm:py-16">
+          <div className="mb-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Step 1 of 2
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              Tell us about your business
+            </h1>
+            <p className="mt-3 text-muted-foreground">
+              Fill in a few details and we'll generate your landing page in the next step.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+            <Section title="Your business">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Business name" id="businessName" error={errors.businessName}>
+                  <Input id="businessName" value={data.businessName} onChange={(e) => update("businessName", e.target.value)} maxLength={80} />
+                </Field>
+                <Field label="Agent name" id="agentName" error={errors.agentName}>
+                  <Input id="agentName" value={data.agentName} onChange={(e) => update("agentName", e.target.value)} maxLength={80} />
+                </Field>
+                <Field label="Phone number" id="phone" error={errors.phone}>
+                  <Input id="phone" type="tel" value={data.phone} onChange={(e) => update("phone", e.target.value)} maxLength={30} />
+                </Field>
+                <Field label="Email" id="email" error={errors.email}>
+                  <Input id="email" type="email" value={data.email} onChange={(e) => update("email", e.target.value)} maxLength={120} />
+                </Field>
+                <Field label="City" id="city" error={errors.city}>
+                  <Input id="city" value={data.city} onChange={(e) => update("city", e.target.value)} maxLength={60} />
+                </Field>
+                <Field label="State" id="state" error={errors.state}>
+                  <Input id="state" value={data.state} onChange={(e) => update("state", e.target.value)} maxLength={40} />
+                </Field>
+              </div>
+            </Section>
+
+            <Section title="Insurance type">
+              <RadioCardGroup
+                value={data.insuranceType}
+                onChange={(v) => update("insuranceType", v as InsuranceType)}
+                options={[
+                  { value: "medicare", label: "Medicare", description: "For agents helping people 65+" },
+                  { value: "aca", label: "ACA", description: "For agents helping individuals & families" },
+                ]}
+              />
+            </Section>
+
+            <Section title="Branding">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <ImageUpload
+                  label="Logo"
+                  value={data.logoDataUrl}
+                  onChange={(v) => update("logoDataUrl", v)}
+                />
+                <ImageUpload
+                  label="Agent headshot"
+                  value={data.headshotDataUrl}
+                  onChange={(v) => update("headshotDataUrl", v)}
+                />
+              </div>
+            </Section>
+
+            <Section title="Page copy">
+              <Field label="Main headline" id="headline" error={errors.headline}>
+                <Input id="headline" value={data.headline} onChange={(e) => update("headline", e.target.value)} maxLength={120} />
+              </Field>
+              <Field label="Subheadline" id="subheadline" error={errors.subheadline}>
+                <Textarea id="subheadline" rows={3} value={data.subheadline} onChange={(e) => update("subheadline", e.target.value)} maxLength={240} />
+              </Field>
+              <Field label="CTA button text" id="ctaText" error={errors.ctaText}>
+                <Input id="ctaText" value={data.ctaText} onChange={(e) => update("ctaText", e.target.value)} maxLength={40} />
+              </Field>
+            </Section>
+
+            <Section title="Preferred contact method">
+              <RadioCardGroup
+                value={data.contactMethod}
+                onChange={(v) => update("contactMethod", v as ContactMethod)}
+                options={[
+                  { value: "call", label: "Call", description: "" },
+                  { value: "text", label: "Text", description: "" },
+                  { value: "email", label: "Email", description: "" },
+                ]}
+                columns={3}
+              />
+            </Section>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                {hydrated ? "Your draft is saved automatically when you generate." : ""}
+              </p>
+              <Button
+                type="submit"
+                size="lg"
+                className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
+              >
+                Generate landing page
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+        </div>
+      </main>
+      <AppFooter />
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Card className="rounded-2xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)] sm:p-7">
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      <div className="mt-5 space-y-5">{children}</div>
+    </Card>
+  );
+}
+
+function Field({
+  label,
+  id,
+  error,
+  children,
+}: {
+  label: string;
+  id: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div data-field={id} className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      {children}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+function RadioCardGroup({
+  value,
+  onChange,
+  options,
+  columns = 2,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string; description?: string }[];
+  columns?: 2 | 3;
+}) {
+  return (
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      className={columns === 3 ? "grid gap-3 sm:grid-cols-3" : "grid gap-3 sm:grid-cols-2"}
+    >
+      {options.map((opt) => {
+        const id = `radio-${opt.value}`;
+        const selected = value === opt.value;
+        return (
+          <Label
+            key={opt.value}
+            htmlFor={id}
+            className={`group cursor-pointer rounded-xl border p-4 transition-all ${
+              selected
+                ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)] shadow-[var(--shadow-xs)]"
+                : "border-border bg-background hover:border-foreground/30"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <RadioGroupItem id={id} value={opt.value} className="mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{opt.label}</p>
+                {opt.description && (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{opt.description}</p>
+                )}
+              </div>
+            </div>
+          </Label>
+        );
+      })}
+    </RadioGroup>
+  );
+}
+
+function ImageUpload({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string | null;
+  onChange: (v: string | null) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleFile(file: File | null) {
+    setError(null);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please choose an image file");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError("Image is too large (max 1.5 MB)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : null;
+      onChange(result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div
+        className={`relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-xl border border-dashed ${
+          value ? "border-border bg-background" : "border-border bg-[var(--surface-sand)]/50 hover:bg-[var(--surface-sand)]"
+        }`}
+      >
+        {value ? (
+          <>
+            <img src={value} alt={label} className="h-full w-full object-contain" />
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-[var(--shadow-sm)] hover:bg-background"
+              aria-label={`Remove ${label}`}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-background shadow-[var(--shadow-xs)]">
+              <ImageIcon className="h-4 w-4" />
+            </span>
+            <span className="text-sm font-medium">Click to upload</span>
+            <span className="text-xs">PNG or JPG · up to 1.5 MB</span>
+          </button>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+        />
+      </div>
+      {value && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="rounded-full"
+          onClick={() => inputRef.current?.click()}
+        >
+          <Upload className="mr-1 h-3.5 w-3.5" />
+          Replace
+        </Button>
+      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}

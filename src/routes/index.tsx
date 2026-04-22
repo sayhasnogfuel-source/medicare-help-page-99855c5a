@@ -1,65 +1,59 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { RequestForm } from "@/components/request-form";
-import { Card } from "@/components/ui/card";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app/app-header";
+import { AppFooter } from "@/components/app/app-footer";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
-  Check,
-  HeartHandshake,
-  BookOpen,
-  Users,
-  ClipboardList,
-  CalendarClock,
-  AlertTriangle,
-  DollarSign,
-  LifeBuoy,
-  Quote,
-  Phone,
-  ArrowRight,
-  Star,
-  ShieldCheck,
-  Clock,
   Sparkles,
+  Wand2,
+  LayoutTemplate,
+  Smartphone,
+  Users,
+  ShieldCheck,
+  ArrowRight,
+  Check,
+  Pencil,
+  Image as ImageIcon,
+  Zap,
+  Eye,
 } from "lucide-react";
-import portrait from "@/assets/latoria-portrait.png";
+import { GeneratedLanding } from "@/components/generated/generated-landing";
+import { DEFAULT_BUILDER } from "@/lib/builder-storage";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: HomePage,
   head: () => ({
     meta: [
-      { title: "901 Healthcare — ACA Open Enrollment Help (Deadline Dec 15)" },
+      { title: "Lumen.pages — Build insurance lead pages in minutes" },
       {
         name: "description",
         content:
-          "ACA Open Enrollment ends December 15. 901 Healthcare helps you review your health insurance options and enroll on time with simple, personal guidance.",
+          "A clean, simple platform for Medicare and ACA agents to create modern landing pages that help capture leads.",
       },
-      { property: "og:title", content: "901 Healthcare — ACA Open Enrollment Ends Dec 15" },
+      { property: "og:title", content: "Lumen.pages — Built for insurance agents" },
       {
         property: "og:description",
         content:
-          "Get personal help reviewing your ACA health insurance options before the December 15 deadline.",
+          "Launch beautiful, mobile-friendly Medicare and ACA landing pages in minutes — no designer required.",
       },
     ],
   }),
 });
 
-function Index() {
+function HomePage() {
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
+      <AppHeader />
       <main>
         <Hero />
-        <TrustBar />
-        <Urgency />
-        <WhyChoose />
-        <Educational />
-        <AboutPersonal />
-        <LeadCapture />
-        <Testimonials />
+        <SocialProof />
+        <Features />
+        <HowItWorks />
+        <PreviewShowcase />
+        <Pricing />
         <FinalCta />
       </main>
-      <SiteFooter />
+      <AppFooter />
     </div>
   );
 }
@@ -68,294 +62,51 @@ function Index() {
 function Hero() {
   return (
     <section
-      id="home"
-      className="relative overflow-hidden bg-gradient-to-br from-[var(--brand-navy)] via-[var(--brand-blue-deep)] to-[var(--brand-blue)] text-white"
+      className="relative overflow-hidden"
+      style={{ background: "var(--gradient-hero)" }}
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-50"
-        style={{
-          background:
-            "radial-gradient(circle at 15% 20%, color-mix(in oklab, var(--brand-blue) 60%, transparent), transparent 55%), radial-gradient(circle at 85% 80%, color-mix(in oklab, var(--brand-green) 55%, transparent), transparent 50%)",
-        }}
-      />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:py-20">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-urgent)]/40 bg-[var(--brand-urgent)]/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--brand-urgent-soft)] backdrop-blur">
-            <Clock className="h-3.5 w-3.5" />
-            Open Enrollment Ends Dec 15
-          </span>
-          <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-            ACA Open Enrollment Is Here —{" "}
-            <span className="text-[var(--brand-green)]">Don't Miss the December 15 Deadline</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-lg text-white/90 sm:text-xl">
-            The Open Enrollment window is shorter this year. 901 Healthcare can help you
-            review your health insurance options and enroll before the deadline.
-          </p>
-
-          <ul className="mt-7 space-y-3">
-            {[
-              "See your coverage options",
-              "Get help before the deadline",
-              "Simple, personal guidance",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-base text-white/95">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-green)]">
-                  <Check className="h-4 w-4 text-white" aria-hidden="true" />
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="bg-[var(--brand-green-deep)] text-base font-semibold text-white hover:bg-[var(--brand-green-deep)]/90"
-            >
-              <a href="#contact">
-                Get Covered
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </a>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-white/30 bg-white/5 text-base font-semibold text-white hover:bg-white/15 hover:text-white"
-            >
-              <a href="#contact">
-                <Phone className="mr-1 h-4 w-4" />
-                Request Help
-              </a>
-            </Button>
-          </div>
-        </div>
-
-        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div
-            aria-hidden="true"
-            className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-[var(--brand-green)]/40 to-[var(--brand-blue)]/40 blur-2xl"
-          />
-          <div className="relative overflow-hidden rounded-[2rem] border-4 border-white/10 bg-white/5 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)]">
-            <img
-              src={portrait}
-              alt="LaToria Howard-Williams, ACA enrollment guide at 901 Healthcare"
-              className="h-full w-full object-cover"
-              loading="eager"
-            />
-          </div>
-          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-5 py-2 text-center shadow-lg">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--brand-green-deep)]">
-              Your ACA Guide
-            </p>
-            <p className="text-sm font-bold text-[var(--brand-navy)]">LaToria Howard-Williams</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- TRUST BAR ---------------- */
-function TrustBar() {
-  return (
-    <section className="border-b border-border bg-secondary/60">
-      <div className="mx-auto grid max-w-6xl gap-3 px-4 py-5 text-center text-sm font-medium text-muted-foreground sm:grid-cols-3">
-        <div className="flex items-center justify-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-[var(--brand-green-deep)]" />
-          Local, family-focused service
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-[var(--brand-green-deep)]" />
-          No pressure. No hidden fees.
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-[var(--brand-green-deep)]" />
-          Plain-language guidance
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- URGENCY ---------------- */
-function Urgency() {
-  return (
-    <section id="open-enrollment" className="bg-[var(--brand-urgent-soft)] py-14 sm:py-18">
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="overflow-hidden rounded-3xl border-2 border-[var(--brand-urgent)]/30 bg-white shadow-[var(--shadow-urgent)]">
-          <div className="grid items-center gap-0 lg:grid-cols-[1fr_auto]">
-            <div className="p-7 sm:p-10">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-urgent)]/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--brand-urgent)]">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                Limited time
-              </span>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Open Enrollment Ends{" "}
-                <span className="text-[var(--brand-urgent)]">December 15</span>
-              </h2>
-              <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-                The ACA Open Enrollment window is shorter this year. Don't wait until
-                the last minute — delaying could cause you to miss your chance to
-                enroll for the year.
-              </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-[var(--brand-urgent)] text-base font-semibold text-white hover:bg-[var(--brand-urgent)]/90"
-                >
-                  <a href="#contact">
-                    Request Help Now
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </a>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-[var(--brand-navy)]/20 text-[var(--brand-navy)] hover:bg-secondary"
-                >
-                  <a href="tel:+19015550199">
-                    <Phone className="mr-1 h-4 w-4" />
-                    Call (901) 555-0199
-                  </a>
-                </Button>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[var(--brand-urgent)] to-[oklch(0.55_0.22_25)] p-7 text-center text-white sm:p-10 lg:rounded-l-[2rem]">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
-                Deadline
-              </p>
-              <p className="mt-2 text-6xl font-extrabold leading-none tracking-tight sm:text-7xl">
-                Dec
-              </p>
-              <p className="mt-1 text-7xl font-extrabold leading-none tracking-tight sm:text-8xl">
-                15
-              </p>
-              <p className="mt-3 flex items-center justify-center gap-2 text-sm font-medium text-white/90">
-                <Clock className="h-4 w-4" />
-                Don't miss it
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- WHY CHOOSE ---------------- */
-const reasons = [
-  {
-    icon: HeartHandshake,
-    title: "Personalized ACA guidance",
-    body: "One-on-one help that fits your household, budget, and health needs — not a one-size script.",
-  },
-  {
-    icon: BookOpen,
-    title: "Easy-to-understand help",
-    body: "We explain plans, premiums, and subsidies in plain language you'll actually remember.",
-  },
-  {
-    icon: Users,
-    title: "Friendly one-on-one support",
-    body: "Real people who care, take their time, and never pressure you into a decision.",
-  },
-  {
-    icon: ClipboardList,
-    title: "Help reviewing your options",
-    body: "We walk through plans side-by-side so you can confidently choose what's best for you.",
-  },
-];
-
-function WhyChoose() {
-  return (
-    <section id="aca-help" className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-      <div className="text-center">
-        <p className="text-sm font-semibold uppercase tracking-wider text-[var(--brand-green-deep)]">
-          Why 901 Healthcare
+      <div className="mx-auto max-w-6xl px-5 pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-[var(--shadow-xs)] backdrop-blur">
+          <Sparkles className="h-3 w-3" />
+          Built for independent insurance agents
+        </span>
+        <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+          Build insurance lead pages in minutes
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-foreground/70 sm:text-xl">
+          A clean, simple platform for Medicare and ACA agents to create modern landing
+          pages that help capture leads — no designer, no developer required.
         </p>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          Why Choose 901 Healthcare
-        </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-          We're a local team committed to making ACA Open Enrollment simple, clear,
-          and stress-free for every person we help.
-        </p>
-      </div>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {reasons.map((r) => (
-          <Card key={r.title} className="p-6 transition-shadow hover:shadow-md">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--brand-green)]/15">
-              <r.icon className="h-6 w-6 text-[var(--brand-green-deep)]" aria-hidden="true" />
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button
+            asChild
+            size="lg"
+            className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
+          >
+            <Link to="/builder">
+              Get Started
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="rounded-full border-foreground/20 bg-background/70 px-7 text-base font-semibold text-foreground hover:bg-background"
+          >
+            <a href="#preview">
+              <Eye className="mr-1 h-4 w-4" />
+              See Demo
+            </a>
+          </Button>
+        </div>
+
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-muted-foreground">
+          {["No credit card", "5-minute setup", "Mobile-friendly", "Lead-ready"].map((t) => (
+            <span key={t} className="inline-flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 text-[var(--surface-mocha)]" />
+              {t}
             </span>
-            <h3 className="mt-4 text-lg font-semibold text-foreground">{r.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{r.body}</p>
-          </Card>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- EDUCATIONAL ---------------- */
-const facts = [
-  {
-    icon: CalendarClock,
-    title: "Open Enrollment is the main time to choose ACA coverage",
-    body: "It's the once-a-year window to enroll, switch plans, or update your existing coverage.",
-  },
-  {
-    icon: AlertTriangle,
-    title: "The deadline is December 15",
-    body: "Miss the window and you may have to wait until next year unless you qualify for a special enrollment period.",
-  },
-  {
-    icon: DollarSign,
-    title: "Plans and costs can vary",
-    body: "Premiums, networks, and subsidies change every year — even if you keep the same plan.",
-  },
-  {
-    icon: LifeBuoy,
-    title: "Getting help makes it easier",
-    body: "A short conversation with a guide can save you time, money, and a lot of confusion.",
-  },
-];
-
-function Educational() {
-  return (
-    <section className="bg-secondary/60 py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-[var(--brand-blue-deep)]">
-            Education
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            What You Need to Know About ACA Open Enrollment
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-            A few simple facts that can save you stress, confusion, and money.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
-          {facts.map((f) => (
-            <div
-              key={f.title}
-              className="flex gap-4 rounded-xl border border-border bg-background p-5 shadow-sm"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-blue)]/10">
-                <f.icon className="h-5 w-5 text-[var(--brand-blue-deep)]" aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="text-base font-semibold text-foreground">{f.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>
-              </div>
-            </div>
           ))}
         </div>
       </div>
@@ -363,147 +114,225 @@ function Educational() {
   );
 }
 
-/* ---------------- ABOUT / PERSONAL TRUST ---------------- */
-function AboutPersonal() {
+function SocialProof() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-      <div className="grid items-center gap-10 lg:grid-cols-[360px_1fr] lg:gap-12">
-        <div className="relative mx-auto w-full max-w-xs">
-          <div
-            aria-hidden="true"
-            className="absolute -inset-3 rounded-full bg-gradient-to-br from-[var(--brand-green)]/40 to-[var(--brand-blue)]/40 blur-xl"
-          />
-          <div className="relative aspect-square overflow-hidden rounded-full border-[6px] border-white shadow-[var(--shadow-portrait)] ring-4 ring-[var(--brand-green)]/40">
-            <img
-              src={portrait}
-              alt="LaToria Howard-Williams of 901 Healthcare"
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-          </div>
-        </div>
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-[var(--brand-green-deep)]">
-            About 901 Healthcare
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Real Help From Real People
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            At 901 Healthcare, we believe health coverage should be easier to understand.
-            We help individuals and families review their ACA options with simple, caring
-            support during Open Enrollment.
-          </p>
-          <p className="mt-3 text-muted-foreground">
-            Whether you're switching plans, signing up for the first time, or just unsure
-            where to start — we'll listen, explain your options clearly, and walk with you
-            every step of the way.
-          </p>
-          <div className="mt-6">
-            <Button
-              asChild
-              size="lg"
-              className="bg-[var(--brand-green-deep)] text-white hover:bg-[var(--brand-green-deep)]/90"
-            >
-              <a href="#contact">Request Help</a>
-            </Button>
-          </div>
-        </div>
+    <section className="border-y border-border/60 bg-background">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-12 gap-y-4 px-5 py-7 text-sm font-medium text-muted-foreground">
+        <span>Loved by independent agents in</span>
+        {["Austin", "Memphis", "Phoenix", "Tampa", "Charlotte"].map((c) => (
+          <span key={c} className="text-foreground/70">{c}</span>
+        ))}
       </div>
     </section>
   );
 }
 
-/* ---------------- LEAD CAPTURE ---------------- */
-function LeadCapture() {
-  return (
-    <section
-      id="contact"
-      className="bg-gradient-to-br from-[var(--brand-navy)] to-[var(--brand-blue-deep)] py-16 text-white sm:py-20"
-    >
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
-        <div className="lg:pt-6">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-urgent)]/40 bg-[var(--brand-urgent)]/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--brand-urgent-soft)]">
-            <Sparkles className="h-3.5 w-3.5" />
-            Free help — Deadline Dec 15
-          </span>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Request ACA Enrollment Help
-          </h2>
-          <p className="mt-4 text-lg text-white/85">
-            Share a few details and a friendly member of 901 Healthcare will reach out
-            soon to help you review your ACA options before the deadline.
-          </p>
-          <ul className="mt-6 space-y-3 text-white/90">
-            {[
-              "No cost. No obligation.",
-              "We respond promptly during business hours.",
-              "Your information stays private.",
-            ].map((p) => (
-              <li key={p} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-green)]">
-                  <Check className="h-4 w-4 text-white" />
-                </span>
-                {p}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <Card className="p-6 sm:p-8">
-          <RequestForm />
-        </Card>
-      </div>
-    </section>
-  );
-}
+/* ---------------- FEATURES ---------------- */
+const FEATURES = [
+  { icon: Zap, title: "Fast page generation", body: "From form to finished page in under five minutes." },
+  { icon: LayoutTemplate, title: "Modern landing pages", body: "Clean, premium layouts that look like a high-end brand." },
+  { icon: ShieldCheck, title: "Medicare & ACA templates", body: "Built around the exact buyers you serve." },
+  { icon: Users, title: "Built for insurance agents", body: "Every default copy and CTA is written for your industry." },
+  { icon: Smartphone, title: "Mobile-friendly design", body: "Looks beautiful on every screen — phone, tablet, desktop." },
+  { icon: Wand2, title: "No design skills needed", body: "Type your details, upload your photo, hit generate." },
+] as const;
 
-/* ---------------- TESTIMONIALS ---------------- */
-const testimonials = [
-  {
-    quote:
-      "901 Healthcare made picking an ACA plan so much easier. They took the time to explain everything and never pushed me.",
-    name: "Carol M.",
-    location: "Memphis, TN",
-  },
-  {
-    quote:
-      "I had no idea where to start with Open Enrollment. They walked me through it all and helped me find a plan that fit my budget.",
-    name: "James R.",
-    location: "Bartlett, TN",
-  },
-  {
-    quote:
-      "Friendly, patient, and knowledgeable. I trust them with my whole family — and I recommend them to my friends.",
-    name: "Denise W.",
-    location: "Germantown, TN",
-  },
-];
-
-function Testimonials() {
+function Features() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-      <div className="text-center">
-        <p className="text-sm font-semibold uppercase tracking-wider text-[var(--brand-green-deep)]">
-          Testimonials
-        </p>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          What Our Community Says
+    <section className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Features</p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          Everything you need to launch a lead page
         </h2>
+        <p className="mt-4 text-muted-foreground">
+          A focused set of tools, designed for one job: getting more qualified leads
+          into your pipeline.
+        </p>
       </div>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {testimonials.map((t) => (
-          <Card key={t.name} className="flex flex-col p-6">
-            <Quote className="h-7 w-7 text-[var(--brand-green-deep)]" aria-hidden="true" />
-            <p className="mt-3 flex-1 text-foreground">"{t.quote}"</p>
-            <div className="mt-4 flex items-center gap-1 text-[var(--brand-green-deep)]">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-current" />
-              ))}
-            </div>
-            <p className="mt-3 text-sm font-semibold text-foreground">{t.name}</p>
-            <p className="text-xs text-muted-foreground">{t.location}</p>
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {FEATURES.map((f) => (
+          <Card key={f.title} className="rounded-2xl border-border/60 bg-background p-7 shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)]">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
+              <f.icon className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-lg font-semibold text-foreground">{f.title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
           </Card>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- HOW IT WORKS ---------------- */
+const STEPS = [
+  { icon: Pencil, title: "Enter your business info", body: "Name, location, phone, email — the basics that personalize your page." },
+  { icon: ImageIcon, title: "Upload your logo and photo", body: "A friendly headshot and your logo build instant trust with visitors." },
+  { icon: Wand2, title: "Generate your landing page", body: "We assemble a clean, modern page tailored to Medicare or ACA." },
+  { icon: Eye, title: "Preview and publish", body: "Review your page on desktop and mobile before sharing it with leads." },
+] as const;
+
+function HowItWorks() {
+  return (
+    <section className="bg-[var(--surface-sand)]/50 py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">How it works</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Four simple steps to your first lead page
+          </h2>
+        </div>
+        <ol className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="rounded-2xl border border-border/60 bg-background p-7 shadow-[var(--shadow-sm)]">
+              <div className="flex items-center justify-between">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
+                  <s.icon className="h-5 w-5" />
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Step {i + 1}
+                </span>
+              </div>
+              <h3 className="mt-5 text-base font-semibold text-foreground">{s.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{s.body}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- PREVIEW SHOWCASE ---------------- */
+function PreviewShowcase() {
+  return (
+    <section id="preview" className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Example output</p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          A real preview of what you'll generate
+        </h2>
+        <p className="mt-4 text-muted-foreground">
+          This is a live render of the template using sample data — exactly what your
+          page will look like with your details swapped in.
+        </p>
+      </div>
+
+      <div className="mt-12 overflow-hidden rounded-3xl border border-border/60 bg-background shadow-[var(--shadow-lg)]">
+        <div className="flex items-center gap-2 border-b border-border/60 bg-[var(--surface-sand)]/60 px-4 py-2.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.78_0.13_25)]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.85_0.13_85)]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.78_0.13_145)]" />
+          <span className="ml-3 rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
+            sterlinginsurance.lumen.pages
+          </span>
+        </div>
+        <div className="max-h-[640px] overflow-hidden">
+          <GeneratedLanding data={DEFAULT_BUILDER} />
+        </div>
+      </div>
+
+      <div className="mt-8 text-center">
+        <Button
+          asChild
+          size="lg"
+          className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
+        >
+          <Link to="/builder">
+            Make it yours
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- PRICING ---------------- */
+const TIERS = [
+  {
+    name: "Starter",
+    price: "$0",
+    cadence: "free during beta",
+    features: ["1 landing page", "Medicare or ACA template", "Mobile-friendly", "Lead form"],
+    cta: "Get Started",
+    highlight: false,
+  },
+  {
+    name: "Pro",
+    price: "$29",
+    cadence: "/ month",
+    features: ["Up to 5 landing pages", "All templates", "Custom domain (soon)", "Priority support"],
+    cta: "Join the waitlist",
+    highlight: true,
+  },
+  {
+    name: "Agency",
+    price: "Custom",
+    cadence: "for teams",
+    features: ["Unlimited pages", "Team accounts (soon)", "White-label", "Dedicated support"],
+    cta: "Contact us",
+    highlight: false,
+  },
+] as const;
+
+function Pricing() {
+  return (
+    <section className="bg-[var(--surface-sand)]/50 py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Pricing</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Simple plans, built for agents
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            Start free during beta. Upgrade only when you need more pages.
+          </p>
+        </div>
+        <div className="mt-12 grid gap-5 sm:grid-cols-3">
+          {TIERS.map((t) => (
+            <Card
+              key={t.name}
+              className={`rounded-2xl border p-7 shadow-[var(--shadow-sm)] ${
+                t.highlight
+                  ? "border-[var(--surface-mocha)] bg-background ring-1 ring-[var(--surface-mocha)]"
+                  : "border-border/60 bg-background"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold text-foreground">{t.name}</h3>
+                {t.highlight && (
+                  <span className="rounded-full bg-[var(--surface-mocha)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--surface-cream)]">
+                    Popular
+                  </span>
+                )}
+              </div>
+              <p className="mt-5">
+                <span className="text-4xl font-semibold tracking-tight text-foreground">{t.price}</span>
+                <span className="ml-1.5 text-sm text-muted-foreground">{t.cadence}</span>
+              </p>
+              <ul className="mt-6 space-y-2.5 text-sm text-foreground/80">
+                {t.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 text-[var(--surface-mocha)]" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                asChild
+                className={`mt-7 w-full rounded-full ${
+                  t.highlight
+                    ? "bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
+                    : "bg-foreground/5 text-foreground hover:bg-foreground/10"
+                }`}
+              >
+                <Link to="/signup">{t.cta}</Link>
+              </Button>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -512,40 +341,35 @@ function Testimonials() {
 /* ---------------- FINAL CTA ---------------- */
 function FinalCta() {
   return (
-    <section className="bg-gradient-to-br from-[var(--brand-blue-deep)] via-[var(--brand-navy)] to-[var(--brand-green-deep)] py-16 text-white sm:py-20">
-      <div className="mx-auto max-w-3xl px-4 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
-          <Clock className="h-3.5 w-3.5" />
-          Deadline December 15
-        </span>
-        <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-          Don't Wait Until It's Too Late
+    <section className="px-5 py-20 sm:py-24">
+      <div
+        className="mx-auto max-w-5xl rounded-[2rem] px-7 py-16 text-center shadow-[var(--shadow-lg)] sm:px-12 sm:py-20"
+        style={{ background: "var(--gradient-cta)" }}
+      >
+        <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-[var(--surface-cream)] sm:text-4xl">
+          Your next great landing page is five minutes away
         </h2>
-        <p className="mt-4 text-lg text-white/90">
-          ACA Open Enrollment ends December 15. Let 901 Healthcare help you review
-          your options and get covered before the deadline.
+        <p className="mx-auto mt-4 max-w-xl text-lg text-[var(--surface-cream)]/80">
+          Join the agents using Lumen.pages to turn more visitors into qualified leads.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
             asChild
             size="lg"
-            className="bg-white text-base font-semibold text-[var(--brand-navy)] hover:bg-white/90"
+            className="rounded-full bg-[var(--surface-cream)] px-7 text-base font-semibold text-foreground hover:bg-[var(--surface-sand)]"
           >
-            <a href="#contact">
-              Request Help Today
+            <Link to="/builder">
+              Start building
               <ArrowRight className="ml-1 h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <Button
             asChild
             size="lg"
             variant="outline"
-            className="border-white/40 bg-white/5 text-base font-semibold text-white hover:bg-white/15 hover:text-white"
+            className="rounded-full border-[var(--surface-cream)]/30 bg-transparent px-7 text-base font-semibold text-[var(--surface-cream)] hover:bg-[var(--surface-cream)]/10"
           >
-            <a href="tel:+19015550199">
-              <Phone className="mr-1 h-4 w-4" />
-              (901) 555-0199
-            </a>
+            <Link to="/signup">Create an account</Link>
           </Button>
         </div>
       </div>
