@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
-import { Upload, ArrowRight, ImageIcon, X } from "lucide-react";
+import { Upload, ArrowRight, ImageIcon, X, Sparkles, Send } from "lucide-react";
 import {
   DEFAULT_BUILDER,
   loadBuilder,
@@ -29,6 +29,17 @@ export const Route = createFileRoute("/builder")({
 });
 
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to keep localStorage happy
+
+const FREESTYLE_SUGGESTIONS = [
+  "Modern and clean",
+  "Luxury and warm",
+  "Add testimonials",
+  "Add services section",
+  "Add booking form",
+  "Family-oriented feel",
+  "Focus on Medicare clients turning 65",
+  "Use my headshot prominently",
+] as const;
 
 function BuilderPage() {
   const navigate = useNavigate();
@@ -54,6 +65,7 @@ function BuilderPage() {
     if (!/^\S+@\S+\.\S+$/.test(d.email.trim())) errs.email = "Enter a valid email";
     if (!d.city.trim()) errs.city = "Required";
     if (!d.state.trim()) errs.state = "Required";
+    if (!d.businessType.trim()) errs.businessType = "Required";
     if (!d.headline.trim()) errs.headline = "Required";
     if (!d.subheadline.trim()) errs.subheadline = "Required";
     if (!d.ctaText.trim()) errs.ctaText = "Required";
