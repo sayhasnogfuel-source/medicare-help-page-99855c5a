@@ -126,6 +126,7 @@ function PreviewPage() {
           </div>
         </div>
       </main>
+      </PageTransition>
       <AppFooter />
     </div>
   );
