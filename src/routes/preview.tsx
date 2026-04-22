@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
+import { PageTransition } from "@/components/app/page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Edit3, Smartphone, Monitor, Sparkles } from "lucide-react";
@@ -27,6 +28,7 @@ function PreviewPage() {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <AppHeader />
+        <PageTransition>
         <main className="flex-1">
           <div className="mx-auto max-w-2xl px-5 py-20 text-center">
             <Card className="rounded-3xl border-border/60 bg-background p-10 shadow-[var(--shadow-md)]">
@@ -48,6 +50,7 @@ function PreviewPage() {
             </Card>
           </div>
         </main>
+        </PageTransition>
         <AppFooter />
       </div>
     );
@@ -56,6 +59,7 @@ function PreviewPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--surface-sand)]/40">
       <AppHeader />
+      <PageTransition>
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-5 py-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

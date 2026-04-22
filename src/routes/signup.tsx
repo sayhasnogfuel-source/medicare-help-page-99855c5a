@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
+import { PageTransition } from "@/components/app/page-transition";
+import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,12 +21,13 @@ export const Route = createFileRoute("/signup")({
 });
 
 function SignupPage() {
-  const navigate = useNavigate();
+  const { transitionTo } = usePageTransition();
   const [submitting, setSubmitting] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
+      <PageTransition>
       <main className="flex-1">
         <div className="mx-auto grid min-h-[calc(100vh-12rem)] max-w-6xl items-center gap-12 px-5 py-12 lg:grid-cols-[1.05fr_1fr] lg:py-20">
           <div className="hidden lg:block">
@@ -36,13 +39,14 @@ function SignupPage() {
               Launch your first lead page in under 5 minutes.
             </h1>
             <p className="mt-5 max-w-md text-lg text-muted-foreground">
-              Designed for Medicare and ACA agents who want a modern, mobile-friendly
-              page without hiring a designer.
+              Designed for insurance agents across every niche — Medicare, ACA, Life,
+              Health, Auto, Home, and more — who want a modern, mobile-friendly site
+              without hiring a designer.
             </p>
             <ul className="mt-8 space-y-3.5">
               {[
                 "No credit card required",
-                "Medicare and ACA templates included",
+                "Templates for every insurance niche",
                 "Mobile-friendly out of the box",
                 "Capture leads from day one",
               ].map((item) => (
@@ -70,7 +74,7 @@ function SignupPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 setSubmitting(true);
-                setTimeout(() => navigate({ to: "/builder" }), 350);
+                transitionTo({ to: "/builder" });
               }}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -107,6 +111,7 @@ function SignupPage() {
           </Card>
         </div>
       </main>
+      </PageTransition>
       <AppFooter />
     </div>
   );
