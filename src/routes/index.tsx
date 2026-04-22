@@ -69,6 +69,7 @@ function HomePage() {
 
 /* ---------------- HERO ---------------- */
 function Hero() {
+  const { transitionTo } = usePageTransition();
   return (
     <section
       className="relative overflow-hidden"
@@ -80,22 +81,20 @@ function Hero() {
           Built for independent insurance agents
         </span>
         <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
-          Build insurance lead pages in minutes
+          A modern website builder for insurance agents
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg text-foreground/70 sm:text-xl">
-          A clean, simple platform for Medicare and ACA agents to create modern landing
-          pages that help capture leads — no designer, no developer required.
+          Launch a polished, mobile-friendly website for your insurance practice — Medicare,
+          ACA, Life, Health, Auto, Home, and more. No designer, no developer required.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
-            asChild
             size="lg"
+            onClick={() => transitionTo({ to: "/builder" })}
             className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
           >
-            <Link to="/builder">
-              Get Started
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
+            Get Started
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
           <Button
             asChild
@@ -136,11 +135,111 @@ function SocialProof() {
   );
 }
 
+/* ---------------- NICHES STRIP ---------------- */
+const NICHES = [
+  "Medicare",
+  "ACA",
+  "Life",
+  "Health",
+  "Final Expense",
+  "Auto",
+  "Home",
+  "Commercial",
+  "Independent Agencies",
+] as const;
+
+function NichesStrip() {
+  return (
+    <section className="bg-[var(--surface-sand)]/40 py-10">
+      <div className="mx-auto max-w-6xl px-5 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Built for every insurance niche
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          {NICHES.map((n) => (
+            <span
+              key={n}
+              className="rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-foreground/75 shadow-[var(--shadow-xs)]"
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- START CHOICE ---------------- */
+function StartChoice() {
+  const { transitionTo } = usePageTransition();
+  return (
+    <section className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Get started
+        </p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          How would you like to get started?
+        </h2>
+        <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70">
+          <Clock className="h-3 w-3" />
+          It only takes 5 minutes
+        </span>
+      </div>
+
+      <div className="mt-12 grid gap-5 md:grid-cols-2">
+        {/* Option 1 — Have us build it */}
+        <Card className="group flex flex-col rounded-3xl border-border/60 bg-background p-7 shadow-[var(--shadow-md)] transition-shadow hover:shadow-[var(--shadow-lg)] sm:p-9">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
+            <HandHelping className="h-6 w-6" />
+          </span>
+          <h3 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
+            Have Us Build It For You
+          </h3>
+          <p className="mt-3 flex-1 text-muted-foreground">
+            Submit an inquiry and let our team create a professional insurance website for you.
+          </p>
+          <Button
+            size="lg"
+            onClick={() => transitionTo({ to: "/inquiry" })}
+            className="mt-7 w-full rounded-full bg-[var(--surface-mocha)] text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-espresso)]"
+          >
+            Submit Inquiry
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
+        </Card>
+
+        {/* Option 2 — Build your own */}
+        <Card className="group flex flex-col rounded-3xl border-[var(--surface-mocha)]/30 bg-[var(--surface-cream)] p-7 shadow-[var(--shadow-md)] ring-1 ring-[var(--surface-mocha)]/15 transition-shadow hover:shadow-[var(--shadow-lg)] sm:p-9">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
+            <Rocket className="h-6 w-6" />
+          </span>
+          <h3 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
+            Build Your Own Website
+          </h3>
+          <p className="mt-3 flex-1 text-muted-foreground">
+            Use our platform to create your own insurance website your way in just minutes.
+          </p>
+          <Button
+            size="lg"
+            onClick={() => transitionTo({ to: "/builder" })}
+            className="mt-7 w-full rounded-full bg-foreground text-base font-semibold text-background hover:bg-foreground/90"
+          >
+            Start Building
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------- FEATURES ---------------- */
 const FEATURES = [
   { icon: Zap, title: "Fast page generation", body: "From form to finished page in under five minutes." },
   { icon: LayoutTemplate, title: "Modern landing pages", body: "Clean, premium layouts that look like a high-end brand." },
-  { icon: ShieldCheck, title: "Medicare & ACA templates", body: "Built around the exact buyers you serve." },
+  { icon: ShieldCheck, title: "Templates for every niche", body: "Medicare, ACA, Life, Health, Auto, Home, Commercial, and more." },
   { icon: Users, title: "Built for insurance agents", body: "Every default copy and CTA is written for your industry." },
   { icon: Smartphone, title: "Mobile-friendly design", body: "Looks beautiful on every screen — phone, tablet, desktop." },
   { icon: Wand2, title: "No design skills needed", body: "Type your details, upload your photo, hit generate." },
@@ -178,7 +277,7 @@ function Features() {
 const STEPS = [
   { icon: Pencil, title: "Enter your business info", body: "Name, location, phone, email — the basics that personalize your page." },
   { icon: ImageIcon, title: "Upload your logo and photo", body: "A friendly headshot and your logo build instant trust with visitors." },
-  { icon: Wand2, title: "Generate your landing page", body: "We assemble a clean, modern page tailored to Medicare or ACA." },
+  { icon: Wand2, title: "Generate your landing page", body: "We assemble a clean, modern page tailored to your insurance niche." },
   { icon: Eye, title: "Preview and publish", body: "Review your page on desktop and mobile before sharing it with leads." },
 ] as const;
 
@@ -215,6 +314,7 @@ function HowItWorks() {
 
 /* ---------------- PREVIEW SHOWCASE ---------------- */
 function PreviewShowcase() {
+  const { transitionTo } = usePageTransition();
   return (
     <section id="preview" className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
       <div className="mx-auto max-w-2xl text-center">
@@ -223,8 +323,8 @@ function PreviewShowcase() {
           A real preview of what you'll generate
         </h2>
         <p className="mt-4 text-muted-foreground">
-          This is a live render of the template using sample data — exactly what your
-          page will look like with your details swapped in.
+          A live render of the template using sample data — exactly what your page will
+          look like with your details swapped in. Works for any insurance niche.
         </p>
       </div>
 
@@ -244,14 +344,12 @@ function PreviewShowcase() {
 
       <div className="mt-8 text-center">
         <Button
-          asChild
           size="lg"
+          onClick={() => transitionTo({ to: "/builder" })}
           className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
         >
-          <Link to="/builder">
-            Make it yours
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
+          Make it yours
+          <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
     </section>
@@ -349,6 +447,7 @@ function Pricing() {
 
 /* ---------------- FINAL CTA ---------------- */
 function FinalCta() {
+  const { transitionTo } = usePageTransition();
   return (
     <section className="px-5 py-20 sm:py-24">
       <div
@@ -363,22 +462,20 @@ function FinalCta() {
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
-            asChild
             size="lg"
+            onClick={() => transitionTo({ to: "/builder" })}
             className="rounded-full bg-[var(--surface-cream)] px-7 text-base font-semibold text-foreground hover:bg-[var(--surface-sand)]"
           >
-            <Link to="/builder">
-              Start building
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
+            Start building
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
           <Button
-            asChild
             size="lg"
             variant="outline"
+            onClick={() => transitionTo({ to: "/signup" })}
             className="rounded-full border-[var(--surface-cream)]/30 bg-transparent px-7 text-base font-semibold text-[var(--surface-cream)] hover:bg-[var(--surface-cream)]/10"
           >
-            <Link to="/signup">Create an account</Link>
+            Create an account
           </Button>
         </div>
       </div>
