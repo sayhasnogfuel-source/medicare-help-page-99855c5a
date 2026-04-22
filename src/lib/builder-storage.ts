@@ -11,12 +11,14 @@ export interface BuilderData {
   city: string;
   state: string;
   insuranceType: InsuranceType;
+  businessType: string;
   logoDataUrl: string | null;
   headshotDataUrl: string | null;
   headline: string;
   subheadline: string;
   contactMethod: ContactMethod;
   ctaText: string;
+  freestyleInstructions: string;
 }
 
 export const DEFAULT_BUILDER: BuilderData = {
@@ -27,6 +29,7 @@ export const DEFAULT_BUILDER: BuilderData = {
   city: "Austin",
   state: "TX",
   insuranceType: "medicare",
+  businessType: "Medicare insurance agency",
   logoDataUrl: null,
   headshotDataUrl: null,
   headline: "Turning 65? Let's make Medicare simple.",
@@ -34,9 +37,10 @@ export const DEFAULT_BUILDER: BuilderData = {
     "Friendly, no-pressure guidance to help you understand your Medicare options and enroll with confidence.",
   contactMethod: "call",
   ctaText: "Get My Free Quote",
+  freestyleInstructions: "",
 };
 
-const KEY = "lp_builder_data_v1";
+const KEY = "lp_builder_data_v2";
 
 export function loadBuilder(): BuilderData | null {
   if (typeof window === "undefined") return null;

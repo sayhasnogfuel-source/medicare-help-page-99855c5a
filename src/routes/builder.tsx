@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
-import { Upload, ArrowRight, ImageIcon, X } from "lucide-react";
+import { Upload, ArrowRight, ImageIcon, X, Sparkles, Send } from "lucide-react";
 import {
   DEFAULT_BUILDER,
   loadBuilder,
@@ -29,6 +29,17 @@ export const Route = createFileRoute("/builder")({
 });
 
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to keep localStorage happy
+
+const FREESTYLE_SUGGESTIONS = [
+  "Modern and clean",
+  "Luxury and warm",
+  "Add testimonials",
+  "Add services section",
+  "Add booking form",
+  "Family-oriented feel",
+  "Focus on Medicare clients turning 65",
+  "Use my headshot prominently",
+] as const;
 
 function BuilderPage() {
   const navigate = useNavigate();
@@ -54,6 +65,7 @@ function BuilderPage() {
     if (!/^\S+@\S+\.\S+$/.test(d.email.trim())) errs.email = "Enter a valid email";
     if (!d.city.trim()) errs.city = "Required";
     if (!d.state.trim()) errs.state = "Required";
+    if (!d.businessType.trim()) errs.businessType = "Required";
     if (!d.headline.trim()) errs.headline = "Required";
     if (!d.subheadline.trim()) errs.subheadline = "Required";
     if (!d.ctaText.trim()) errs.ctaText = "Required";
@@ -77,26 +89,33 @@ function BuilderPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-5 py-12 sm:py-16">
+        <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
           <div className="mb-10">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Step 1 of 2
+              Build your website
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Tell us about your business
+              Your business, your way
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Fill in a few details and we'll generate your landing page in the next step.
+              Start with the essentials, then describe how you want your site to look and feel — we'll handle the rest.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-10" noValidate>
+            {/* PART 1 — Required business information */}
+            <PartHeader
+              step="Part 1"
+              title="Required business information"
+              description="The core details we need to build your page."
+            />
+
             <Section title="Your business">
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Business name" id="businessName" error={errors.businessName}>
                   <Input id="businessName" value={data.businessName} onChange={(e) => update("businessName", e.target.value)} maxLength={80} />
                 </Field>
-                <Field label="Agent name" id="agentName" error={errors.agentName}>
+                <Field label="Owner or agent name" id="agentName" error={errors.agentName}>
                   <Input id="agentName" value={data.agentName} onChange={(e) => update("agentName", e.target.value)} maxLength={80} />
                 </Field>
                 <Field label="Phone number" id="phone" error={errors.phone}>
@@ -111,10 +130,25 @@ function BuilderPage() {
                 <Field label="State" id="state" error={errors.state}>
                   <Input id="state" value={data.state} onChange={(e) => update("state", e.target.value)} maxLength={40} />
                 </Field>
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Business type / niche"
+                    id="businessType"
+                    error={errors.businessType}
+                  >
+                    <Input
+                      id="businessType"
+                      value={data.businessType}
+                      onChange={(e) => update("businessType", e.target.value)}
+                      placeholder="e.g. Medicare insurance agency, ACA brokerage, financial advisor"
+                      maxLength={120}
+                    />
+                  </Field>
+                </div>
               </div>
             </Section>
 
-            <Section title="Insurance type">
+            <Section title="Template style">
               <RadioCardGroup
                 value={data.insuranceType}
                 onChange={(v) => update("insuranceType", v as InsuranceType)}
@@ -128,12 +162,12 @@ function BuilderPage() {
             <Section title="Branding">
               <div className="grid gap-5 sm:grid-cols-2">
                 <ImageUpload
-                  label="Logo"
+                  label="Business logo"
                   value={data.logoDataUrl}
                   onChange={(v) => update("logoDataUrl", v)}
                 />
                 <ImageUpload
-                  label="Agent headshot"
+                  label="Headshot (optional but recommended)"
                   value={data.headshotDataUrl}
                   onChange={(v) => update("headshotDataUrl", v)}
                 />
@@ -147,7 +181,7 @@ function BuilderPage() {
               <Field label="Subheadline" id="subheadline" error={errors.subheadline}>
                 <Textarea id="subheadline" rows={3} value={data.subheadline} onChange={(e) => update("subheadline", e.target.value)} maxLength={240} />
               </Field>
-              <Field label="CTA button text" id="ctaText" error={errors.ctaText}>
+              <Field label="Main call-to-action text" id="ctaText" error={errors.ctaText}>
                 <Input id="ctaText" value={data.ctaText} onChange={(e) => update("ctaText", e.target.value)} maxLength={40} />
               </Field>
             </Section>
@@ -165,6 +199,20 @@ function BuilderPage() {
               />
             </Section>
 
+            {/* PART 2 — Freestyle AI chat */}
+            <div className="pt-2">
+              <PartHeader
+                step="Part 2"
+                title="Tell our AI how to build it"
+                description="Describe the look, feel, and sections you want. Be as specific as you'd like."
+              />
+            </div>
+
+            <FreestyleChat
+              value={data.freestyleInstructions}
+              onChange={(v) => update("freestyleInstructions", v)}
+            />
+
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 {hydrated ? "Your draft is saved automatically when you generate." : ""}
@@ -174,7 +222,7 @@ function BuilderPage() {
                 size="lg"
                 className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
               >
-                Generate landing page
+                Generate My Website
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
@@ -191,6 +239,103 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <Card className="rounded-2xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)] sm:p-7">
       <h2 className="text-base font-semibold text-foreground">{title}</h2>
       <div className="mt-5 space-y-5">{children}</div>
+    </Card>
+  );
+}
+
+function PartHeader({
+  step,
+  title,
+  description,
+}: {
+  step: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70">
+        {step}
+      </span>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+        {title}
+      </h2>
+      <p className="text-sm text-muted-foreground sm:text-base">{description}</p>
+    </div>
+  );
+}
+
+function FreestyleChat({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  function appendSuggestion(s: string) {
+    const next = value.trim().length === 0 ? s : `${value.trim()}\n• ${s}`;
+    onChange(next);
+  }
+
+  return (
+    <Card className="overflow-hidden rounded-3xl border-border/60 bg-background p-0 shadow-[var(--shadow-md)]">
+      {/* Assistant intro bubble */}
+      <div className="flex items-start gap-3 border-b border-border/60 bg-[var(--surface-sand)]/50 p-5 sm:p-6">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-xs)]">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-foreground">AI website assistant</p>
+          <p className="mt-1 text-sm leading-relaxed text-foreground/75">
+            Describe how your site should feel, what sections to include, and anything that
+            makes your business unique. I'll combine this with your business details to build
+            your page.
+          </p>
+        </div>
+      </div>
+
+      {/* Chat input */}
+      <div className="p-5 sm:p-6">
+        <div className="rounded-2xl border border-border bg-[var(--surface-cream)]/60 focus-within:border-foreground/30 focus-within:bg-background transition-colors">
+          <Textarea
+            id="freestyle"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Describe how you want your website to look, feel, and what sections you want included..."
+            rows={5}
+            maxLength={1200}
+            className="min-h-[140px] resize-none border-0 bg-transparent p-4 text-base shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          />
+          <div className="flex items-center justify-between gap-3 border-t border-border/60 px-4 py-2.5">
+            <p className="text-[11px] text-muted-foreground">
+              {value.length}/1200 · Optional, but the more you share the better
+            </p>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-sand)] px-2.5 py-1 text-[11px] font-medium text-foreground/70">
+              <Send className="h-3 w-3" />
+              Saved with your website
+            </span>
+          </div>
+        </div>
+
+        {/* Suggestion chips */}
+        <div className="mt-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Try a suggestion
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            {FREESTYLE_SUGGESTIONS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => appendSuggestion(s)}
+                className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-foreground/30 hover:bg-[var(--surface-sand)]/60 hover:text-foreground"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }
