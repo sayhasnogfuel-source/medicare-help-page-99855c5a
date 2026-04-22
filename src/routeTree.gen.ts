@@ -9,8 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as Turning65RouteImport } from './routes/turning-65'
+import { Route as MedicareHelpRouteImport } from './routes/medicare-help'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as IndexRouteImport } from './routes/index'
 
+const Turning65Route = Turning65RouteImport.update({
+  id: '/turning-65',
+  path: '/turning-65',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedicareHelpRoute = MedicareHelpRouteImport.update({
+  id: '/medicare-help',
+  path: '/medicare-help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +37,61 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/medicare-help': typeof MedicareHelpRoute
+  '/turning-65': typeof Turning65Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/medicare-help': typeof MedicareHelpRoute
+  '/turning-65': typeof Turning65Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/medicare-help': typeof MedicareHelpRoute
+  '/turning-65': typeof Turning65Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/contact' | '/medicare-help' | '/turning-65'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/contact' | '/medicare-help' | '/turning-65'
+  id: '__root__' | '/' | '/contact' | '/medicare-help' | '/turning-65'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactRoute: typeof ContactRoute
+  MedicareHelpRoute: typeof MedicareHelpRoute
+  Turning65Route: typeof Turning65Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/turning-65': {
+      id: '/turning-65'
+      path: '/turning-65'
+      fullPath: '/turning-65'
+      preLoaderRoute: typeof Turning65RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/medicare-help': {
+      id: '/medicare-help'
+      path: '/medicare-help'
+      fullPath: '/medicare-help'
+      preLoaderRoute: typeof MedicareHelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactRoute: ContactRoute,
+  MedicareHelpRoute: MedicareHelpRoute,
+  Turning65Route: Turning65Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
