@@ -1,55 +1,43 @@
-import { Link } from "@tanstack/react-router";
-import { ShieldCheck, Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import logo from "@/assets/901-healthcare-logo.png";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-[var(--brand-navy)] text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-4">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
-              <ShieldCheck className="h-5 w-5 text-[var(--brand-green)]" aria-hidden="true" />
-            </span>
-            <span className="text-lg font-bold">
-              <span className="text-[var(--brand-green)]">901</span>Healthcare
-            </span>
+          <div className="inline-flex items-center justify-center rounded-xl bg-white p-3">
+            <img src={logo} alt="901 Healthcare" className="h-12 w-auto" />
           </div>
-          <p className="mt-4 max-w-md text-sm text-white/80">
-            Connecting individuals with quality healthcare. Friendly, personalized
-            Medicare guidance for people turning 65 and their families.
+          <p className="mt-5 max-w-md text-sm text-white/80">
+            Connecting individuals with quality healthcare. Personal, caring ACA Open
+            Enrollment guidance for individuals and families.
           </p>
           <div className="mt-6 flex gap-3">
-            <a
-              href="#"
-              aria-label="Facebook"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
-            >
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              aria-label="Instagram"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
-            >
-              <Instagram className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              aria-label="LinkedIn"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
-            >
-              <Linkedin className="h-4 w-4" />
-            </a>
+            {[
+              { icon: Facebook, label: "Facebook" },
+              { icon: Instagram, label: "Instagram" },
+              { icon: Linkedin, label: "LinkedIn" },
+            ].map(({ icon: Icon, label }) => (
+              <a
+                key={label}
+                href="#"
+                aria-label={label}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+              >
+                <Icon className="h-4 w-4" />
+              </a>
+            ))}
           </div>
         </div>
 
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-white/70">Explore</h3>
           <ul className="mt-4 space-y-2 text-sm">
-            <li><Link to="/" className="hover:text-[var(--brand-green)]">Home</Link></li>
-            <li><Link to="/medicare-help" className="hover:text-[var(--brand-green)]">Medicare Help</Link></li>
-            <li><Link to="/turning-65" className="hover:text-[var(--brand-green)]">Turning 65</Link></li>
-            <li><Link to="/contact" className="hover:text-[var(--brand-green)]">Contact</Link></li>
+            <li><a href="#home" className="hover:text-[var(--brand-green)]">Home</a></li>
+            <li><a href="#aca-help" className="hover:text-[var(--brand-green)]">ACA Open Enrollment Help</a></li>
+            <li><a href="#open-enrollment" className="hover:text-[var(--brand-green)]">Open Enrollment</a></li>
+            <li><a href="#contact" className="hover:text-[var(--brand-green)]">Contact</a></li>
           </ul>
         </div>
 

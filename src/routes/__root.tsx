@@ -29,18 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "901 Healthcare — Medicare Help for Turning 65" },
+      { title: "901 Healthcare — ACA Open Enrollment Help" },
       {
         name: "description",
         content:
-          "901 Healthcare helps people turning 65 understand Medicare, avoid costly mistakes, and enroll with confidence. Friendly, personalized guidance.",
+          "ACA Open Enrollment ends December 15. 901 Healthcare helps you review your health insurance options and enroll on time.",
       },
       { name: "author", content: "901 Healthcare" },
-      { property: "og:title", content: "901 Healthcare — Medicare Help for Turning 65" },
+      { property: "og:title", content: "901 Healthcare — ACA Open Enrollment Help" },
       {
         property: "og:description",
         content:
-          "Personalized Medicare guidance for people turning 65. Real help. Real people. Real guidance.",
+          "Get personal help reviewing your ACA health insurance options before the December 15 deadline.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
