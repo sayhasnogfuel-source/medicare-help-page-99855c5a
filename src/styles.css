@@ -48,44 +48,48 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.22 0.05 250);
+  --radius: 0.875rem;
+
+  /* Warm neutral SaaS palette — cream, beige, tan, taupe, mocha */
+  --background: oklch(0.985 0.008 75); /* off-white cream */
+  --foreground: oklch(0.24 0.018 50);  /* deep mocha text */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.05 250);
+  --card-foreground: oklch(0.24 0.018 50);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.05 250);
-  --primary: oklch(0.65 0.16 235);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0.018 220);
-  --secondary-foreground: oklch(0.25 0.06 250);
-  --muted: oklch(0.97 0.012 220);
-  --muted-foreground: oklch(0.5 0.03 250);
-  --accent: oklch(0.72 0.17 145);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.6 0.22 28);
+  --popover-foreground: oklch(0.24 0.018 50);
+
+  --primary: oklch(0.42 0.045 55);     /* warm taupe / espresso */
+  --primary-foreground: oklch(0.985 0.008 75);
+  --secondary: oklch(0.95 0.018 75);   /* light sand */
+  --secondary-foreground: oklch(0.32 0.025 55);
+  --muted: oklch(0.955 0.014 78);
+  --muted-foreground: oklch(0.48 0.022 60);
+  --accent: oklch(0.7 0.07 60);        /* camel accent */
+  --accent-foreground: oklch(0.99 0.005 75);
+  --destructive: oklch(0.58 0.18 28);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.92 0.02 230);
-  --input: oklch(0.92 0.02 230);
-  --ring: oklch(0.65 0.16 235);
+  --border: oklch(0.91 0.012 75);
+  --input: oklch(0.92 0.012 75);
+  --ring: oklch(0.62 0.06 60);
 
-  /* 901 Healthcare brand tokens — pulled from logo */
-  --brand-blue: oklch(0.7 0.14 235);
-  --brand-blue-deep: oklch(0.58 0.16 240);
-  --brand-navy: oklch(0.32 0.12 250);
-  --brand-green: oklch(0.72 0.17 145);
-  --brand-green-deep: oklch(0.55 0.16 148);
-  --brand-cream: oklch(0.98 0.01 100);
+  /* Brand surface tokens (warm neutrals) */
+  --surface-cream: oklch(0.985 0.012 80);
+  --surface-sand: oklch(0.96 0.02 78);
+  --surface-beige: oklch(0.92 0.025 75);
+  --surface-tan: oklch(0.82 0.04 65);
+  --surface-camel: oklch(0.7 0.07 60);
+  --surface-mocha: oklch(0.42 0.045 55);
+  --surface-espresso: oklch(0.28 0.03 50);
 
-  /* Urgency / deadline */
-  --brand-urgent: oklch(0.62 0.21 35);
-  --brand-urgent-soft: oklch(0.96 0.05 50);
+  --gradient-warm: linear-gradient(135deg, oklch(0.96 0.02 78) 0%, oklch(0.92 0.025 70) 100%);
+  --gradient-hero: radial-gradient(120% 80% at 0% 0%, oklch(0.97 0.025 75) 0%, oklch(0.93 0.03 70) 60%, oklch(0.88 0.035 65) 100%);
+  --gradient-cta: linear-gradient(135deg, oklch(0.42 0.045 55) 0%, oklch(0.32 0.035 50) 100%);
 
-  --gradient-hero: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-green) 100%);
-  --gradient-soft: linear-gradient(180deg, oklch(0.98 0.02 220), oklch(1 0 0));
-  --shadow-soft: 0 10px 30px -12px color-mix(in oklab, var(--brand-blue-deep) 25%, transparent);
-  --shadow-portrait: 0 25px 60px -20px color-mix(in oklab, var(--brand-blue-deep) 40%, transparent);
-  --shadow-urgent: 0 15px 40px -15px color-mix(in oklab, var(--brand-urgent) 40%, transparent);
+  --shadow-xs: 0 1px 2px 0 oklch(0.3 0.02 60 / 0.05);
+  --shadow-sm: 0 2px 8px -2px oklch(0.3 0.02 60 / 0.08);
+  --shadow-md: 0 8px 24px -8px oklch(0.3 0.02 60 / 0.12);
+  --shadow-lg: 0 24px 60px -20px oklch(0.3 0.02 60 / 0.18);
+  --shadow-soft: 0 10px 40px -16px oklch(0.3 0.025 55 / 0.18);
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
