@@ -29,11 +29,19 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "901 Healthcare — Medicare Help for Turning 65" },
+      {
+        name: "description",
+        content:
+          "901 Healthcare helps people turning 65 understand Medicare, avoid costly mistakes, and enroll with confidence. Friendly, personalized guidance.",
+      },
+      { name: "author", content: "901 Healthcare" },
+      { property: "og:title", content: "901 Healthcare — Medicare Help for Turning 65" },
+      {
+        property: "og:description",
+        content:
+          "Personalized Medicare guidance for people turning 65. Real help. Real people. Real guidance.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
