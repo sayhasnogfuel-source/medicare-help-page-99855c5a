@@ -377,9 +377,17 @@ function WorkspacePage() {
                 <Sparkles className="h-3 w-3" />
                 Workspace
               </span>
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${statusPill.className}`}
+              >
+                <statusPill.icon
+                  className={`h-3.5 w-3.5 ${statusPill.spin ? "animate-spin" : ""}`}
+                />
+                {statusPill.label}
+              </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/60 px-3 py-1 text-xs font-medium text-foreground/75">
-                <Globe className="h-3.5 w-3.5" />
-                Status: Draft
+                <ShieldCheck className="h-3.5 w-3.5" />
+                AI quality-check on
               </span>
               <CreditsBadge />
             </div>
