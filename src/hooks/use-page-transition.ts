@@ -1,5 +1,7 @@
 import { useCallback } from "react";
-import { useNavigate, type NavigateOptions } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+
+type NavigateArg = Parameters<ReturnType<typeof useNavigate>>[0];
 
 /**
  * Returns a `transitionTo` helper that navigates immediately. The destination
@@ -11,14 +13,12 @@ export function usePageTransition() {
   const navigate = useNavigate();
 
   const transitionTo = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (options: NavigateOptions | string) => {
-      const opts: NavigateOptions =
-        typeof options === "string"
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ({ to: options } as any)
-          : options;
-      navigate(opts);
+    (options: NavigateArg | string) => {
+      if (typeof options === "string") {
+        navigate({ to: options } as NavigateArg);
+        return;
+      }
+      navigate(options);
     },
     [navigate]
   );
