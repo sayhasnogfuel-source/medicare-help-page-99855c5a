@@ -58,6 +58,7 @@ const FREESTYLE_SUGGESTIONS = [
 
 function BuilderPage() {
   const { transitionTo } = usePageTransition();
+  const credits = useCredits();
   const [data, setData] = useState<BuilderData>(DEFAULT_BUILDER);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
@@ -89,6 +90,20 @@ function BuilderPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (credits.isEmpty) {
+      toast.error("You're out of credits", {
+        description: "Upgrade to keep generating with AI.",
+      });
+      transitionTo({ to: "/pricing" });
+      return;
+    }
+    if (!credits.canAfford("generate")) {
+      toast.error(`Generating costs ${ACTION_COSTS.generate} credits`, {
+        description: `You have ${credits.credits} left. Upgrade to continue.`,
+      });
+      transitionTo({ to: "/pricing" });
+      return;
+    }
     const errs = validate(data);
     setErrors(errs);
     if (Object.keys(errs).length) {
@@ -96,7 +111,15 @@ function BuilderPage() {
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    const charged = credits.charge("generate");
+    if (!charged) {
+      transitionTo({ to: "/pricing" });
+      return;
+    }
     saveBuilder(data);
+    toast.success("Website generated", {
+      description: `${ACTION_COSTS.generate} credits used. ${credits.credits - ACTION_COSTS.generate} remaining.`,
+    });
     transitionTo({ to: "/preview" });
   }
 
