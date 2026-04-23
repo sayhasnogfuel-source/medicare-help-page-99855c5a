@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
   CreditCard,
   Loader2,
   Zap,
+  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { GeneratedLanding } from "@/components/generated/generated-landing";
 import {
