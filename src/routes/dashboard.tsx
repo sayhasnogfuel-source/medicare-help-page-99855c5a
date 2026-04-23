@@ -84,6 +84,22 @@ function subStatusTone(s: SubStatus): string {
 function DashboardPage() {
   const credits = useCredits();
   const billing = useBilling();
+  const [hasBuilderDraft, setHasBuilderDraft] = useState(false);
+  const [hasCustomized, setHasCustomized] = useState(false);
+
+  useEffect(() => {
+    const data = loadBuilder();
+    setHasBuilderDraft(!!data);
+    if (data) {
+      const customized =
+        data.businessName !== DEFAULT_BUILDER.businessName ||
+        data.agentName !== DEFAULT_BUILDER.agentName ||
+        !!data.logoDataUrl ||
+        !!data.headshotDataUrl ||
+        data.headline !== DEFAULT_BUILDER.headline;
+      setHasCustomized(customized);
+    }
+  }, []);
 
   if (!credits.hydrated || !billing.hydrated) {
     return (
