@@ -90,7 +90,7 @@ function Hero() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-muted-foreground">
-          {["No credit card", "5-minute setup", "Mobile-friendly", "Lead-ready"].map((t) => (
+          {["Card on file required", "5-minute setup", "Mobile-friendly", "Lead-ready"].map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-[var(--surface-mocha)]" />
               {t}

@@ -120,7 +120,7 @@ function BuilderPage() {
     toast.success("Website generated", {
       description: `${ACTION_COSTS.generate} credits used. ${credits.credits - ACTION_COSTS.generate} remaining.`,
     });
-    transitionTo({ to: "/preview" });
+    transitionTo({ to: "/workspace" });
   }
 
   return (
