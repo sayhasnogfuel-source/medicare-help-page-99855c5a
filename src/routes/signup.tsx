@@ -33,7 +33,7 @@ function SignupPage() {
           <div className="hidden lg:block">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <Sparkles className="h-3 w-3" />
-              Free during beta
+              Free trial · card required
             </span>
             <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
               Launch your first lead page in under 5 minutes.
@@ -45,10 +45,10 @@ function SignupPage() {
             </p>
             <ul className="mt-8 space-y-3.5">
               {[
-                "No credit card required",
+                "Card on file to start your trial",
                 "Templates for every insurance niche",
                 "Mobile-friendly out of the box",
-                "Capture leads from day one",
+                "Publishing requires an active subscription",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-foreground/80">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
