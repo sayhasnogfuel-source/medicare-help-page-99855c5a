@@ -19,6 +19,8 @@ import {
   Clock,
   Settings,
   TrendingUp,
+  Circle,
+  ListChecks,
 } from "lucide-react";
 import { useCredits, PLAN_LABELS } from "@/lib/credits";
 import {
