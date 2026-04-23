@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
@@ -10,7 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
-import { Upload, ArrowRight, ImageIcon, X, Sparkles, Send } from "lucide-react";
+import {
+  Upload,
+  ArrowRight,
+  ImageIcon,
+  X,
+  Sparkles,
+  Send,
+  Lock,
+  Globe,
+  AlertCircle,
+} from "lucide-react";
 import {
   DEFAULT_BUILDER,
   INSURANCE_NICHES,
@@ -19,6 +29,9 @@ import {
   type BuilderData,
   type ContactMethod,
 } from "@/lib/builder-storage";
+import { useCredits, ACTION_COSTS, PLAN_LABELS } from "@/lib/credits";
+import { CreditsBadge } from "@/components/app/credits-badge";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/builder")({
   component: BuilderPage,
