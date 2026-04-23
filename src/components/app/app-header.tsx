@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useBilling } from "@/lib/billing";
 
 const NAV = [
   { to: "/", label: "Home" },
@@ -14,8 +15,34 @@ const NAV = [
 
 export function AppHeader() {
   const [open, setOpen] = useState(false);
+  const billing = useBilling();
+  const showBanner =
+    billing.hydrated &&
+    (billing.subStatus === "past_due" || billing.siteStatus === "suspended");
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
+      {showBanner && (
+        <div className="border-b border-destructive/30 bg-destructive/10 text-destructive">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-2 text-xs font-medium sm:text-sm">
+            <span className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>
+                Payment issue —{" "}
+                {billing.siteStatus === "suspended"
+                  ? "your live website is paused."
+                  : "your subscription is past due."}{" "}
+                Update your card to restore service.
+              </span>
+            </span>
+            <Link
+              to="/billing"
+              className="shrink-0 rounded-full border border-destructive/40 bg-background px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive hover:bg-destructive/5"
+            >
+              Fix payment
+            </Link>
+          </div>
+        </div>
+      )}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
         <Link to="/" className="flex items-center gap-2.5" aria-label="Lumen home">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)]">

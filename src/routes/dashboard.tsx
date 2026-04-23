@@ -29,6 +29,8 @@ import {
   type SiteStatus,
   type SubStatus,
 } from "@/lib/billing";
+import { loadBuilder, DEFAULT_BUILDER } from "@/lib/builder-storage";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard")({
