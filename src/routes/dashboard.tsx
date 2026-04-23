@@ -19,6 +19,8 @@ import {
   Clock,
   Settings,
   TrendingUp,
+  Circle,
+  ListChecks,
 } from "lucide-react";
 import { useCredits, PLAN_LABELS } from "@/lib/credits";
 import {
@@ -29,6 +31,8 @@ import {
   type SiteStatus,
   type SubStatus,
 } from "@/lib/billing";
+import { loadBuilder, DEFAULT_BUILDER } from "@/lib/builder-storage";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard")({
@@ -82,6 +86,22 @@ function subStatusTone(s: SubStatus): string {
 function DashboardPage() {
   const credits = useCredits();
   const billing = useBilling();
+  const [hasBuilderDraft, setHasBuilderDraft] = useState(false);
+  const [hasCustomized, setHasCustomized] = useState(false);
+
+  useEffect(() => {
+    const data = loadBuilder();
+    setHasBuilderDraft(!!data);
+    if (data) {
+      const customized =
+        data.businessName !== DEFAULT_BUILDER.businessName ||
+        data.agentName !== DEFAULT_BUILDER.agentName ||
+        !!data.logoDataUrl ||
+        !!data.headshotDataUrl ||
+        data.headline !== DEFAULT_BUILDER.headline;
+      setHasCustomized(customized);
+    }
+  }, []);
 
   if (!credits.hydrated || !billing.hydrated) {
     return (
@@ -247,6 +267,18 @@ function DashboardPage() {
                 })}
               </div>
             )}
+
+            {/* Onboarding checklist */}
+            <OnboardingChecklist
+              hasBuilderDraft={hasBuilderDraft}
+              hasCustomized={hasCustomized}
+              hasCard={billing.hasCard}
+              isLive={billing.siteStatus === "live"}
+              hasSubscription={
+                billing.subStatus === "active" ||
+                billing.subStatus === "trialing"
+              }
+            />
 
             {/* Cards grid */}
             <div className="mt-8 grid gap-4 lg:grid-cols-3">
@@ -481,5 +513,122 @@ function DashboardPage() {
       </PageTransition>
       <AppFooter />
     </div>
+  );
+}
+
+function OnboardingChecklist({
+  hasBuilderDraft,
+  hasCustomized,
+  hasCard,
+  hasSubscription,
+  isLive,
+}: {
+  hasBuilderDraft: boolean;
+  hasCustomized: boolean;
+  hasCard: boolean;
+  hasSubscription: boolean;
+  isLive: boolean;
+}) {
+  const steps: Array<{
+    label: string;
+    done: boolean;
+    cta?: { label: string; to: "/start" | "/builder" | "/workspace" | "/billing" };
+  }> = [
+    {
+      label: "Complete the starter form",
+      done: hasBuilderDraft,
+      cta: hasBuilderDraft ? undefined : { label: "Start", to: "/start" },
+    },
+    {
+      label: "Generate your website",
+      done: hasBuilderDraft,
+      cta: hasBuilderDraft ? undefined : { label: "Generate", to: "/builder" },
+    },
+    {
+      label: "Customize branding & copy",
+      done: hasCustomized,
+      cta: hasCustomized ? undefined : { label: "Open builder", to: "/workspace" },
+    },
+    {
+      label: "Add a payment method",
+      done: hasCard,
+      cta: hasCard ? undefined : { label: "Add card", to: "/billing" },
+    },
+    {
+      label: "Publish your website",
+      done: isLive,
+      cta:
+        isLive
+          ? undefined
+          : {
+              label: hasSubscription ? "Publish" : "Choose plan",
+              to: "/billing",
+            },
+    },
+  ];
+
+  const completed = steps.filter((s) => s.done).length;
+  const total = steps.length;
+  if (completed === total) return null;
+
+  return (
+    <Card className="mt-6 rounded-3xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
+            <ListChecks className="h-4.5 w-4.5" />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">
+              Get your site live
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {completed} of {total} steps complete
+            </p>
+          </div>
+        </div>
+        <span className="rounded-full border border-border bg-[var(--surface-sand)]/60 px-3 py-1 text-[11px] font-semibold text-foreground/70">
+          {Math.round((completed / total) * 100)}%
+        </span>
+      </div>
+      <ul className="mt-5 space-y-2.5">
+        {steps.map((s, i) => (
+          <li
+            key={i}
+            className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 ${
+              s.done
+                ? "border-emerald-300/40 bg-emerald-50/40"
+                : "border-border/60 bg-[var(--surface-cream)]/50"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              {s.done ? (
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-700" />
+              ) : (
+                <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+              <span
+                className={`text-sm ${s.done ? "text-foreground/70 line-through" : "font-medium text-foreground"}`}
+              >
+                {s.label}
+              </span>
+            </div>
+            {s.cta && (
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="h-7 shrink-0 rounded-full text-xs"
+              >
+                <Link to={s.cta.to}>
+                  {s.cta.label}
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }

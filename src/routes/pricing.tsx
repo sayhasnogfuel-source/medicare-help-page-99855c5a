@@ -93,8 +93,7 @@ const TIERS: Tier[] = [
   {
     id: "dfy",
     name: "Done-For-You",
-    price: "$888",
-    period: "one-time",
+    price: "Custom",
     tagline: "Our team designs, writes, and launches your site for you.",
     features: [
       "Strategy call with our team",
@@ -102,7 +101,7 @@ const TIERS: Tier[] = [
       "Lead-focused page structure",
       "Launch + 30 days of support",
     ],
-    cta: "Submit Inquiry",
+    cta: "Contact Us",
     variant: "ghost",
   },
 ];

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
   CreditCard,
   Loader2,
   Zap,
+  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { GeneratedLanding } from "@/components/generated/generated-landing";
 import {
@@ -198,12 +200,53 @@ function applyTweak(
   };
 }
 
+/**
+ * Quality-control pass. Scans the builder data for common issues
+ * (missing CTA, weak headline, missing contact, etc.) and returns
+ * an auto-fix patch + a human-readable list of what was improved.
+ */
+function selfCheck(data: BuilderData): {
+  patch: Partial<BuilderData> | null;
+  fixes: string[];
+} {
+  const fixes: string[] = [];
+  const patch: Partial<BuilderData> = {};
+
+  if (!data.ctaText.trim()) {
+    patch.ctaText = "Get My Free Quote";
+    fixes.push("Added a primary call-to-action button");
+  }
+  if (!data.headline.trim()) {
+    patch.headline = "Coverage made simple, made for you";
+    fixes.push("Restored a clear headline");
+  } else if (data.headline.length < 12) {
+    patch.headline = data.headline + " — coverage made simple";
+    fixes.push("Strengthened a too-short headline");
+  }
+  if (!data.subheadline.trim()) {
+    patch.subheadline =
+      "Friendly, transparent guidance to help you choose the right coverage with confidence.";
+    fixes.push("Added a supporting subheadline");
+  }
+  if (!data.phone.trim() && !data.email.trim()) {
+    patch.phone = "(555) 123-4567";
+    fixes.push("Added a fallback contact path");
+  }
+  if (!data.businessType.trim()) {
+    patch.businessType = `${data.insuranceType || "Insurance"} agency`;
+    fixes.push("Filled in the business type");
+  }
+
+  return { patch: Object.keys(patch).length ? patch : null, fixes };
+}
+
 function WorkspacePage() {
   const [data, setData] = useState<BuilderData | null>(null);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [messages, setMessages] = useState<ChatMessage[]>([STARTER_MESSAGE]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const credits = useCredits();
   const scrollRef = useRef<HTMLDivElement>(null);
   const launchedAt = useRef<number>(Date.now());
@@ -216,6 +259,34 @@ function WorkspacePage() {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, thinking]);
+
+  const statusPill = useMemo(() => {
+    if (thinking) {
+      return {
+        icon: Loader2,
+        label: "Generating…",
+        className:
+          "border-border bg-[var(--surface-sand)]/60 text-foreground/75",
+        spin: true,
+      };
+    }
+    if (savedAt && Date.now() - savedAt < 2500) {
+      return {
+        icon: CheckCircle2,
+        label: "Updated",
+        className:
+          "border-emerald-300/60 bg-emerald-50/80 text-emerald-900",
+        spin: false,
+      };
+    }
+    return {
+      icon: CheckCircle2,
+      label: "Saved",
+      className:
+        "border-border bg-[var(--surface-sand)]/60 text-foreground/75",
+      spin: false,
+    };
+  }, [thinking, savedAt]);
 
   function send() {
     const text = input.trim();
@@ -249,15 +320,28 @@ function WorkspacePage() {
     // Simulated thinking delay so it feels real.
     window.setTimeout(() => {
       const { patch, reply } = applyTweak(data, text);
+      let next: BuilderData = data;
       if (patch) {
-        const next: BuilderData = { ...data, ...patch };
+        next = { ...data, ...patch };
+        credits.charge("regenerate_section");
+      }
+      // Quality-control pass — auto-fix any obvious issues.
+      const qc = selfCheck(next);
+      let qcReply = "";
+      if (qc.patch) {
+        next = { ...next, ...qc.patch };
+        qcReply =
+          "\n\nQuality check: " +
+          qc.fixes.map((f) => `✓ ${f}`).join(" · ");
+      }
+      if (patch || qc.patch) {
         setData(next);
         saveBuilder(next);
-        credits.charge("regenerate_section");
+        setSavedAt(Date.now());
       }
       setMessages((m) => [
         ...m,
-        { id: `a-${Date.now()}`, role: "assistant", text: reply },
+        { id: `a-${Date.now()}`, role: "assistant", text: reply + qcReply },
       ]);
       setThinking(false);
     }, 650);
@@ -293,9 +377,17 @@ function WorkspacePage() {
                 <Sparkles className="h-3 w-3" />
                 Workspace
               </span>
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${statusPill.className}`}
+              >
+                <statusPill.icon
+                  className={`h-3.5 w-3.5 ${statusPill.spin ? "animate-spin" : ""}`}
+                />
+                {statusPill.label}
+              </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/60 px-3 py-1 text-xs font-medium text-foreground/75">
-                <Globe className="h-3.5 w-3.5" />
-                Status: Draft
+                <ShieldCheck className="h-3.5 w-3.5" />
+                AI quality-check on
               </span>
               <CreditsBadge />
             </div>
