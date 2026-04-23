@@ -220,8 +220,8 @@ function BuilderPage() {
             <div className="pt-2">
               <PartHeader
                 step="Part 2"
-                title="Tell our AI how to build it"
-                description="Describe the look, feel, and sections you want. Be as specific as you'd like."
+                title="Tell our AI how to build your site"
+                description="Describe the look, feel, and sections you want. This is the prompt that guides how your page is built."
               />
             </div>
 
@@ -229,6 +229,34 @@ function BuilderPage() {
               value={data.freestyleInstructions}
               onChange={(v) => update("freestyleInstructions", v)}
             />
+
+            {/* PART 3 — Notes from author (visible on the published page) */}
+            <div className="pt-2">
+              <PartHeader
+                step="Part 3"
+                title="Notes from author"
+                description="Optional supporting notes shown on your published page — e.g. a personal welcome message or extra details for visitors."
+              />
+            </div>
+
+            <Section title="A note from you (shown on your page)">
+              <p className="text-sm text-muted-foreground">
+                Keep it warm and personal. This appears as a small note on your live site.
+                Leave blank to hide it.
+              </p>
+              <Textarea
+                id="authorNotes"
+                value={data.authorNotes}
+                onChange={(e) => update("authorNotes", e.target.value)}
+                placeholder="e.g. Thanks for stopping by — I look forward to helping your family find the right coverage."
+                rows={4}
+                maxLength={600}
+                className="min-h-[120px]"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                {data.authorNotes.length}/600
+              </p>
+            </Section>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">

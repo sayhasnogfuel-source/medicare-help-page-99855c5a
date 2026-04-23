@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/", label: "Home" },
-  { to: "/inquiry", label: "Have us build it" },
   { to: "/builder", label: "Builder" },
   { to: "/preview", label: "Preview" },
 ] as const;
@@ -44,7 +43,7 @@ export function AppHeader() {
             <Link to="/signup">Sign in</Link>
           </Button>
           <Button asChild size="sm" className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-espresso)]">
-            <Link to="/builder">Get Started</Link>
+            <Link to="/start">Get Started</Link>
           </Button>
         </div>
 
@@ -75,7 +74,7 @@ export function AppHeader() {
             asChild
             className="mt-2 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
           >
-            <Link to="/builder" onClick={() => setOpen(false)}>
+            <Link to="/start" onClick={() => setOpen(false)}>
               Get Started
             </Link>
           </Button>
