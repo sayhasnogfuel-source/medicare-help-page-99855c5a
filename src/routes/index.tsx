@@ -1,29 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
 import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Sparkles,
-  Wand2,
-  LayoutTemplate,
-  Smartphone,
-  Users,
-  ShieldCheck,
   ArrowRight,
   Check,
-  Pencil,
-  Image as ImageIcon,
-  Zap,
-  Eye,
-  HandHelping,
-  Rocket,
-  Clock,
 } from "lucide-react";
-import { GeneratedLanding } from "@/components/generated/generated-landing";
-import { DEFAULT_BUILDER } from "@/lib/builder-storage";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
