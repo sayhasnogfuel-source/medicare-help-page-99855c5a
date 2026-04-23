@@ -42,6 +42,7 @@ export const Route = createFileRoute("/inquiry")({
 const STORAGE_KEY = "lp_inquiry_submissions";
 
 type ContactPref = "call" | "text" | "email";
+type BrandingState = "yes" | "no" | "partial";
 
 interface InquiryForm {
   fullName: string;
@@ -49,6 +50,8 @@ interface InquiryForm {
   email: string;
   phone: string;
   niche: string;
+  states: string;
+  hasBranding: BrandingState;
   goals: string;
   contactMethod: ContactPref;
   notes: string;
@@ -60,6 +63,8 @@ const DEFAULT_FORM: InquiryForm = {
   email: "",
   phone: "",
   niche: "Medicare",
+  states: "",
+  hasBranding: "no",
   goals: "",
   contactMethod: "email",
   notes: "",
@@ -81,6 +86,7 @@ function InquiryPage() {
     if (!/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = "Enter a valid email";
     if (!f.phone.trim()) e.phone = "Required";
     if (!f.niche.trim()) e.niche = "Required";
+    if (!f.states.trim()) e.states = "List at least one state";
     if (!f.goals.trim()) e.goals = "Tell us a bit about your goals";
     return e;
   }
@@ -189,14 +195,58 @@ function InquiryPage() {
                         </SelectContent>
                       </Select>
                     </Field>
-                    <Field label="Website goals" id="goals" error={errors.goals}>
+                    <Field label="States you serve" id="states" error={errors.states}>
+                      <Input
+                        id="states"
+                        value={form.states}
+                        onChange={(e) => update("states", e.target.value)}
+                        placeholder="e.g. TX, FL, CA"
+                        maxLength={120}
+                      />
+                    </Field>
+                    <div data-field="hasBranding" className="space-y-2">
+                      <Label>Do you already have branding / a logo?</Label>
+                      <RadioGroup
+                        value={form.hasBranding}
+                        onValueChange={(v) => update("hasBranding", v as BrandingState)}
+                        className="grid gap-3 sm:grid-cols-3"
+                      >
+                        {([
+                          { v: "yes", label: "Yes, I have it" },
+                          { v: "partial", label: "Partial" },
+                          { v: "no", label: "Not yet" },
+                        ] as const).map((opt) => {
+                          const id = `branding-${opt.v}`;
+                          const selected = form.hasBranding === opt.v;
+                          return (
+                            <Label
+                              key={opt.v}
+                              htmlFor={id}
+                              className={`cursor-pointer rounded-xl border p-4 transition-all ${
+                                selected
+                                  ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)]"
+                                  : "border-border bg-background hover:border-foreground/30"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <RadioGroupItem id={id} value={opt.v} />
+                                <span className="text-sm font-medium text-foreground">
+                                  {opt.label}
+                                </span>
+                              </div>
+                            </Label>
+                          );
+                        })}
+                      </RadioGroup>
+                    </div>
+                    <Field label="What do you want from your website?" id="goals" error={errors.goals}>
                       <Textarea
                         id="goals"
                         rows={4}
                         value={form.goals}
                         onChange={(e) => update("goals", e.target.value)}
                         maxLength={800}
-                        placeholder="What should your website achieve? (e.g. capture Medicare leads, book consultations, build trust with families)"
+                        placeholder="A short description of what you want — sections, tone, key audience, leads vs branding, etc."
                       />
                     </Field>
                     <div data-field="contactMethod" className="space-y-2">

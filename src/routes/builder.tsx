@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
@@ -10,7 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
-import { Upload, ArrowRight, ImageIcon, X, Sparkles, Send } from "lucide-react";
+import {
+  Upload,
+  ArrowRight,
+  ImageIcon,
+  X,
+  Sparkles,
+  Send,
+  Lock,
+  Globe,
+  AlertCircle,
+} from "lucide-react";
 import {
   DEFAULT_BUILDER,
   INSURANCE_NICHES,
@@ -19,6 +29,9 @@ import {
   type BuilderData,
   type ContactMethod,
 } from "@/lib/builder-storage";
+import { useCredits, ACTION_COSTS } from "@/lib/credits";
+import { CreditsBadge } from "@/components/app/credits-badge";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/builder")({
   component: BuilderPage,
@@ -45,6 +58,7 @@ const FREESTYLE_SUGGESTIONS = [
 
 function BuilderPage() {
   const { transitionTo } = usePageTransition();
+  const credits = useCredits();
   const [data, setData] = useState<BuilderData>(DEFAULT_BUILDER);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
@@ -76,6 +90,20 @@ function BuilderPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (credits.isEmpty) {
+      toast.error("You're out of credits", {
+        description: "Upgrade to keep generating with AI.",
+      });
+      transitionTo({ to: "/pricing" });
+      return;
+    }
+    if (!credits.canAfford("generate")) {
+      toast.error(`Generating costs ${ACTION_COSTS.generate} credits`, {
+        description: `You have ${credits.credits} left. Upgrade to continue.`,
+      });
+      transitionTo({ to: "/pricing" });
+      return;
+    }
     const errs = validate(data);
     setErrors(errs);
     if (Object.keys(errs).length) {
@@ -83,7 +111,15 @@ function BuilderPage() {
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    const charged = credits.charge("generate");
+    if (!charged) {
+      transitionTo({ to: "/pricing" });
+      return;
+    }
     saveBuilder(data);
+    toast.success("Website generated", {
+      description: `${ACTION_COSTS.generate} credits used. ${credits.credits - ACTION_COSTS.generate} remaining.`,
+    });
     transitionTo({ to: "/preview" });
   }
 
@@ -93,6 +129,95 @@ function BuilderPage() {
       <PageTransition>
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
+          {/* Dashboard chrome */}
+          <Card className="mb-8 flex flex-col gap-4 rounded-2xl border-border/60 bg-background p-5 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Your dashboard
+              </p>
+              <CreditsBadge />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/50 px-3 py-1.5 text-xs font-medium text-foreground/75">
+                <Globe className="h-3.5 w-3.5" />
+                Status: Draft
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => {
+                  saveBuilder(data);
+                  toast.success("Saved", { description: "Your draft is up to date." });
+                }}
+              >
+                Save draft
+              </Button>
+              <Button
+                asChild
+                type="button"
+                size="sm"
+                className="rounded-full bg-foreground text-background hover:bg-foreground/90"
+              >
+                <Link to="/pricing">Upgrade</Link>
+              </Button>
+            </div>
+          </Card>
+
+          {/* Low / empty credit notices */}
+          {credits.hydrated && credits.isEmpty && (
+            <Card className="mb-8 flex flex-col gap-3 rounded-2xl border-destructive/30 bg-destructive/5 p-5 shadow-[var(--shadow-xs)] sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <Lock className="mt-0.5 h-5 w-5 text-destructive" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    You're out of credits
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    AI generation is locked. Upgrade your plan to keep building.
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                size="sm"
+                className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
+              >
+                <Link to="/pricing">Upgrade to continue</Link>
+              </Button>
+            </Card>
+          )}
+          {credits.hydrated && credits.isLow && !credits.isEmpty && (
+            <Card
+              className="mb-8 flex flex-col gap-3 rounded-2xl p-5 shadow-[var(--shadow-xs)] sm:flex-row sm:items-center sm:justify-between"
+              style={{
+                background: "var(--surface-sand)",
+                borderColor: "var(--surface-tan)",
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 text-[var(--surface-mocha)]" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Only {credits.credits} credits left
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Upgrade now so you don't get interrupted mid-build.
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+              >
+                <Link to="/pricing">See plans</Link>
+              </Button>
+            </Card>
+          )}
+
           <div className="mb-10">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Build your website
@@ -260,15 +385,29 @@ function BuilderPage() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
-                {hydrated ? "Your draft is saved automatically when you generate." : ""}
+                {hydrated
+                  ? credits.isEmpty
+                    ? "Generation locked — upgrade to continue."
+                    : `Generating uses ${ACTION_COSTS.generate} credits · ${credits.credits} remaining`
+                  : ""}
               </p>
               <Button
                 type="submit"
                 size="lg"
-                className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
+                disabled={credits.hydrated && credits.isEmpty}
+                className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Generate My Website
-                <ArrowRight className="ml-1 h-4 w-4" />
+                {credits.hydrated && credits.isEmpty ? (
+                  <>
+                    <Lock className="mr-1 h-4 w-4" />
+                    Out of credits
+                  </>
+                ) : (
+                  <>
+                    Generate My Website
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
           </form>

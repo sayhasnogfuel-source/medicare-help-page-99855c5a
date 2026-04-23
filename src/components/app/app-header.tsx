@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/", label: "Home" },
+  { to: "/pricing", label: "Pricing" },
   { to: "/builder", label: "Builder" },
-  { to: "/preview", label: "Preview" },
+  { to: "/inquiry", label: "Contact" },
 ] as const;
 
 export function AppHeader() {
