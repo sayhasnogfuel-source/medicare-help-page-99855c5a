@@ -29,7 +29,7 @@ import {
   type BuilderData,
   type ContactMethod,
 } from "@/lib/builder-storage";
-import { useCredits, ACTION_COSTS, PLAN_LABELS } from "@/lib/credits";
+import { useCredits, ACTION_COSTS } from "@/lib/credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
 
