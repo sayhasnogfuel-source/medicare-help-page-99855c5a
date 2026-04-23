@@ -194,13 +194,13 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
             Hi, I'm {data.agentName}. I help neighbors in {data.city}, {data.state} navigate {typeLabel} with
             clarity and care — no pressure, no jargon, just straight answers.
           </p>
-          {data.freestyleInstructions?.trim() && (
+          {data.authorNotes?.trim() && (
             <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-border/60 bg-[var(--surface-sand)]/50 p-6 text-left shadow-[var(--shadow-xs)]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 A note from {data.agentName}
               </p>
               <p className="mt-2 whitespace-pre-line text-base leading-relaxed text-foreground/85">
-                {data.freestyleInstructions}
+                {data.authorNotes}
               </p>
             </div>
           )}

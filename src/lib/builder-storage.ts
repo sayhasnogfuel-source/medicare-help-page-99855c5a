@@ -39,6 +39,7 @@ export interface BuilderData {
   contactMethod: ContactMethod;
   ctaText: string;
   freestyleInstructions: string;
+  authorNotes: string;
 }
 
 export const DEFAULT_BUILDER: BuilderData = {
@@ -58,6 +59,7 @@ export const DEFAULT_BUILDER: BuilderData = {
   contactMethod: "call",
   ctaText: "Get My Free Quote",
   freestyleInstructions: "",
+  authorNotes: "",
 };
 
 const KEY = "lp_builder_data_v3";
