@@ -15,7 +15,9 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PreviewRouteImport } from './routes/preview'
 import { Route as InquiryRouteImport } from './routes/inquiry'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuilderRouteImport } from './routes/builder'
+import { Route as BillingRouteImport } from './routes/billing'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
@@ -48,9 +50,19 @@ const InquiryRoute = InquiryRouteImport.update({
   path: '/inquiry',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuilderRoute = BuilderRouteImport.update({
   id: '/builder',
   path: '/builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -61,7 +73,9 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/billing': typeof BillingRoute
   '/builder': typeof BuilderRoute
+  '/dashboard': typeof DashboardRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
@@ -71,7 +85,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/billing': typeof BillingRoute
   '/builder': typeof BuilderRoute
+  '/dashboard': typeof DashboardRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
@@ -82,7 +98,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/billing': typeof BillingRoute
   '/builder': typeof BuilderRoute
+  '/dashboard': typeof DashboardRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
@@ -94,7 +112,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/billing'
     | '/builder'
+    | '/dashboard'
     | '/inquiry'
     | '/preview'
     | '/pricing'
@@ -104,7 +124,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/billing'
     | '/builder'
+    | '/dashboard'
     | '/inquiry'
     | '/preview'
     | '/pricing'
@@ -114,7 +136,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/billing'
     | '/builder'
+    | '/dashboard'
     | '/inquiry'
     | '/preview'
     | '/pricing'
@@ -125,7 +149,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BillingRoute: typeof BillingRoute
   BuilderRoute: typeof BuilderRoute
+  DashboardRoute: typeof DashboardRoute
   InquiryRoute: typeof InquiryRoute
   PreviewRoute: typeof PreviewRoute
   PricingRoute: typeof PricingRoute
@@ -178,11 +204,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InquiryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/builder': {
       id: '/builder'
       path: '/builder'
       fullPath: '/builder'
       preLoaderRoute: typeof BuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -197,7 +237,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BillingRoute: BillingRoute,
   BuilderRoute: BuilderRoute,
+  DashboardRoute: DashboardRoute,
   InquiryRoute: InquiryRoute,
   PreviewRoute: PreviewRoute,
   PricingRoute: PricingRoute,
