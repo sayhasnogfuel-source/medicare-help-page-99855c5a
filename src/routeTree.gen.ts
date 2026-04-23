@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StartRouteImport } from './routes/start'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PreviewRouteImport } from './routes/preview'
 import { Route as InquiryRouteImport } from './routes/inquiry'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StartRoute = StartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
   '/signup': typeof SignupRoute
+  '/start': typeof StartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
   '/signup': typeof SignupRoute
+  '/start': typeof StartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,21 @@ export interface FileRoutesById {
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
   '/signup': typeof SignupRoute
+  '/start': typeof StartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/builder' | '/inquiry' | '/preview' | '/signup'
+  fullPaths: '/' | '/builder' | '/inquiry' | '/preview' | '/signup' | '/start'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/builder' | '/inquiry' | '/preview' | '/signup'
-  id: '__root__' | '/' | '/builder' | '/inquiry' | '/preview' | '/signup'
+  to: '/' | '/builder' | '/inquiry' | '/preview' | '/signup' | '/start'
+  id:
+    | '__root__'
+    | '/'
+    | '/builder'
+    | '/inquiry'
+    | '/preview'
+    | '/signup'
+    | '/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +93,18 @@ export interface RootRouteChildren {
   InquiryRoute: typeof InquiryRoute
   PreviewRoute: typeof PreviewRoute
   SignupRoute: typeof SignupRoute
+  StartRoute: typeof StartRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/start': {
+      id: '/start'
+      path: '/start'
+      fullPath: '/start'
+      preLoaderRoute: typeof StartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -125,6 +149,7 @@ const rootRouteChildren: RootRouteChildren = {
   InquiryRoute: InquiryRoute,
   PreviewRoute: PreviewRoute,
   SignupRoute: SignupRoute,
+  StartRoute: StartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
