@@ -19,6 +19,12 @@ import {
   PencilLine,
   Rocket,
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -49,7 +55,9 @@ function HomePage() {
           <Hero />
           <HowItWorks />
           <WhoItsFor />
+          <BuiltIn />
           <Benefits />
+          <Faq />
           <FinalCta />
         </main>
       </PageTransition>
