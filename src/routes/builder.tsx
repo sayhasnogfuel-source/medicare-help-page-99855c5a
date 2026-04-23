@@ -129,6 +129,89 @@ function BuilderPage() {
       <PageTransition>
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
+          {/* Dashboard chrome */}
+          <Card className="mb-8 flex flex-col gap-4 rounded-2xl border-border/60 bg-background p-5 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Your dashboard
+              </p>
+              <CreditsBadge />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/50 px-3 py-1.5 text-xs font-medium text-foreground/75">
+                <Globe className="h-3.5 w-3.5" />
+                Status: Draft
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => {
+                  saveBuilder(data);
+                  toast.success("Saved", { description: "Your draft is up to date." });
+                }}
+              >
+                Save draft
+              </Button>
+              <Button
+                asChild
+                type="button"
+                size="sm"
+                className="rounded-full bg-foreground text-background hover:bg-foreground/90"
+              >
+                <Link to="/pricing">Upgrade</Link>
+              </Button>
+            </div>
+          </Card>
+
+          {/* Low / empty credit notices */}
+          {credits.hydrated && credits.isEmpty && (
+            <Card className="mb-8 flex flex-col gap-3 rounded-2xl border-destructive/30 bg-destructive/5 p-5 shadow-[var(--shadow-xs)] sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <Lock className="mt-0.5 h-5 w-5 text-destructive" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    You're out of credits
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    AI generation is locked. Upgrade your plan to keep building.
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                size="sm"
+                className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
+              >
+                <Link to="/pricing">Upgrade to continue</Link>
+              </Button>
+            </Card>
+          )}
+          {credits.hydrated && credits.isLow && !credits.isEmpty && (
+            <Card className="mb-8 flex flex-col gap-3 rounded-2xl border-amber-300/50 bg-amber-50 p-5 shadow-[var(--shadow-xs)] sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 text-amber-700" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Only {credits.credits} credits left
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Upgrade now so you don't get interrupted mid-build.
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+              >
+                <Link to="/pricing">See plans</Link>
+              </Button>
+            </Card>
+          )}
+
           <div className="mb-10">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Build your website
