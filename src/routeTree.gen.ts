@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PreviewRouteImport } from './routes/preview'
 import { Route as InquiryRouteImport } from './routes/inquiry'
 import { Route as BuilderRouteImport } from './routes/builder'
@@ -24,6 +25,11 @@ const StartRoute = StartRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PreviewRoute = PreviewRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/builder': typeof BuilderRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/builder': typeof BuilderRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
 }
@@ -69,20 +77,36 @@ export interface FileRoutesById {
   '/builder': typeof BuilderRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/builder' | '/inquiry' | '/preview' | '/signup' | '/start'
+  fullPaths:
+    | '/'
+    | '/builder'
+    | '/inquiry'
+    | '/preview'
+    | '/pricing'
+    | '/signup'
+    | '/start'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/builder' | '/inquiry' | '/preview' | '/signup' | '/start'
+  to:
+    | '/'
+    | '/builder'
+    | '/inquiry'
+    | '/preview'
+    | '/pricing'
+    | '/signup'
+    | '/start'
   id:
     | '__root__'
     | '/'
     | '/builder'
     | '/inquiry'
     | '/preview'
+    | '/pricing'
     | '/signup'
     | '/start'
   fileRoutesById: FileRoutesById
@@ -92,6 +116,7 @@ export interface RootRouteChildren {
   BuilderRoute: typeof BuilderRoute
   InquiryRoute: typeof InquiryRoute
   PreviewRoute: typeof PreviewRoute
+  PricingRoute: typeof PricingRoute
   SignupRoute: typeof SignupRoute
   StartRoute: typeof StartRoute
 }
@@ -110,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/preview': {
@@ -148,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuilderRoute: BuilderRoute,
   InquiryRoute: InquiryRoute,
   PreviewRoute: PreviewRoute,
+  PricingRoute: PricingRoute,
   SignupRoute: SignupRoute,
   StartRoute: StartRoute,
 }
