@@ -17,8 +17,8 @@ export const PLAN_LABELS: Record<Plan, string> = {
 
 export const PLAN_CREDITS: Record<Plan, number> = {
   trial: 10,
-  starter: 100,
-  pro: 400,
+  starter: 108,
+  pro: 488,
   dfy: 0, // n/a — handled by our team
 };
 
