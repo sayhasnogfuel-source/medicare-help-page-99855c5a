@@ -189,9 +189,15 @@ function BuilderPage() {
             </Card>
           )}
           {credits.hydrated && credits.isLow && !credits.isEmpty && (
-            <Card className="mb-8 flex flex-col gap-3 rounded-2xl border-amber-300/50 bg-amber-50 p-5 shadow-[var(--shadow-xs)] sm:flex-row sm:items-center sm:justify-between">
+            <Card
+              className="mb-8 flex flex-col gap-3 rounded-2xl p-5 shadow-[var(--shadow-xs)] sm:flex-row sm:items-center sm:justify-between"
+              style={{
+                background: "var(--surface-sand)",
+                borderColor: "var(--surface-tan)",
+              }}
+            >
               <div className="flex items-start gap-3">
-                <AlertCircle className="mt-0.5 h-5 w-5 text-amber-700" />
+                <AlertCircle className="mt-0.5 h-5 w-5 text-[var(--surface-mocha)]" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">
                     Only {credits.credits} credits left
@@ -379,15 +385,29 @@ function BuilderPage() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
-                {hydrated ? "Your draft is saved automatically when you generate." : ""}
+                {hydrated
+                  ? credits.isEmpty
+                    ? "Generation locked — upgrade to continue."
+                    : `Generating uses ${ACTION_COSTS.generate} credits · ${credits.credits} remaining`
+                  : ""}
               </p>
               <Button
                 type="submit"
                 size="lg"
-                className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
+                disabled={credits.hydrated && credits.isEmpty}
+                className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Generate My Website
-                <ArrowRight className="ml-1 h-4 w-4" />
+                {credits.hydrated && credits.isEmpty ? (
+                  <>
+                    <Lock className="mr-1 h-4 w-4" />
+                    Out of credits
+                  </>
+                ) : (
+                  <>
+                    Generate My Website
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
           </form>
