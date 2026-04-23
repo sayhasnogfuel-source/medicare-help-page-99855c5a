@@ -9,7 +9,7 @@ const NAV = [
   { to: "/pricing", label: "Pricing" },
   { to: "/builder", label: "Builder" },
   { to: "/dashboard", label: "Dashboard" },
-  { to: "/inquiry", label: "Contact" },
+  { to: "/support", label: "Support" },
 ] as const;
 
 export function AppHeader() {
