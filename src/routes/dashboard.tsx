@@ -268,6 +268,18 @@ function DashboardPage() {
               </div>
             )}
 
+            {/* Onboarding checklist */}
+            <OnboardingChecklist
+              hasBuilderDraft={hasBuilderDraft}
+              hasCustomized={hasCustomized}
+              hasCard={billing.hasCard}
+              isLive={billing.siteStatus === "live"}
+              hasSubscription={
+                billing.subStatus === "active" ||
+                billing.subStatus === "trialing"
+              }
+            />
+
             {/* Cards grid */}
             <div className="mt-8 grid gap-4 lg:grid-cols-3">
               {/* Website status */}
