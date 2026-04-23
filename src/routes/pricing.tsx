@@ -60,7 +60,7 @@ const TIERS: Tier[] = [
   {
     id: "starter",
     name: "Starter",
-    price: "$28",
+    price: "$26",
     period: "/ month",
     tagline: "Everything one agent needs to launch and edit a real website.",
     features: [
@@ -76,7 +76,7 @@ const TIERS: Tier[] = [
   {
     id: "pro",
     name: "Pro",
-    price: "$88",
+    price: "$80",
     period: "/ month",
     tagline: "More credits and room to iterate for agents who want to grow fast.",
     features: [
