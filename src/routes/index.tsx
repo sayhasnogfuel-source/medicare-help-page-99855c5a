@@ -19,6 +19,12 @@ import {
   PencilLine,
   Rocket,
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -49,7 +55,9 @@ function HomePage() {
           <Hero />
           <HowItWorks />
           <WhoItsFor />
+          <BuiltIn />
           <Benefits />
+          <Faq />
           <FinalCta />
         </main>
       </PageTransition>
@@ -240,6 +248,104 @@ function Benefits() {
             <p className="mt-1.5 text-sm text-muted-foreground">{b.desc}</p>
           </Card>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- BUILT-IN ---------------- */
+function BuiltIn() {
+  const features = [
+    "Mobile-responsive layout",
+    "Homepage with clear hero",
+    "About page",
+    "Services section",
+    "Contact form",
+    "Lead capture structure",
+    "Call-to-action buttons",
+    "Navigation menu",
+    "Footer with business info",
+    "Branded color & font system",
+    "Trust-building sections",
+    "Appointment-ready layout",
+    "Fast-loading modern design",
+    "SEO-friendly structure",
+    "Insurance-focused sections",
+    "Editable content blocks",
+    "Publish-ready framework",
+    "Conversion-focused hierarchy",
+  ];
+  return (
+    <section className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Built in by default
+        </p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          A real, functional website — not just a pretty page
+        </h2>
+        <p className="mt-3 text-muted-foreground">
+          The AI builder already understands the essentials of a working insurance
+          website. You focus on your branding, copy, and photos — we handle the rest.
+        </p>
+      </div>
+      <Card className="mt-10 rounded-3xl border-border/60 bg-[var(--surface-cream)] p-7 shadow-[var(--shadow-sm)] sm:p-9">
+        <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => (
+            <div key={f} className="flex items-start gap-2.5">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--surface-mocha)]" />
+              <span className="text-sm text-foreground/85">{f}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </section>
+  );
+}
+
+/* ---------------- FAQ ---------------- */
+function Faq() {
+  const faqs = [
+    {
+      q: "Do I need design or coding skills?",
+      a: "No. The AI handles layout, structure, and the standard sections every insurance site needs. You mostly customize your branding, copy, and photos.",
+    },
+    {
+      q: "What's already included in the builder?",
+      a: "Mobile-responsive layout, homepage, services, about, contact form, lead capture, navigation, footer, trust sections, and an SEO-friendly page structure — all by default.",
+    },
+    {
+      q: "How is pricing structured?",
+      a: "Free trial to test the builder, Starter at $26/mo, Pro at $80/mo, and a one-time Done-For-You option if you'd rather we build it.",
+    },
+    {
+      q: "What if I need help?",
+      a: "Our support team is one click away in the Support tab — billing, technical, or website questions are all covered.",
+    },
+  ];
+  return (
+    <section className="border-t border-border/60 bg-background">
+      <div className="mx-auto max-w-3xl px-5 py-20 sm:py-24">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Frequently asked
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Common questions
+          </h2>
+        </div>
+        <Accordion type="single" collapsible className="mt-8">
+          {faqs.map((f, i) => (
+            <AccordionItem key={i} value={`home-faq-${i}`}>
+              <AccordionTrigger className="text-left text-sm font-medium text-foreground sm:text-base">
+                {f.q}
+              </AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground sm:text-base">
+                {f.a}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </section>
   );

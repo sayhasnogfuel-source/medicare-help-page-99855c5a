@@ -391,23 +391,17 @@ function WorkspacePage() {
               </div>
             </div>
             <div className="flex-1 overflow-auto">
-              <div
-                className={
-                  device === "mobile"
-                    ? "flex justify-center bg-[var(--surface-sand)]/30 py-6"
-                    : ""
-                }
-              >
-                <div
-                  className={
-                    device === "mobile"
-                      ? "w-[390px] overflow-hidden rounded-[2rem] border border-border bg-background shadow-[var(--shadow-md)]"
-                      : ""
-                  }
-                >
-                  <GeneratedLanding data={data} />
+              {device === "mobile" ? (
+                <div className="flex min-h-full justify-center bg-[var(--surface-sand)]/30 px-4 py-6">
+                  <div className="w-full max-w-[390px] overflow-hidden rounded-[2rem] border border-border bg-background shadow-[var(--shadow-md)]">
+                    <div className="origin-top">
+                      <GeneratedLanding data={data} />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <GeneratedLanding data={data} />
+              )}
             </div>
           </section>
 
