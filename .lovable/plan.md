@@ -1,37 +1,54 @@
 
 
-## Goal
+## Why login isn't working
 
-Make only the **logo** look polished and "fit" the page properly — no other site changes.
+There is no sign-in page in the app. Returning users have no way to log in with their email and password.
 
-## What changes
+Concretely:
+- `src/lib/account.ts` already exports a working `signInWithEmail()` function — but **nothing in the UI calls it**.
+- The header's "Sign in" button (`app-header.tsx` line 91) links to `/signup`.
+- The signup page's "Already have one? Sign in" link (`signup.tsx` line 70) also links to `/signup` (itself).
+- There is no `src/routes/signin.tsx` (or `/login`) route file at all.
+- The auth logs confirm this: every recent email auth event is `user_repeated_signup` from the `/signup` page — Supabase silently rejects the duplicate signup without creating a session, so the user appears stuck.
+- Google sign-in works (the logs show successful `oidc` logins), which is why only that path currently completes.
 
-### 1. Replace the current logo asset
-The current `src/assets/diploofly-logo.png` is the AI-generated brown "D" mark on a transparent background — at small sizes it looks pixelated and tacky next to the crisp wordmark text. Swap it for a clean, vector-style SVG mark that renders perfectly sharp at any size.
+## Fix
 
-- New file: `src/assets/diploofly-logo.svg` — a minimal geometric "D" mark (rounded square container + stylized D) drawn in pure SVG using the existing brand mocha color (`#5a3a22` family, matching `--surface-mocha`).
-- Delete dependence on the PNG in the header/footer (keep the PNG file for the favicon for now).
+### 1. Create `src/routes/signin.tsx`
+A new public route mirroring the signup card design:
+- Email + password fields, calling `signInWithEmail()` from `@/lib/account`.
+- "Continue with Google" button calling `signInWithGoogle()`.
+- "Forgot password?" link that triggers `supabase.auth.resetPasswordForEmail(email, { redirectTo: <origin>/reset-password })` and shows a toast.
+- "Don't have an account? Create one" link to `/signup`.
+- On success, navigate to `/builder`.
+- Toast errors on bad credentials / unconfirmed email.
 
-### 2. Header (`src/components/app/app-header.tsx`)
-- Import the SVG instead of the PNG.
-- Slightly smaller, tighter lockup so it sits naturally next to the wordmark:
-  - Mark: `h-7 w-7` (was `h-8 w-8`)
-  - Wordmark: keep current size, reduce gap to `gap-2`, add `-tracking-[0.01em]` for a tighter, more premium feel.
-- Vertically center the mark with the wordmark's optical baseline (small `-mt-px` nudge).
+### 2. Wire up the navigation links
+- `src/components/app/app-header.tsx`: change both "Sign in" buttons (desktop line 91, and add one to the mobile menu around line 134) to link to `/signin` instead of `/signup`.
+- `src/routes/signup.tsx`: change the "Already have one? Sign in" link (line 70) to `/signin`.
 
-### 3. Footer (`src/components/app/app-footer.tsx`)
-- Same swap: SVG mark, `h-7 w-7`, tighter gap, same wordmark treatment.
+### 3. (Optional polish) Add a "Forgot password?" link on `/signin`
+Inline below the password field — opens a small dialog/inline form that calls `resetPasswordForEmail`, then a toast tells the user to check their inbox. The existing `/reset-password` route already handles the recovery callback correctly.
 
-### 4. Favicon
-- Leave `public/diploofly-icon.png` as-is for now (browser tab). No change needed.
+## Files
 
-## Files touched
+| File | Change |
+|---|---|
+| `src/routes/signin.tsx` | **New** — sign-in page with email/password + Google + forgot-password |
+| `src/components/app/app-header.tsx` | Point "Sign in" links to `/signin` (desktop + add to mobile menu) |
+| `src/routes/signup.tsx` | Fix "Sign in" link to point to `/signin` |
 
-- New: `src/assets/diploofly-logo.svg`
-- Edited: `src/components/app/app-header.tsx` (swap import, tweak sizing/tracking)
-- Edited: `src/components/app/app-footer.tsx` (swap import, tweak sizing/tracking)
+No database, edge function, or Supabase configuration changes are needed — `signInWithEmail` already exists and the auth provider is configured.
 
-## Result
+## How to test in the preview
 
-The Diploofly mark in the header and footer becomes a crisp, vector logo that scales perfectly, sits properly aligned with the wordmark, and looks professional instead of pixel-y. Nothing else on the site changes.
+1. **Sign up first** (so you have credentials): go to `/signup`, fill out the form with a real email + ≥8-character password, submit. You may need to confirm the email depending on auth settings.
+2. **Sign out** from the header.
+3. Click **Sign in** in the header — you should land on `/signin`.
+4. Enter the same email + password and submit → expect to land on `/builder` and the header to show "Sign out" + "Dashboard".
+5. **Wrong password test**: try a wrong password → expect a red toast "Invalid login credentials".
+6. **Forgot password test**: click "Forgot password?", submit your email, check inbox for the recovery email, click the link → it lands on `/reset-password` where you set a new password.
+7. **Google path**: click "Continue with Google" on `/signin` → completes OAuth and returns to `/builder`.
+
+No Stripe test card is needed for any of these flows — sign-in is independent of billing.
 
