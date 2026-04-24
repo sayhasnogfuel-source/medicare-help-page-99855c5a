@@ -55,8 +55,11 @@ export function AppHeader() {
         </div>
       )}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-        <Link to="/" className="flex items-center" aria-label="Diploofly home">
-          <img src={diploofly} alt="Diploofly" className="h-9 w-auto" />
+        <Link to="/" className="flex items-center gap-2" aria-label="Diploofly home">
+          <img src={diploofly} alt="" className="h-8 w-8 object-contain" />
+          <span className="text-[1.05rem] font-semibold tracking-tight text-foreground">
+            Diploofly
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
