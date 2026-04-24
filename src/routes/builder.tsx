@@ -24,6 +24,7 @@ import {
 import {
   DEFAULT_BUILDER,
   INSURANCE_NICHES,
+  INSURANCE_THEMES,
   loadBuilder,
   saveBuilder,
   type BuilderData,
@@ -295,6 +296,87 @@ function BuilderPage() {
                       }`}
                     >
                       {n}
+                    </button>
+                  );
+                })}
+              </div>
+            </Section>
+
+            <Section title="Choose a visual theme">
+              <p className="text-sm text-muted-foreground">
+                Pick a design direction. The AI uses your theme to guide the
+                color palette, layout, copy tone, and overall mood of your site.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {INSURANCE_THEMES.map((t) => {
+                  const selected = data.themeId === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => update("themeId", t.id)}
+                      aria-pressed={selected}
+                      className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all ${
+                        selected
+                          ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)]/60 shadow-[var(--shadow-md)] ring-2 ring-[var(--surface-mocha)]/30"
+                          : "border-border bg-background hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-[var(--shadow-sm)]"
+                      }`}
+                    >
+                      {t.recommended && (
+                        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[var(--surface-mocha)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--surface-cream)]">
+                          Recommended
+                        </span>
+                      )}
+                      {/* Visual preview */}
+                      <div
+                        className="mb-3 flex h-20 w-full items-center gap-2 overflow-hidden rounded-xl p-2"
+                        style={{ background: t.palette.surface }}
+                      >
+                        <span
+                          className="h-full w-1.5 rounded-full"
+                          style={{ background: t.palette.primary }}
+                        />
+                        <div className="flex-1 space-y-1.5">
+                          <span
+                            className="block h-2 w-3/4 rounded-full"
+                            style={{ background: t.palette.primary, opacity: 0.85 }}
+                          />
+                          <span
+                            className="block h-1.5 w-1/2 rounded-full"
+                            style={{ background: t.palette.text, opacity: 0.35 }}
+                          />
+                          <span
+                            className="mt-1 inline-flex h-4 items-center rounded-full px-2 text-[8px] font-bold uppercase tracking-wider"
+                            style={{
+                              background: t.palette.accent,
+                              color: t.palette.surface,
+                            }}
+                          >
+                            CTA
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span
+                            className="h-3 w-3 rounded-full"
+                            style={{ background: t.palette.primary }}
+                          />
+                          <span
+                            className="h-3 w-3 rounded-full"
+                            style={{ background: t.palette.accent }}
+                          />
+                          <span
+                            className="h-3 w-3 rounded-full border"
+                            style={{ background: t.palette.surface, borderColor: t.palette.text + "33" }}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{t.tagline}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                        <span>{t.mood}</span>
+                        <span aria-hidden>·</span>
+                        <span>{t.bestFor}</span>
+                      </div>
                     </button>
                   );
                 })}
