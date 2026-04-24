@@ -168,7 +168,7 @@ function Hero() {
             variant="outline"
             disabled={googleLoading}
             onClick={handleGoogle}
-            className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
+            className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background hover:text-foreground"
           >
             <HeroGoogleGlyph />
             {googleLoading ? "Connecting…" : "Continue with Google"}
