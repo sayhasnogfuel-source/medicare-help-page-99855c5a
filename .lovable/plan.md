@@ -1,56 +1,45 @@
 
 
-## Why "Continue with Google" doesn't open Google
+## Goal
 
-Right now there is no real authentication in the project. The whole account system is a mock that writes a flag to `localStorage` (`src/lib/account.ts`). The Google buttons do one of two things:
+Rebrand the entire site from "Lumen.pages" to **Diploofly** and use the uploaded logo image in the header and footer.
 
-- On `/` (home) and `/start`: they just navigate to `/signup` — no Google call at all.
-- On `/signup`: they call `signIn({ provider: "google" })` which only sets a local flag and pushes the user to `/builder`.
+## What changes
 
-There is no OAuth redirect, no Google consent screen, no backend session. That is why nothing happens with Google.
+### 1. Add the logo asset
+- Copy `user-uploads://ChatGPT_Image_Apr_23_2026_06_41_24_PM.png` into `src/assets/diploofly-logo.png` (full lockup: D-mark + wordmark).
+- Also copy a square favicon-friendly version into `public/diploofly-icon.png` for the browser tab and OG fallback.
 
-## Fix: wire up real Google sign-in via Lovable Cloud
+### 2. Header (`src/components/app/app-header.tsx`)
+- Replace the Sparkles-icon-in-a-square + "Lumen.pages" text with the imported logo image.
+- Render as a single `<img src={diploofly} alt="Diploofly" className="h-8 w-auto" />` inside the `<Link to="/">`.
+- Update `aria-label="Lumen home"` → `aria-label="Diploofly home"`.
+- Drop the now-unused `Sparkles` import.
 
-Lovable Cloud (Supabase) supports Google natively. The plan replaces the mock with a real auth flow while keeping the existing UI.
+### 3. Footer (`src/components/app/app-footer.tsx`)
+- Same swap: logo image instead of icon + wordmark.
+- Update copyright line: `© {year} Diploofly — Built for independent insurance agents.`
+- Drop the `Sparkles` import.
 
-### 1. Enable Lovable Cloud + Google provider
-- Turn on Lovable Cloud for the project (creates the Supabase backend and `VITE_SUPABASE_*` env vars).
-- Enable the Google provider in Auth settings (uses Lovable's shared Google OAuth credentials by default — no Google Cloud Console setup required).
+### 4. Site-wide text rebrand
+Find-and-replace **"Lumen.pages"** → **"Diploofly"** and **"Lumen"** → **"Diploofly"** across:
+- `src/routes/__root.tsx` (title, description, author, og:title, og:description, twitter tags)
+- `src/routes/index.tsx` (head meta + the "Why agents choose Lumen" eyebrow → "Why agents choose Diploofly")
+- `src/routes/pricing.tsx`, `src/routes/billing.tsx`, `src/routes/support.tsx`, `src/routes/signup.tsx`, `src/routes/reset-password.tsx`, `src/routes/builder.tsx`, `src/routes/inquiry.tsx` (all head meta titles/descriptions)
+- Any remaining body copy mentioning Lumen across components/routes
 
-### 2. Add a Supabase client
-- New file `src/lib/supabase.ts` exporting a browser client built from `import.meta.env.VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+### 5. Browser tab
+- Update `<link rel="icon">` in `__root.tsx` head to point to `/diploofly-icon.png`.
 
-### 3. Replace the mock account store
-- Rewrite `src/lib/account.ts` so `useAccount` subscribes to `supabase.auth.onAuthStateChange` (set listener BEFORE calling `getSession()` to avoid race conditions).
-- Replace the `signIn(...)` helper with two real functions:
-  - `signInWithGoogle()` → `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/builder" } })`. This is what triggers the real Google redirect.
-  - `signUpWithEmail({ email, password, firstName })` → `supabase.auth.signUp({ email, password, options: { data: { first_name }, emailRedirectTo: window.location.origin } })`.
-  - `signInWithEmail({ email, password })` → `supabase.auth.signInWithPassword(...)`.
-- Keep the same `useAccount()` shape (`signedIn`, `email`, `firstName`, `hydrated`) so no consumers break.
-
-### 4. Wire the Google buttons to the real call
-- `src/routes/index.tsx` hero "Continue with Google" → `onClick={signInWithGoogle}` (no longer routes to `/signup`).
-- `src/routes/start.tsx` hero "Continue with Google" → same.
-- `src/routes/signup.tsx` "Continue with Google" → same (remove the `signIn({ provider: "google" })` mock + manual `transitionTo`).
-- The email form on `/signup` calls `signUpWithEmail(...)` and then routes to `/builder` only after success.
-
-### 5. Add a `/reset-password` route (required when email auth is on)
-- Public route that reads `type=recovery` from the URL hash and calls `supabase.auth.updateUser({ password })`. Without it, password resets silently log users in.
-
-### 6. Sign-out + AuthGuard
-- `src/components/app/app-header.tsx` "Sign out" → `await supabase.auth.signOut()`.
-- `src/components/app/auth-guard.tsx` keeps working unchanged because `useAccount()` keeps the same surface.
-
-### 7. (Optional) Profiles table
-- I'll ask whether to store user profile data (first name, agency name, avatar, etc.). If yes, I'll add a `profiles` table linked to `auth.users` with RLS + an auto-insert trigger on signup. If no, we use only `auth.users` and skip the table.
+### 6. Theme alignment (light touch)
+The logo's brown/tan palette already matches the existing warm-neutral theme (mocha/camel/cream tokens in `styles.css`), so no color-token changes are needed. The logo will sit naturally in the header and footer.
 
 ## Files touched
 
-- New: `src/lib/supabase.ts`, `src/routes/reset-password.tsx`
-- Edited: `src/lib/account.ts`, `src/routes/index.tsx`, `src/routes/start.tsx`, `src/routes/signup.tsx`, `src/components/app/app-header.tsx`
-- Possibly: a migration for the `profiles` table if you want stored profile data
+- New: `src/assets/diploofly-logo.png`, `public/diploofly-icon.png`
+- Edited: `src/components/app/app-header.tsx`, `src/components/app/app-footer.tsx`, `src/routes/__root.tsx`, `src/routes/index.tsx`, `src/routes/pricing.tsx`, `src/routes/billing.tsx`, `src/routes/support.tsx`, `src/routes/signup.tsx`, `src/routes/reset-password.tsx`, `src/routes/builder.tsx`, `src/routes/inquiry.tsx`
 
-## What you'll see after this ships
+## Result
 
-Clicking "Continue with Google" on the home page, start page, or signup page will redirect to the real Google account-chooser screen, then return the user to `/builder` already signed in with a real session.
+Every page header and footer shows the actual Diploofly logo, the browser tab shows the Diploofly mark, and every meta title, description, social card, and on-page mention reads "Diploofly" instead of "Lumen.pages".
 
