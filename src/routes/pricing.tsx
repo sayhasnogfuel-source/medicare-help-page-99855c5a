@@ -5,7 +5,7 @@ import { PageTransition } from "@/components/app/page-transition";
 import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Sparkles, Zap, ArrowRight, HandHelping } from "lucide-react";
+import { Check, Sparkles, Zap, ArrowRight, HandHelping, Star } from "lucide-react";
 import { useCredits, ACTION_COSTS, ACTION_LABELS, type Plan } from "@/lib/credits";
 import { toast } from "sonner";
 
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/pricing")({
 });
 
 interface Tier {
-  id: Plan;
+  id: Exclude<Plan, "dfy">;
   name: string;
   price: string;
   period?: string;
@@ -38,7 +38,7 @@ interface Tier {
   features: string[];
   cta: string;
   highlight?: boolean;
-  variant: "outline" | "primary" | "dark" | "ghost";
+  variant: "outline" | "primary" | "dark";
 }
 
 const TIERS: Tier[] = [
@@ -47,12 +47,13 @@ const TIERS: Tier[] = [
     name: "Free Trial",
     price: "$0",
     period: "to start",
-    tagline: "Try the AI builder with 10 trial credits.",
+    tagline: "Try the AI builder, build your site, and explore before upgrading.",
     features: [
       "10 trial credits",
       "AI website generation",
+      "Edit copy, sections & branding",
       "Mobile-friendly preview",
-      "All insurance niches",
+      "Publish unlocked after upgrade",
     ],
     cta: "Start Free Trial",
     variant: "outline",
@@ -76,7 +77,7 @@ const TIERS: Tier[] = [
   {
     id: "pro",
     name: "Pro",
-    price: "$80",
+    price: "$44",
     period: "/ month",
     tagline: "More credits and room to iterate for agents who want to grow fast.",
     features: [
@@ -90,20 +91,6 @@ const TIERS: Tier[] = [
     variant: "dark",
     highlight: true,
   },
-  {
-    id: "dfy",
-    name: "Done-For-You",
-    price: "Custom",
-    tagline: "Our team designs, writes, and launches your site for you.",
-    features: [
-      "Strategy call with our team",
-      "Custom design & insurance copy",
-      "Lead-focused page structure",
-      "Launch + 30 days of support",
-    ],
-    cta: "Contact Us",
-    variant: "ghost",
-  },
 ];
 
 function PricingPage() {
@@ -111,10 +98,6 @@ function PricingPage() {
   const { plan, upgrade } = useCredits();
 
   function onChoose(tier: Tier) {
-    if (tier.id === "dfy") {
-      transitionTo({ to: "/inquiry" });
-      return;
-    }
     if (tier.id === "trial") {
       transitionTo({ to: "/start" });
       return;
