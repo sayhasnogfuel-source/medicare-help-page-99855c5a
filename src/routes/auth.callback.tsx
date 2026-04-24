@@ -14,7 +14,7 @@ export const Route = createFileRoute("/auth/callback")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Signing in… — Diploofly" },
+      { title: "Signing in… — Diploo" },
       { name: "robots", content: "noindex" },
     ],
   }),

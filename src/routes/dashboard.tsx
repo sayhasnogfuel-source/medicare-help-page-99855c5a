@@ -33,13 +33,13 @@ export const Route = createFileRoute("/dashboard")({
   component: GuardedDashboardPage,
   head: () => ({
     meta: [
-      { title: "Dashboard — Diploofly" },
+      { title: "Dashboard — Diploo" },
       {
         name: "description",
         content:
           "Manage your insurance website, credits, subscription, and publish status from a single dashboard.",
       },
-      { property: "og:title", content: "Dashboard — Diploofly" },
+      { property: "og:title", content: "Dashboard — Diploo" },
       {
         property: "og:description",
         content:

@@ -16,13 +16,13 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
   head: () => ({
     meta: [
-      { title: "Pricing — Diploofly" },
+      { title: "Pricing — Diploo" },
       {
         name: "description",
         content:
           "Simple credit-based pricing for insurance agents. Start free, upgrade when you're ready, or have us build it for you.",
       },
-      { property: "og:title", content: "Pricing — Diploofly" },
+      { property: "og:title", content: "Pricing — Diploo" },
       {
         property: "og:description",
         content:

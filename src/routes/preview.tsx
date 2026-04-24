@@ -9,7 +9,7 @@ export const Route = createFileRoute("/preview")({
   component: GuardedPreviewPage,
   head: () => ({
     meta: [
-      { title: "Preview — Diploofly" },
+      { title: "Preview — Diploo" },
       { name: "description", content: "Fullscreen preview of your generated landing page." },
     ],
   }),

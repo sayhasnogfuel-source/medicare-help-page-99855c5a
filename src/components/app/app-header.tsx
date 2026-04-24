@@ -49,10 +49,10 @@ export function AppHeader() {
         </div>
       )}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-        <Link to="/" className="flex items-center gap-2" aria-label="Diploofly home">
+        <Link to="/" className="flex items-center gap-2" aria-label="Diploo home">
           <img src={diploofly} alt="" className="-mt-px h-7 w-7 object-contain" />
           <span className="text-[1.05rem] font-semibold -tracking-[0.01em] text-foreground">
-            Diploofly
+            Diploo
           </span>
         </Link>
 

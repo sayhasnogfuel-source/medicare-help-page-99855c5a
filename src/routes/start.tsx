@@ -15,13 +15,13 @@ export const Route = createFileRoute("/start")({
   component: GuardedStartPage,
   head: () => ({
     meta: [
-      { title: "Get started — Diploofly" },
+      { title: "Get started — Diploo" },
       {
         name: "description",
         content:
           "Choose how to launch your insurance website — have our team build it for you, or build your own in minutes.",
       },
-      { property: "og:title", content: "Get started — Diploofly" },
+      { property: "og:title", content: "Get started — Diploo" },
       {
         property: "og:description",
         content:

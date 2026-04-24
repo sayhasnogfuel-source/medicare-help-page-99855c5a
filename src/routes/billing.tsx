@@ -21,7 +21,7 @@ export const Route = createFileRoute("/billing")({
   component: BillingPage,
   head: () => ({
     meta: [
-      { title: "Billing & subscription — Diploofly" },
+      { title: "Billing & subscription — Diploo" },
       {
         name: "description",
         content: "Manage your subscription, payment method, and billing history.",

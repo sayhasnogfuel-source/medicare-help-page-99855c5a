@@ -12,7 +12,7 @@ export function AppFooter() {
           <Link to="/" className="inline-flex items-center gap-2">
             <img src={diploofly} alt="" className="-mt-px h-7 w-7 object-contain" />
             <span className="text-base font-semibold -tracking-[0.01em] text-foreground">
-              Diploofly
+              Diploo
             </span>
           </Link>
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
@@ -47,7 +47,7 @@ export function AppFooter() {
       </div>
       <div className="border-t border-border/60">
         <p className="mx-auto max-w-6xl px-5 py-5 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Diploofly — Built for independent insurance agents.
+          © {new Date().getFullYear()} Diploo — Built for independent insurance agents.
         </p>
       </div>
     </footer>

@@ -24,7 +24,7 @@ export const Route = createFileRoute("/checkout")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Checkout — Diploofly" },
+      { title: "Checkout — Diploo" },
       { name: "description", content: "Start your 7-day free trial. Cancel anytime." },
     ],
   }),

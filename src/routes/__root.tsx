@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { RouteLoadingOverlay } from "@/components/app/route-loading-overlay";
+import { IntroSplash } from "@/components/app/intro-splash";
 import { AuthProvider } from "@/lib/account";
 
 function NotFoundComponent() {
@@ -33,14 +34,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Diploofly — A modern website builder for insurance agents" },
+      { title: "Diploo — A modern website builder for insurance agents" },
       {
         name: "description",
         content:
           "A clean, modern platform for insurance agents to launch beautiful lead-generation websites in minutes — Medicare, ACA, Life, Health, Auto, Home, and more.",
       },
-      { name: "author", content: "Diploofly" },
-      { property: "og:title", content: "Diploofly — A modern website builder for insurance agents" },
+      { name: "author", content: "Diploo" },
+      { property: "og:title", content: "Diploo — A modern website builder for insurance agents" },
       {
         property: "og:description",
         content:
@@ -95,6 +96,7 @@ function RootComponent() {
     <AuthProvider>
       <Outlet />
       <RouteLoadingOverlay />
+      <IntroSplash />
       <Toaster richColors position="top-right" />
     </AuthProvider>
   );
