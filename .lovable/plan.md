@@ -1,54 +1,114 @@
 
+Goal: rebuild the sign-in flow so login is stable, Google and email behave the same, and the app never falls into a site-wide error state after authentication.
 
-## Why login isn't working
+1. Centralize authentication state
+- Replace the current pattern where `useAccount()` is called independently in many places (`AppHeader`, `AuthGuard`, `signin`, `pricing`, `checkout`, `billing`, `useSubscription`, `useUserCredits`).
+- Create one root auth source that restores the session once, listens for auth changes once, and exposes:
+  - `isReady`
+  - `isAuthenticated`
+  - `user`
+  - `session`
+  - `signIn/signOut` helpers
+- Wire that state through the root app so every route and hook reads the same auth snapshot.
 
-There is no sign-in page in the app. Returning users have no way to log in with their email and password.
+Why this matters:
+- Right now auth is fragmented across multiple hooks, which can put the app in inconsistent states during login redirects.
+- Shared UI like the header mounts auth-dependent hooks on public pages, which increases the chance of auth/data races right after login.
 
-Concretely:
-- `src/lib/account.ts` already exports a working `signInWithEmail()` function — but **nothing in the UI calls it**.
-- The header's "Sign in" button (`app-header.tsx` line 91) links to `/signup`.
-- The signup page's "Already have one? Sign in" link (`signup.tsx` line 70) also links to `/signup` (itself).
-- There is no `src/routes/signin.tsx` (or `/login`) route file at all.
-- The auth logs confirm this: every recent email auth event is `user_repeated_signup` from the `/signup` page — Supabase silently rejects the duplicate signup without creating a session, so the user appears stuck.
-- Google sign-in works (the logs show successful `oidc` logins), which is why only that path currently completes.
+2. Move protected pages behind a real route-level auth boundary
+- Replace the client-side `AuthGuard` component with a TanStack protected layout route using `beforeLoad` + `redirect()`.
+- Keep the public pages public (`/`, `/pricing`, `/support`, `/signin`, `/signup`, `/reset-password`).
+- Move protected pages under the authenticated boundary while keeping the same URLs:
+  - `/builder`
+  - `/dashboard`
+  - `/workspace`
+  - `/billing`
+  - any other page that should require login
+- Preserve redirect-back behavior so users return to the page they meant to visit after signing in.
 
-## Fix
+Why this matters:
+- The current guard waits until render time, which is more fragile during login transitions.
+- Route-level auth prevents protected pages from partially mounting before the session is fully ready.
 
-### 1. Create `src/routes/signin.tsx`
-A new public route mirroring the signup card design:
-- Email + password fields, calling `signInWithEmail()` from `@/lib/account`.
-- "Continue with Google" button calling `signInWithGoogle()`.
-- "Forgot password?" link that triggers `supabase.auth.resetPasswordForEmail(email, { redirectTo: <origin>/reset-password })` and shows a toast.
-- "Don't have an account? Create one" link to `/signup`.
-- On success, navigate to `/builder`.
-- Toast errors on bad credentials / unconfirmed email.
+3. Split sign-in from auth callback/finalization
+- Keep `/signin` as the manual sign-in page.
+- Add a dedicated auth callback/finalization route that only does one job:
+  - show the logo loading screen
+  - wait for centralized auth to become ready
+  - optionally wait for first authenticated bootstrap fetches to settle
+  - redirect to the intended destination or a safe default like `/dashboard`
+- Update Google sign-in to return to that callback route instead of dropping straight into a protected page.
+- Update email/password sign-in to use the same post-login finalization path.
 
-### 2. Wire up the navigation links
-- `src/components/app/app-header.tsx`: change both "Sign in" buttons (desktop line 91, and add one to the mobile menu around line 134) to link to `/signin` instead of `/signup`.
-- `src/routes/signup.tsx`: change the "Already have one? Sign in" link (line 70) to `/signin`.
+Why this matters:
+- Right now login completion and app navigation are mixed together.
+- A dedicated callback screen is the safest place to absorb OAuth timing and session hydration delays.
 
-### 3. (Optional polish) Add a "Forgot password?" link on `/signin`
-Inline below the password field — opens a small dialog/inline form that calls `resetPasswordForEmail`, then a toast tells the user to check their inbox. The existing `/reset-password` route already handles the recovery callback correctly.
+4. Refactor auth-dependent data hooks to be safe during login
+- Rework `useSubscription()` and `useUserCredits()` so they depend on the centralized auth state instead of calling `useAccount()` internally.
+- Only run their queries when auth is fully ready and a user exists.
+- Add proper error handling and safe fallbacks instead of silently proceeding with partial state.
+- Reset local state immediately on sign-out.
+- Make realtime subscriptions start only after auth is ready, and tear down cleanly on sign-out.
+- Filter queries by the current user where appropriate, instead of relying only on implicit row policies.
 
-## Files
+Why this matters:
+- These hooks are mounted in global/shared areas like the header and protected pages.
+- They need to be impossible to misfire during auth initialization.
 
-| File | Change |
-|---|---|
-| `src/routes/signin.tsx` | **New** — sign-in page with email/password + Google + forgot-password |
-| `src/components/app/app-header.tsx` | Point "Sign in" links to `/signin` (desktop + add to mobile menu) |
-| `src/routes/signup.tsx` | Fix "Sign in" link to point to `/signin` |
+5. Clean up all auth entry points and redirects
+- Update every “sign in” CTA that still sends people to `/signup` so the flow is consistent:
+  - pricing page
+  - checkout page
+  - billing page
+  - any remaining auth prompts
+- Standardize the destination after successful login.
+- Use the logo loading screen for auth bootstrap only, not as a general workaround for broken state.
 
-No database, edge function, or Supabase configuration changes are needed — `signInWithEmail` already exists and the auth provider is configured.
+6. Add resilient error handling around auth flows
+- Keep the root error page, but make auth-related routes/components fail gracefully instead of collapsing the whole app.
+- Show inline auth errors for:
+  - invalid credentials
+  - canceled Google sign-in
+  - missing session after callback
+  - failed bootstrap fetches
+- Avoid navigating into protected pages until auth is confirmed ready.
 
-## How to test in the preview
+7. Backend verification
+- Verify the existing backend pieces are actually active for the current project:
+  - `user_credits` table
+  - `subscriptions` table
+  - the new-user credits trigger
+- If the new-user credits trigger is missing in the live backend, apply/fix the migration so new accounts always get initialized correctly.
+- No new backend tables should be needed unless that verification reveals a missing migration.
 
-1. **Sign up first** (so you have credentials): go to `/signup`, fill out the form with a real email + ≥8-character password, submit. You may need to confirm the email depending on auth settings.
-2. **Sign out** from the header.
-3. Click **Sign in** in the header — you should land on `/signin`.
-4. Enter the same email + password and submit → expect to land on `/builder` and the header to show "Sign out" + "Dashboard".
-5. **Wrong password test**: try a wrong password → expect a red toast "Invalid login credentials".
-6. **Forgot password test**: click "Forgot password?", submit your email, check inbox for the recovery email, click the link → it lands on `/reset-password` where you set a new password.
-7. **Google path**: click "Continue with Google" on `/signin` → completes OAuth and returns to `/builder`.
+Files likely involved
+- `src/lib/account.ts`
+- `src/routes/__root.tsx`
+- `src/router.tsx`
+- `src/components/app/auth-guard.tsx` (remove/replace)
+- `src/components/app/app-header.tsx`
+- `src/lib/user-credits.ts`
+- `src/lib/subscription.ts`
+- `src/routes/signin.tsx`
+- `src/routes/pricing.tsx`
+- `src/routes/checkout.tsx`
+- `src/routes/billing.tsx`
+- protected route files for builder/dashboard/workspace
+- new auth callback route file
+- backend migration only if trigger verification fails
 
-No Stripe test card is needed for any of these flows — sign-in is independent of billing.
+Technical implementation notes
+- Use TanStack route protection with `beforeLoad`, not component-time redirects.
+- Do not edit `src/routeTree.gen.ts` manually.
+- Keep one auth listener for the whole app.
+- Gate authenticated queries behind `auth.isReady && !!auth.user`.
+- Use a dedicated callback/loading route with the Diploofly logo.
 
+Validation checklist
+- Email/password sign-in succeeds and lands on the intended page.
+- Google sign-in succeeds and lands on the intended page.
+- Clicking Home, Pricing, Support, Builder, Dashboard, Billing after login does not show the global error page.
+- Signing out returns the app to a clean public state.
+- Fresh new accounts receive usable starter credits.
+- Wrong password, canceled OAuth, and expired recovery links show readable inline errors instead of breaking navigation.
