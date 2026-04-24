@@ -1,105 +1,109 @@
 ## Goal
 
-Wire a real AI into the website that:
-- Acts as a focused agent-website builder (not a general chatbot)
-- Edits the live preview in `workspace.tsx` based on natural language
-- Remembers the conversation so it doesn't repeat itself
-- Costs you nothing extra to set up — uses Lovable AI, which is already enabled (LOVABLE_API_KEY is provisioned)
+Make the product feel like Lovable for insurance agents:
 
-## Does it cost money?
+1. The builder is **one short setup form** (no Part 2 / Part 3).
+2. After submit, users land in a **Lovable-style workspace**: chat on one side, the **actual generated website** on the other — and the preview reflects what *they* described, not the same template every time.
+3. A **fullscreen preview** route lets users open their site in its own tab, away from the builder UI.
+4. When signed in, the home page no longer shows "Sign in" / "Create Your Account" / "Continue with Google" — those CTAs are replaced with "Open Builder" / "Go to Workspace". Sign-up link in the footer is also hidden when signed in.
 
-Short answer: **no extra setup cost, but usage is metered.**
+---
 
-- Lovable AI is already wired into your project. No API key, no third-party signup, no new billing relationship.
-- It comes with a free monthly allowance included with your Lovable plan.
-- After that allowance, requests draw from workspace credits (top up at Settings → Workspace → Usage). Cheap models (e.g. `google/gemini-3-flash-preview`) are pennies per conversation; expensive reasoning models (e.g. `openai/gpt-5`) cost more.
-- We will default to **`google/gemini-3-flash-preview`** — fast, cheap, more than capable for "tweak this landing page" edits. You can switch models later in one place.
+## What changes
 
-If you ever exceed the allowance the user sees a clean toast ("AI usage limit reached, please top up") instead of a crash.
+### 1. `src/routes/builder.tsx` — collapse to Part 1 only
 
-## What "not repetitive" means in practice
+Keep:
+- Dashboard chrome (credits, save draft, upgrade)
+- Out-of-credits / low-credits banners
+- "Your business" section (name, agent, phone, email, city, state, business type)
+- "Insurance niche" picker
+- "Choose a visual theme" picker
+- "Branding" (logo + headshot upload)
+- "Page copy" (headline, subheadline, CTA text)
+- "Preferred contact method"
+- Submit button → goes to `/workspace`
 
-Three things cause an AI to feel repetitive:
-1. It forgets prior turns → keeps reintroducing itself or re-asking. Fix: send the full chat history every turn.
-2. It has no role/scope → falls back to generic helper phrasing. Fix: a strong system prompt that locks it to insurance-agent-website tasks.
-3. It free-talks instead of acting → repeats "I can help with..." instead of editing. Fix: structured tool-calling so the model returns an *edit patch* (JSON), not chat fluff. The reply text only describes what changed.
+Remove:
+- The `PartHeader` step labels ("Part 1", "Part 2", "Part 3")
+- The entire **Part 2 — Tell our AI how to build your site** block (`<FreestyleChat />` + `FREESTYLE_SUGGESTIONS`)
+- The entire **Part 3 — Notes from author** block (`authorNotes` textarea)
+- The unused `FreestyleChat` and `FREESTYLE_SUGGESTIONS` constants
 
-We will do all three.
+The page header copy is reworded so it reads as "the only setup step". Submit button label changes from "Generate My Website" to "Open Builder Workspace".
 
-## Scope
+The data model (`BuilderData`) still keeps `freestyleInstructions`, `authorNotes`, and `workspaceNotes` — they're just no longer set from the builder. The chat in the workspace becomes the only place users describe the look/feel.
 
-Replace the regex-based `applyTweak` engine in `src/routes/workspace.tsx` with a real AI call. The builder page (`/builder`) stays as-is for initial form input. Workspace becomes the conversational editor.
+### 2. Workspace shows a *real, custom* website
 
-## Architecture
+Currently the preview is `<GeneratedLanding data={data} />` — a single hard-coded layout with niche-specific text. Same template every time. We change this so the AI actually shapes what's on screen.
 
-```text
-Workspace UI (chat input)
-        │  user message + chat history + current BuilderData
-        ▼
-TanStack server function: editWebsite()
-        │  calls Lovable AI Gateway with structured tool call
-        ▼
-Lovable AI (gemini-3-flash-preview)
-        │  returns { patch: Partial<BuilderData>, reply: string }
-        ▼
-Workspace applies patch → preview updates instantly
-```
+**a) New first-run AI generation pass.** When `/workspace` mounts and detects the user just came from the builder (no prior chat history, fresh draft), it automatically calls `editFn` once with a synthetic first message:
 
-No edge functions needed. No new env vars. No new tables.
+> "This is a fresh build. Use the business details, niche, theme, and contact method I provided to write a complete first version of my website — strong headline, subheadline, CTA, and a freestyleInstructions block describing the sections, tone, and visual direction that fit my business. Make it feel custom to me, not generic."
 
-## Changes
+The model fills in `headline`, `subheadline`, `ctaText`, `freestyleInstructions`, and (if appropriate) tweaks `themeId`. The first assistant chat bubble shows what it built.
 
-### 1. New server function: `src/lib/ai-editor.functions.ts`
+**b) Make the preview reflect AI choices.** `GeneratedLanding` already reads from `BuilderData`. We extend it to honor `freestyleInstructions` for visible structure decisions:
+- Add lightweight section toggles parsed from `freestyleInstructions` (e.g. "testimonials", "services", "booking form", "FAQ", "about-the-agent"). The component conditionally renders those sections based on flags the AI sets.
+- Expose those toggles in the AI tool schema in `src/lib/ai-editor.functions.ts` as new optional patch fields: `showTestimonials`, `showServices`, `showFaq`, `showBookingCta`, `showAboutAgent`. Add matching optional booleans to `BuilderData` (default false except `showServices` true) and to `BuilderPatch` in `src/lib/ai-editor.types.ts`.
+- Update the system prompt: the AI is the designer — for any user request, it should set both copy fields *and* section toggles, so two different agents end up with visibly different sites.
 
-- Uses `createServerFn({ method: "POST" })` with Zod input validation.
-- Inputs: `{ messages: ChatMessage[], builderData: BuilderData }`.
-- Calls `https://ai.gateway.lovable.dev/v1/chat/completions` with:
-  - `model: "google/gemini-3-flash-preview"`
-  - System prompt locking the assistant to the role of "senior web designer for US insurance agents" with explicit rules:
-    - Only edit fields that exist on `BuilderData`
-    - Never repeat greetings or re-introduce yourself
-    - Never say "I can help with..." — just do it and describe the change in one sentence
-    - Decline non-website requests politely in one short sentence
-  - `tools: [edit_website]` — a forced tool call with JSON schema mirroring `BuilderData`'s editable fields (headline, subheadline, ctaText, themeId, contactMethod, freestyleInstructions, businessName, agentName, etc.) plus a required `reply` string.
-  - `tool_choice` forces the function call so the model can't drift into pure chat.
-- Handles 429 (rate limit) and 402 (credits exhausted) explicitly and returns a typed error result the UI can toast.
-- Returns `{ patch: Partial<BuilderData> | null, reply: string, error?: string }`.
+This is the key: the layout is still our component (we keep visual quality high), but **which sections appear, the copy, the niche framing, the theme, and the CTA** are all AI-driven — so two different agents get visibly different sites.
 
-### 2. Update `src/routes/workspace.tsx`
+**c) Update workspace toolbar.** Add an "Open in new tab" button next to "Edit details" / "Publish" linking to `/preview` (see #3). Remove the amber "Add a payment method to publish" notice from inside the workspace and move it to a smaller pill inside the existing status row (less in-the-way, more Lovable-like).
 
-- Remove the `applyTweak` regex function and its keyword cascade.
-- Add `useServerFn(editWebsite)` and call it on send.
-- Pass full chat history (sliced to last ~20 messages to keep it cheap) plus current `BuilderData`.
-- Keep the existing optimistic UI: append user message, show a "thinking…" assistant bubble, replace it with the real reply when it returns.
-- Apply returned `patch` with the existing `setData` + `saveBuilder` flow.
-- Toast on error result.
-- Keep the credit-cost UX (`ACTION_COSTS`) so each AI tweak still consumes a credit — no behavior change there.
+### 3. New fullscreen preview route
 
-### 3. New file: `src/lib/ai-editor.types.ts`
+`src/routes/preview.tsx` already exists in the project — repurpose it as the fullscreen site preview:
+- No `AppHeader`, no `AppFooter`, no chrome.
+- Reads the builder data from local storage (`loadBuilder()`).
+- Renders `<GeneratedLanding data={data} />` full-bleed.
+- Wrapped in `AuthGuard` so only signed-in users can view it.
+- Add a small floating "← Back to workspace" pill in the top-left and an "Open in new tab" affordance for sharing the live URL.
 
-- Shared `ChatMessage` type and the Zod schema for the tool-call response, used by both the server function and the client.
+The workspace's "Open in new tab" button uses `<Link to="/preview" target="_blank">` so the preview opens in a separate browser tab, exactly like Lovable's preview pop-out.
 
-### 4. Small polish in workspace
+### 4. Hide irrelevant CTAs when signed in
 
-- The starter assistant message stays, but we add a one-time "what I can do" hint chip row (Change headline, Switch theme, Add testimonial section, Make it warmer, etc.) so users discover capabilities without the AI having to explain itself every turn.
+**`src/routes/index.tsx` (Hero):**
+- Read `useAccount()` — if `signedIn`, replace the two hero buttons with one primary "Open Builder" → `/builder` and a secondary "Go to Workspace" → `/workspace`.
+- Drop the "Continue with Google" button entirely when signed in.
+- Change the trust-row item "Card on file required" to "You're signed in" when signed in (small touch, removes the awkward marketing copy for an authed user).
 
-## What stays out of scope
+**`src/routes/index.tsx` (FinalCta):**
+- When signed in, button label changes from "Get Started" → "Open Builder" (links to `/builder` instead of `/start`), and "See pricing" stays.
 
-- Streaming token-by-token responses. Tweaks return in 1–3 seconds with the cheap model, so streaming adds complexity without UX gain. Easy to add later if you want.
-- Letting the AI invent new sections/components beyond what `GeneratedLanding` already renders. The model can only set fields the renderer understands — this prevents broken previews.
-- Image generation. Out of scope for this round; can be a follow-up using Lovable AI's image models against headshots/logos.
+**`src/components/app/app-footer.tsx`:**
+- Hide the `<Link to="/signup">Sign up</Link>` row when signed in. (Sign-in link too if present.)
 
-## Risks and how we handle them
+These all use the existing `useAccount()` hook (`account.hydrated && account.signedIn`) so there's no flash on first paint — render the public version until hydrated, mirroring how `AppHeader` already does it.
 
-- **Model returns malformed JSON**: tool-calling with a strict schema + Zod validation on the server — invalid responses become a friendly "Could you rephrase that?" reply with no patch applied.
-- **Off-topic requests** ("write me a poem"): system prompt instructs a one-sentence redirect; tool call is still forced so the patch is just `null`.
-- **Cost runaway**: cheap model by default, history capped at 20 turns, single non-streaming request per send.
+### 5. Cleanup
+
+- Remove `FREESTYLE_SUGGESTIONS` and `FreestyleChat` from `builder.tsx`.
+- Remove unused `Send` and `Sparkles` imports if no longer referenced after the cuts.
+- The `authorNotes` field stays in the schema for back-compat but is no longer surfaced; `GeneratedLanding` still renders it if non-empty (so old drafts don't lose data).
+
+---
+
+## Files touched
+
+- `src/routes/builder.tsx` — strip Part 2 and Part 3, simplify copy, change submit CTA.
+- `src/routes/workspace.tsx` — auto-run first AI generation on entry, add "Open in new tab" button, slim the payment-method banner.
+- `src/routes/preview.tsx` — convert to fullscreen authed preview of the user's generated site.
+- `src/components/generated/generated-landing.tsx` — honor new section-toggle flags from `BuilderData`.
+- `src/lib/builder-storage.ts` — add optional boolean section-toggle fields to `BuilderData` and `DEFAULT_BUILDER`.
+- `src/lib/ai-editor.types.ts` — extend `BuilderPatch` with new optional booleans.
+- `src/lib/ai-editor.functions.ts` — extend tool schema + sanitizer + system prompt so the AI drives sections.
+- `src/routes/index.tsx` — swap hero + final CTA buttons based on signed-in state.
+- `src/components/app/app-footer.tsx` — hide signup link when signed in.
 
 ## Validation checklist
 
-- "Change the headline to 'Medicare made easy'" → headline updates in preview, reply is one sentence.
-- "Switch to the warm local advisor theme" → `themeId` updates, palette changes in preview.
-- "Make the tone more family-oriented" → `freestyleInstructions` and possibly subheadline update; reply describes the shift without re-greeting.
-- Asking the same thing twice in a row → second reply does not repeat the first verbatim and acknowledges the change is already in place.
-- Asking "what's the weather" → polite one-line redirect, no patch.
-- Network/credit failure → red toast with a clear message, chat input stays usable.
+- `/builder` shows one continuous form, no "Part 2" / "Part 3" headers, no freestyle chat block, no author-notes block.
+- Submitting the builder navigates to `/workspace`, which immediately runs one AI pass and visibly customizes the preview to the agent's business (different niches → visibly different sites).
+- Workspace has an "Open in new tab" button → opens `/preview` in a new tab showing only the website (no app chrome).
+- Signed-in home page shows "Open Builder" instead of "Sign in" / "Create Your Account" / "Continue with Google".
+- Footer no longer offers "Sign up" when already signed in.
+- Existing drafts still load (back-compat preserved on `BuilderData`).
