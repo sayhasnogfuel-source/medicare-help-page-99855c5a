@@ -26,7 +26,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { signInWithGoogle } from "@/lib/account";
+import { signInWithGoogle, useAccount } from "@/lib/account";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -74,6 +74,8 @@ function HomePage() {
 function Hero() {
   const { transitionTo } = usePageTransition();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const account = useAccount();
+  const signedIn = account.hydrated && account.signedIn;
   const handleGoogle = async () => {
     if (googleLoading) return;
     setGoogleLoading(true);
@@ -131,6 +133,27 @@ function Hero() {
           ACA, Life, Health, Auto, Home, and more. No designer, no developer required.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          {signedIn ? (
+            <>
+              <Button
+                size="lg"
+                onClick={() => transitionTo({ to: "/builder" })}
+                className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
+              >
+                Open Builder
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => transitionTo({ to: "/workspace" })}
+                className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
+              >
+                Go to Workspace
+              </Button>
+            </>
+          ) : (
+            <>
           <Button
             size="lg"
             onClick={() => transitionTo({ to: "/signup" })}
@@ -150,10 +173,15 @@ function Hero() {
             <HeroGoogleGlyph />
             {googleLoading ? "Connecting…" : "Continue with Google"}
           </Button>
+            </>
+          )}
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-muted-foreground">
-          {["Card on file required", "5-minute setup", "Mobile-friendly", "Lead-ready"].map((t) => (
+          {(signedIn
+            ? ["You're signed in", "5-minute setup", "Mobile-friendly", "Lead-ready"]
+            : ["Card on file required", "5-minute setup", "Mobile-friendly", "Lead-ready"]
+          ).map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-[var(--surface-mocha)]" />
               {t}
@@ -450,6 +478,8 @@ function Faq() {
 /* ---------------- FINAL CTA ---------------- */
 function FinalCta() {
   const { transitionTo } = usePageTransition();
+  const account = useAccount();
+  const signedIn = account.hydrated && account.signedIn;
   return (
     <section className="px-5 pb-24">
       <div
@@ -466,10 +496,10 @@ function FinalCta() {
         <div className="mt-2 flex flex-col gap-3 sm:flex-row">
           <Button
             size="lg"
-            onClick={() => transitionTo({ to: "/start" })}
+            onClick={() => transitionTo({ to: signedIn ? "/builder" : "/start" })}
             className="rounded-full bg-[var(--surface-cream)] px-7 text-base font-semibold text-[var(--surface-espresso)] hover:bg-white"
           >
-            Get Started
+            {signedIn ? "Open Builder" : "Get Started"}
             <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
           <Button
