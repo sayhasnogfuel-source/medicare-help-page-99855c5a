@@ -5,7 +5,7 @@ import { PageTransition } from "@/components/app/page-transition";
 import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Sparkles, Zap, ArrowRight, HandHelping, Star } from "lucide-react";
+import { Check, Sparkles, Zap, ArrowRight, Star } from "lucide-react";
 import { useCredits, ACTION_COSTS, ACTION_LABELS, type Plan } from "@/lib/credits";
 import { toast } from "sonner";
 
@@ -271,99 +271,6 @@ function PricingPage() {
                   ),
                 )}
               </div>
-            </div>
-
-            {/* Custom Website — premium done-for-you offer */}
-            <div className="mt-20">
-              <div className="mx-auto max-w-2xl text-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-background">
-                  <Star className="h-3 w-3" />
-                  Done-for-you
-                </span>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                  Need us to build it for you?
-                </h2>
-                <p className="mt-3 text-muted-foreground">
-                  Skip the builder. Our team designs, writes, and launches a polished
-                  insurance website for you — built to convert.
-                </p>
-              </div>
-
-              <Card className="relative mt-8 overflow-hidden rounded-3xl border-foreground/15 bg-gradient-to-br from-[var(--surface-espresso)] to-[var(--surface-mocha)] p-0 text-[var(--surface-cream)] shadow-[var(--shadow-lg)]">
-                <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr]">
-                  <div className="p-8 sm:p-10">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--surface-cream)]/15 text-[var(--surface-cream)]">
-                        <HandHelping className="h-5 w-5" />
-                      </span>
-                      <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--surface-cream)]/70">
-                        Custom Website
-                      </span>
-                    </div>
-                    <h3 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
-                      Best for agents who want a professional website built for them.
-                    </h3>
-                    <div className="mt-5 flex flex-wrap items-baseline gap-2">
-                      <span className="text-xs font-medium uppercase tracking-wider text-[var(--surface-cream)]/60">
-                        Starting at
-                      </span>
-                      <span className="text-4xl font-semibold tracking-tight">$206</span>
-                      <span className="text-sm text-[var(--surface-cream)]/70">
-                        + active monthly subscription
-                      </span>
-                    </div>
-                    <p className="mt-3 text-sm text-[var(--surface-cream)]/70">
-                      Final price may vary based on scope, pages, features, and support
-                      needs.
-                    </p>
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                      <Button
-                        onClick={() => transitionTo({ to: "/inquiry" })}
-                        size="lg"
-                        className="rounded-full bg-[var(--surface-cream)] text-[var(--surface-espresso)] hover:bg-[var(--surface-cream)]/90"
-                      >
-                        Submit Inquiry
-                        <ArrowRight className="ml-1 h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => transitionTo({ to: "/support" })}
-                        size="lg"
-                        variant="outline"
-                        className="rounded-full border-[var(--surface-cream)]/30 bg-transparent text-[var(--surface-cream)] hover:bg-[var(--surface-cream)]/10 hover:text-[var(--surface-cream)]"
-                      >
-                        Ask a question
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="border-t border-[var(--surface-cream)]/15 p-8 sm:p-10 lg:border-l lg:border-t-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--surface-cream)]/60">
-                      What's included
-                    </p>
-                    <ul className="mt-4 space-y-3">
-                      {[
-                        "We build it for you, end to end",
-                        "Customized to your brand",
-                        "Built specifically for insurance agents",
-                        "Mobile-friendly and lead-focused design",
-                        "Revisions and launch support included",
-                        "Hosting and live website tied to subscription",
-                      ].map((f) => (
-                        <li
-                          key={f}
-                          className="flex items-start gap-2.5 text-sm text-[var(--surface-cream)]/90"
-                        >
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--surface-cream)]" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-5 rounded-2xl border border-[var(--surface-cream)]/15 bg-[var(--surface-cream)]/5 px-4 py-3 text-xs text-[var(--surface-cream)]/75">
-                      An active monthly subscription keeps your website live, hosted, and
-                      managed through the platform after launch.
-                    </p>
-                  </div>
-                </div>
-              </Card>
             </div>
 
             <p className="mt-10 text-center text-xs text-muted-foreground">
