@@ -28,7 +28,7 @@ function fromSession(session: Session | null): AccountState {
 
 export async function signInWithGoogle() {
   const result = await lovable.auth.signInWithOAuth("google", {
-    redirect_uri: typeof window !== "undefined" ? `${window.location.origin}/builder` : undefined,
+    redirect_uri: typeof window !== "undefined" ? `${window.location.origin}/signin` : undefined,
   });
   if (result.error) {
     throw result.error instanceof Error ? result.error : new Error(String(result.error));
