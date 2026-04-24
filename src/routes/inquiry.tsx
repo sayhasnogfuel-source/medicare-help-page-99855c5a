@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
+import { TestModeBanner } from "@/components/app/test-mode-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { INSURANCE_NICHES } from "@/lib/builder-storage";
 
 export const Route = createFileRoute("/inquiry")({
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/inquiry")({
   }),
 });
 
-const STORAGE_KEY = "lp_inquiry_submissions";
+const PENDING_KEY = "lp_inquiry_pending";
 
 type ContactPref = "call" | "text" | "email";
 type BrandingState = "yes" | "no" | "partial";
@@ -71,9 +72,9 @@ const DEFAULT_FORM: InquiryForm = {
 };
 
 function InquiryPage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState<InquiryForm>(DEFAULT_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
 
   function update<K extends keyof InquiryForm>(k: K, v: InquiryForm[K]) {
     setForm((p) => ({ ...p, [k]: v }));
@@ -102,18 +103,20 @@ function InquiryPage() {
     }
     try {
       if (typeof window !== "undefined") {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        const list = raw ? (JSON.parse(raw) as unknown[]) : [];
-        list.push({ ...form, submittedAt: new Date().toISOString() });
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        const inquiryId = `inq_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const payload = {
+          ...form,
+          inquiryId,
+          email: form.email,
+          businessName: form.businessName,
+          submittedAt: new Date().toISOString(),
+        };
+        window.localStorage.setItem(PENDING_KEY, JSON.stringify(payload));
       }
     } catch {
-      // ignore quota errors — local-only persistence
+      // ignore quota errors
     }
-    setSubmitted(true);
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    navigate({ to: "/inquiry/deposit" });
   }
 
   return (
