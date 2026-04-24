@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import diploofly from "@/assets/diploofly-logo.svg";
+import diploofly from "@/assets/diploofly-logo.png";
 
 export function AppFooter() {
   return (
