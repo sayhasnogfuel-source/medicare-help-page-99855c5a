@@ -18,6 +18,7 @@ import {
   HeartHandshake,
   PencilLine,
   Rocket,
+  UserPlus,
 } from "lucide-react";
 import {
   Accordion,
