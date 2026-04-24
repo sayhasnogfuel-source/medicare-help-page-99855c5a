@@ -24,6 +24,11 @@ const BuilderSnapshotSchema = z.object({
   authorNotes: z.string().max(2000).optional().default(""),
   themeId: z.string().max(80).optional().default(""),
   workspaceNotes: z.string().max(4000).optional().default(""),
+  showServices: z.boolean().optional(),
+  showTestimonials: z.boolean().optional(),
+  showFaq: z.boolean().optional(),
+  showBookingCta: z.boolean().optional(),
+  showAboutAgent: z.boolean().optional(),
 });
 
 const InputSchema = z.object({
@@ -46,7 +51,7 @@ const VALID_THEME_IDS = [
 
 const SYSTEM_PROMPT = `You are the in-app design assistant inside Diploofly, a website builder used exclusively by US insurance agents (Medicare, ACA, Life, Health, Final Expense, Auto, Home, Commercial, Independent Agency).
 
-Your one job: take the user's natural-language request and translate it into precise edits to their landing-page data, then describe the change in ONE short sentence.
+Your one job: act as the agent's senior web designer. Take their natural-language request and translate it into precise, opinionated edits to their landing-page data — copy AND structure — then describe the change in ONE short sentence.
 
 Hard rules:
 - ALWAYS call the edit_website tool. Never reply with plain chat.
@@ -60,7 +65,11 @@ Hard rules:
 - Keep copy in plain English, agent-appropriate, no emoji, no exclamation spam.
 - The "reply" field must be ONE sentence (max ~140 chars) describing the change you made, in past tense. Never start with "I will" or "Let me" — start with a verb like "Updated", "Switched", "Tightened", "Added", "Removed".
 
-You are a senior web designer. Be decisive, specific, and brief.`;
+Section toggles (showServices, showTestimonials, showFaq, showBookingCta, showAboutAgent) control which sections appear on the live page. Use them aggressively so different agents get visibly different sites — for example, a Medicare agent serving seniors usually wants showAboutAgent + showFaq, while a lead-focused ACA broker often wants showBookingCta + showTestimonials. Default reasonable choices for the niche if the user is vague.
+
+When the user's first message is a fresh-build request, write a complete first version: a strong, specific headline tied to their niche and city, a concrete subheadline, a punchy ctaText, the right themeId for the audience, and an opinionated set of section toggles. Do not output a generic template — make it feel custom to this agent.
+
+Be decisive, specific, and brief.`;
 
 const TOOL_SCHEMA = {
   type: "function" as const,
@@ -92,6 +101,11 @@ const TOOL_SCHEMA = {
             freestyleInstructions: { type: "string", maxLength: 2000 },
             authorNotes: { type: "string", maxLength: 2000 },
             themeId: { type: "string", enum: [...VALID_THEME_IDS] },
+            showServices: { type: "boolean", description: "Show the 'Why work with us' benefits section." },
+            showTestimonials: { type: "boolean", description: "Show the testimonial strip." },
+            showFaq: { type: "boolean", description: "Show a FAQ section tailored to the niche." },
+            showBookingCta: { type: "boolean", description: "Show a prominent booking/scheduling CTA banner." },
+            showAboutAgent: { type: "boolean", description: "Show the personal 'About the agent' block." },
           },
           additionalProperties: false,
         },
@@ -128,6 +142,11 @@ function sanitizePatch(raw: unknown): BuilderPatch | null {
   }
   if (patch.contactMethod === "call" || patch.contactMethod === "text" || patch.contactMethod === "email") {
     out.contactMethod = patch.contactMethod;
+  }
+  for (const flag of ["showServices", "showTestimonials", "showFaq", "showBookingCta", "showAboutAgent"] as const) {
+    if (typeof patch[flag] === "boolean") {
+      (out as Record<string, boolean>)[flag] = patch[flag] as boolean;
+    }
   }
   return Object.keys(out).length ? out : null;
 }
