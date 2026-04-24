@@ -65,7 +65,7 @@ const TIERS: Tier[] = [
     period: "/ month",
     tagline: "Everything one agent needs to launch and edit a real website.",
     features: [
-      "108 credits / month",
+      "100 credits / month",
       "Publish your website live",
       "Hosting included while subscribed",
       "Edit copy, sections & branding",
@@ -81,7 +81,7 @@ const TIERS: Tier[] = [
     period: "/ month",
     tagline: "More credits and room to iterate for agents who want to grow fast.",
     features: [
-      "488 credits / month",
+      "500 credits / month",
       "Unlimited redesigns & rewrites",
       "Add additional pages",
       "Priority AI generations",
