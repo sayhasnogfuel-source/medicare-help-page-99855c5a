@@ -74,7 +74,36 @@ function Hero() {
       className="relative overflow-hidden"
       style={{ background: "var(--gradient-hero)" }}
     >
-      <div className="mx-auto max-w-6xl px-5 pt-20 pb-24 text-center sm:pt-32 sm:pb-36">
+      {/* Ambient orbs / illumination */}
+      <div
+        aria-hidden
+        className="lp-orb"
+        style={{
+          top: "-120px", left: "-80px", width: "420px", height: "420px",
+          background: "radial-gradient(circle, var(--surface-camel), transparent 60%)",
+          opacity: 0.6,
+        }}
+      />
+      <div
+        aria-hidden
+        className="lp-orb lp-orb-alt"
+        style={{
+          top: "20%", right: "-120px", width: "460px", height: "460px",
+          background: "radial-gradient(circle, var(--surface-mocha), transparent 65%)",
+          opacity: 0.35,
+        }}
+      />
+      <div
+        aria-hidden
+        className="lp-orb"
+        style={{
+          bottom: "-160px", left: "30%", width: "380px", height: "380px",
+          background: "radial-gradient(circle, var(--surface-tan), transparent 65%)",
+          opacity: 0.4,
+        }}
+      />
+
+      <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-24 text-center sm:pt-32 sm:pb-36">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-[var(--shadow-xs)] backdrop-blur">
           <Sparkles className="h-3 w-3" />
           Built for independent insurance agents
@@ -90,10 +119,18 @@ function Hero() {
           <Button
             size="lg"
             onClick={() => transitionTo({ to: "/start" })}
-            className="rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
+            className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
           >
             Get Started
-            <ArrowRight className="ml-1 h-4 w-4" />
+            <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => transitionTo({ to: "/signup" })}
+            className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
+          >
+            See it in action
           </Button>
         </div>
 
@@ -104,6 +141,36 @@ function Hero() {
               {t}
             </span>
           ))}
+        </div>
+
+        {/* Floating mini UI accent cards (decorative) */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 mx-auto hidden max-w-6xl sm:block">
+          <div
+            className="lp-float absolute left-4 top-32 rounded-2xl border border-border/60 bg-background/85 p-3 shadow-[var(--shadow-md)] backdrop-blur"
+            style={{ width: "180px" }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
+                <Sparkles className="h-3.5 w-3.5" />
+              </span>
+              <div className="flex-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AI generating</p>
+                <p className="text-xs font-semibold text-foreground">Hero · Trust · CTA</p>
+              </div>
+            </div>
+          </div>
+          <div
+            className="lp-float-slow absolute right-6 top-44 rounded-2xl border border-border/60 bg-background/85 p-3 shadow-[var(--shadow-md)] backdrop-blur"
+            style={{ width: "200px" }}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Live preview</p>
+            <p className="mt-1 text-xs font-semibold text-foreground">sterlinginsurance.lumen.pages</p>
+            <div className="mt-2 flex items-center gap-1">
+              <span className="h-1.5 w-12 rounded-full bg-[var(--surface-mocha)]" />
+              <span className="h-1.5 w-6 rounded-full bg-[var(--surface-tan)]" />
+              <span className="h-1.5 w-3 rounded-full bg-[var(--surface-beige)]" />
+            </div>
+          </div>
         </div>
       </div>
     </section>
