@@ -327,21 +327,23 @@ function DashboardPage() {
                     <Sparkles className="h-3 w-3" /> Plan
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${subStatusTone(billing.subStatus)}`}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${subStatusTone(status)}`}
                   >
-                    {SUB_STATUS_LABEL[billing.subStatus]}
+                    {SUB_LABEL[status] ?? status}
                   </span>
                 </div>
                 <h2 className="mt-3 text-lg font-semibold text-foreground">
                   {PLAN_LABELS[credits.plan]}
                 </h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  {credits.plan === "trial"
-                    ? billing.trialDaysLeft > 0
-                      ? `Trial ends in ${billing.trialDaysLeft} day${billing.trialDaysLeft === 1 ? "" : "s"} (${formatDate(billing.trialEndsAt)})`
+                  {sub.isTrialing
+                    ? trialDaysLeft > 0
+                      ? `Trial ends in ${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"} (${formatDate(trialEnd)})`
                       : "Trial period has ended"
-                    : billing.nextBillingAt
-                      ? `Renews ${formatDate(billing.nextBillingAt)}`
+                    : periodEnd
+                      ? sub.subscription?.cancel_at_period_end
+                        ? `Ends ${formatDate(periodEnd)}`
+                        : `Renews ${formatDate(periodEnd)}`
                       : "No upcoming charge scheduled"}
                 </p>
                 <Button asChild size="sm" className="mt-5 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]">
