@@ -9,11 +9,18 @@ import {
   Sparkles,
   MapPin,
   Star,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import type { BuilderData } from "@/lib/builder-storage";
 import { getThemeById } from "@/lib/builder-storage";
 
@@ -93,6 +100,14 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
   const cta = data.ctaText || "Request Help";
   const typeLabel = data.insuranceType?.trim() || "Insurance";
   const theme = getThemeById(data.themeId);
+
+  // Section toggles — undefined means "use a sensible default" so old
+  // drafts and fresh data both render a complete page.
+  const showServices = data.showServices !== false;
+  const showTestimonials = data.showTestimonials !== false;
+  const showAboutAgent = data.showAboutAgent !== false;
+  const showFaq = data.showFaq === true;
+  const showBookingCta = data.showBookingCta === true;
 
   // Override the warm-neutral surface tokens with the selected theme's palette
   // so the generated landing visibly reflects the theme choice.
