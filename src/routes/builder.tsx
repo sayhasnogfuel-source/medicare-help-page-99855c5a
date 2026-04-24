@@ -30,7 +30,7 @@ import {
   type BuilderData,
   type ContactMethod,
 } from "@/lib/builder-storage";
-import { useCredits, ACTION_COSTS } from "@/lib/credits";
+import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
 import { AuthGuard } from "@/components/app/auth-guard";
@@ -68,7 +68,7 @@ const FREESTYLE_SUGGESTIONS = [
 
 function BuilderPage() {
   const { transitionTo } = usePageTransition();
-  const credits = useCredits();
+  const credits = useUserCredits();
   const [data, setData] = useState<BuilderData>(DEFAULT_BUILDER);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
@@ -98,7 +98,7 @@ function BuilderPage() {
     return errs;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (credits.isEmpty) {
       toast.error("You're out of credits", {
@@ -121,7 +121,7 @@ function BuilderPage() {
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    const charged = credits.charge("generate");
+    const charged = await credits.charge("generate");
     if (!charged) {
       transitionTo({ to: "/pricing" });
       return;

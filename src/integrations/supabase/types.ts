@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      deposits: {
+        Row: {
+          amount_cents: number
+          business_name: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          environment: string
+          id: string
+          inquiry_id: string | null
+          paid_at: string | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          business_name?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          environment?: string
+          id?: string
+          inquiry_id?: string | null
+          paid_at?: string | null
+          status: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          business_name?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          environment?: string
+          id?: string
+          inquiry_id?: string | null
+          paid_at?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposits_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiries: {
+        Row: {
+          business_name: string
+          contact_method: string
+          created_at: string
+          deposit_status: string
+          email: string
+          full_name: string
+          goals: string
+          has_branding: string
+          id: string
+          niche: string
+          notes: string | null
+          phone: string
+          states: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_method: string
+          created_at?: string
+          deposit_status?: string
+          email: string
+          full_name: string
+          goals: string
+          has_branding: string
+          id?: string
+          niche: string
+          notes?: string | null
+          phone: string
+          states: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_method?: string
+          created_at?: string
+          deposit_status?: string
+          email?: string
+          full_name?: string
+          goals?: string
+          has_branding?: string
+          id?: string
+          niche?: string
+          notes?: string | null
+          phone?: string
+          states?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -57,6 +170,42 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          created_at: string
+          credits: number
+          cycle_ends_at: string | null
+          cycle_started_at: string
+          id: string
+          plan: string
+          plan_total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number
+          cycle_ends_at?: string | null
+          cycle_started_at?: string
+          id?: string
+          plan?: string
+          plan_total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          cycle_ends_at?: string | null
+          cycle_started_at?: string
+          id?: string
+          plan?: string
+          plan_total?: number
           updated_at?: string
           user_id?: string
         }

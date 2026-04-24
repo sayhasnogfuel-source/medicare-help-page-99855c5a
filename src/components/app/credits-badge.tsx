@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles, Zap } from "lucide-react";
-import { useCredits, PLAN_LABELS } from "@/lib/credits";
+import { useUserCredits, PLAN_LABELS } from "@/lib/user-credits";
 
 /**
  * Compact credits indicator for use inside the builder/dashboard chrome.
  * Shows current plan, credits remaining, and an Upgrade link when low.
  */
 export function CreditsBadge() {
-  const { plan, credits, planTotal, isLow, isEmpty, hydrated } = useCredits();
+  const { plan, credits, planTotal, isLow, isEmpty, hydrated } = useUserCredits();
   if (!hydrated) return null;
 
   const tone = isEmpty

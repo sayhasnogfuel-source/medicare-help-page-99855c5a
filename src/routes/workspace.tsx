@@ -25,7 +25,7 @@ import {
   type BuilderData,
   DEFAULT_BUILDER,
 } from "@/lib/builder-storage";
-import { useCredits, ACTION_COSTS } from "@/lib/credits";
+import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
 
@@ -247,7 +247,7 @@ function WorkspacePage() {
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const credits = useCredits();
+  const credits = useUserCredits();
   const scrollRef = useRef<HTMLDivElement>(null);
   const launchedAt = useRef<number>(Date.now());
 
@@ -323,7 +323,7 @@ function WorkspacePage() {
       let next: BuilderData = data;
       if (patch) {
         next = { ...data, ...patch };
-        credits.charge("regenerate_section");
+        void credits.charge("regenerate_section");
       }
       // Quality-control pass — auto-fix any obvious issues.
       const qc = selfCheck(next);
