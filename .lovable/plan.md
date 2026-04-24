@@ -2,44 +2,36 @@
 
 ## Goal
 
-Rebrand the entire site from "Lumen.pages" to **Diploofly** and use the uploaded logo image in the header and footer.
+Make only the **logo** look polished and "fit" the page properly — no other site changes.
 
 ## What changes
 
-### 1. Add the logo asset
-- Copy `user-uploads://ChatGPT_Image_Apr_23_2026_06_41_24_PM.png` into `src/assets/diploofly-logo.png` (full lockup: D-mark + wordmark).
-- Also copy a square favicon-friendly version into `public/diploofly-icon.png` for the browser tab and OG fallback.
+### 1. Replace the current logo asset
+The current `src/assets/diploofly-logo.png` is the AI-generated brown "D" mark on a transparent background — at small sizes it looks pixelated and tacky next to the crisp wordmark text. Swap it for a clean, vector-style SVG mark that renders perfectly sharp at any size.
+
+- New file: `src/assets/diploofly-logo.svg` — a minimal geometric "D" mark (rounded square container + stylized D) drawn in pure SVG using the existing brand mocha color (`#5a3a22` family, matching `--surface-mocha`).
+- Delete dependence on the PNG in the header/footer (keep the PNG file for the favicon for now).
 
 ### 2. Header (`src/components/app/app-header.tsx`)
-- Replace the Sparkles-icon-in-a-square + "Lumen.pages" text with the imported logo image.
-- Render as a single `<img src={diploofly} alt="Diploofly" className="h-8 w-auto" />` inside the `<Link to="/">`.
-- Update `aria-label="Lumen home"` → `aria-label="Diploofly home"`.
-- Drop the now-unused `Sparkles` import.
+- Import the SVG instead of the PNG.
+- Slightly smaller, tighter lockup so it sits naturally next to the wordmark:
+  - Mark: `h-7 w-7` (was `h-8 w-8`)
+  - Wordmark: keep current size, reduce gap to `gap-2`, add `-tracking-[0.01em]` for a tighter, more premium feel.
+- Vertically center the mark with the wordmark's optical baseline (small `-mt-px` nudge).
 
 ### 3. Footer (`src/components/app/app-footer.tsx`)
-- Same swap: logo image instead of icon + wordmark.
-- Update copyright line: `© {year} Diploofly — Built for independent insurance agents.`
-- Drop the `Sparkles` import.
+- Same swap: SVG mark, `h-7 w-7`, tighter gap, same wordmark treatment.
 
-### 4. Site-wide text rebrand
-Find-and-replace **"Lumen.pages"** → **"Diploofly"** and **"Lumen"** → **"Diploofly"** across:
-- `src/routes/__root.tsx` (title, description, author, og:title, og:description, twitter tags)
-- `src/routes/index.tsx` (head meta + the "Why agents choose Lumen" eyebrow → "Why agents choose Diploofly")
-- `src/routes/pricing.tsx`, `src/routes/billing.tsx`, `src/routes/support.tsx`, `src/routes/signup.tsx`, `src/routes/reset-password.tsx`, `src/routes/builder.tsx`, `src/routes/inquiry.tsx` (all head meta titles/descriptions)
-- Any remaining body copy mentioning Lumen across components/routes
-
-### 5. Browser tab
-- Update `<link rel="icon">` in `__root.tsx` head to point to `/diploofly-icon.png`.
-
-### 6. Theme alignment (light touch)
-The logo's brown/tan palette already matches the existing warm-neutral theme (mocha/camel/cream tokens in `styles.css`), so no color-token changes are needed. The logo will sit naturally in the header and footer.
+### 4. Favicon
+- Leave `public/diploofly-icon.png` as-is for now (browser tab). No change needed.
 
 ## Files touched
 
-- New: `src/assets/diploofly-logo.png`, `public/diploofly-icon.png`
-- Edited: `src/components/app/app-header.tsx`, `src/components/app/app-footer.tsx`, `src/routes/__root.tsx`, `src/routes/index.tsx`, `src/routes/pricing.tsx`, `src/routes/billing.tsx`, `src/routes/support.tsx`, `src/routes/signup.tsx`, `src/routes/reset-password.tsx`, `src/routes/builder.tsx`, `src/routes/inquiry.tsx`
+- New: `src/assets/diploofly-logo.svg`
+- Edited: `src/components/app/app-header.tsx` (swap import, tweak sizing/tracking)
+- Edited: `src/components/app/app-footer.tsx` (swap import, tweak sizing/tracking)
 
 ## Result
 
-Every page header and footer shows the actual Diploofly logo, the browser tab shows the Diploofly mark, and every meta title, description, social card, and on-page mention reads "Diploofly" instead of "Lumen.pages".
+The Diploofly mark in the header and footer becomes a crisp, vector logo that scales perfectly, sits properly aligned with the wordmark, and looks professional instead of pixel-y. Nothing else on the site changes.
 
