@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { z } from "zod";
 import diploofly from "@/assets/diploofly-logo.png";
@@ -20,22 +20,57 @@ export const Route = createFileRoute("/auth/callback")({
   }),
 });
 
+/**
+ * Normalize a "redirect" search param into a safe in-app path. We never want
+ * to navigate to an absolute URL, a protocol-relative URL (//evil.com), or a
+ * non-existent destination. If the value isn't a clean in-app path we fall
+ * back to /dashboard.
+ */
+function safeRedirectPath(raw: string | undefined): string {
+  if (!raw) return "/dashboard";
+  let value = raw;
+  // The link from signin/signup may double-encode this when it round-trips
+  // through the OAuth broker. Decode defensively.
+  try {
+    if (value.startsWith("%2F") || value.includes("%3F")) {
+      value = decodeURIComponent(value);
+    }
+  } catch {
+    // ignore — fall through to the literal value
+  }
+  if (!value.startsWith("/")) return "/dashboard";
+  if (value.startsWith("//")) return "/dashboard";
+  return value;
+}
+
 function AuthCallbackPage() {
   const navigate = useNavigate();
   const { redirect } = useSearch({ from: "/auth/callback" });
   const { hydrated, user } = useAuth();
+  // Grace window: even after the auth provider says it's hydrated, Supabase
+  // may still be parsing the OAuth tokens out of the URL fragment. Don't
+  // declare the sign-in failed until that window has passed.
+  const [graceExpired, setGraceExpired] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setGraceExpired(true), 4000);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    const dest = (redirect && redirect.startsWith("/") ? redirect : null) || "/dashboard";
+    const dest = safeRedirectPath(redirect);
     if (user) {
-      navigate({ to: dest });
-    } else {
-      // Auth completed without a session — most likely user canceled OAuth.
-      toast.error("Sign in didn't complete. Please try again.");
-      navigate({ to: "/signin" });
+      navigate({ to: dest, replace: true });
+      return;
     }
-  }, [hydrated, user, redirect, navigate]);
+    if (graceExpired) {
+      // Auth still has no session after the grace window — most likely the
+      // user canceled OAuth or the broker dropped the token exchange.
+      toast.error("Sign in didn't complete. Please try again.");
+      navigate({ to: "/signin", replace: true });
+    }
+  }, [hydrated, user, redirect, navigate, graceExpired]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">

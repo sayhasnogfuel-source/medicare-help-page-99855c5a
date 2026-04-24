@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const { transitionTo } = usePageTransition();
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -87,7 +88,15 @@ function SignupPage() {
                     firstName: String(data.get("firstName") || ""),
                     lastName: String(data.get("lastName") || ""),
                   });
-                  transitionTo({ to: "/dashboard" });
+                  // If email confirmation is on the user has no session yet —
+                  // the callback page will time out gracefully and send them
+                  // to /signin with a toast. If the session is already live
+                  // it will forward straight to /dashboard.
+                  navigate({
+                    to: "/auth/callback",
+                    search: { redirect: "/dashboard" } as never,
+                    replace: true,
+                  });
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : "Sign up failed");
                   setSubmitting(false);

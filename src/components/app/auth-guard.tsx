@@ -1,12 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/account";
 
 /**
- * Client-side auth gate. Waits for the centralized auth state to hydrate
- * before deciding whether to render children or redirect to sign-in. Never
- * fires before hydration, so it cannot send the user to /signin on a fast
- * page load when the session is still being restored.
+ * Client-side auth gate. Waits for the centralized auth state to hydrate AND
+ * for a short grace window before deciding to redirect to sign-in. The grace
+ * window absorbs the brief gap right after sign-in / token-refresh where the
+ * Supabase client says "hydrated" but a new session event hasn't been
+ * dispatched yet — without it we'd briefly bounce authenticated users back
+ * to /signin and trip the global error overlay.
  */
 export function AuthGuard({
   children,
@@ -18,16 +20,23 @@ export function AuthGuard({
   const { hydrated, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [graceExpired, setGraceExpired] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setGraceExpired(true), 1500);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     if (user) return;
+    if (!graceExpired) return;
     navigate({
       to: redirectTo,
       search: { redirect: location.pathname } as never,
       replace: true,
     });
-  }, [hydrated, user, navigate, redirectTo, location.pathname]);
+  }, [hydrated, user, navigate, redirectTo, location.pathname, graceExpired]);
 
   if (!hydrated || !user) {
     return (
