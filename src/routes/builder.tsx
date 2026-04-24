@@ -113,7 +113,16 @@ function BuilderPage() {
       transitionTo({ to: "/pricing" });
       return;
     }
-    saveBuilder(data);
+    // Reset workspace-stage AI memory so the workspace performs a FRESH,
+    // holistic generation tied to the form inputs + chosen theme — not
+    // whatever was last generated in a previous session.
+    const fresh: BuilderData = {
+      ...data,
+      freestyleInstructions: "",
+      workspaceNotes: "",
+      authorNotes: "",
+    };
+    saveBuilder(fresh);
     toast.success("Website generated", {
       description: `${ACTION_COSTS.generate} credits used. ${credits.credits - ACTION_COSTS.generate} remaining.`,
     });
