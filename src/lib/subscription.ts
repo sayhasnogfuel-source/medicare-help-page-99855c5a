@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { useAccount } from "@/lib/account";
+import { useAuth } from "@/lib/account";
 
 export type SubStatus =
   | "trialing"
@@ -47,40 +47,47 @@ function planFromPriceId(priceId: string | null | undefined): "starter" | "pro" 
 }
 
 export function useSubscription(): UseSubscriptionResult {
-  const account = useAccount();
+  const { hydrated: authReady, user } = useAuth();
+  const userId = user?.id ?? null;
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   const fetchSub = useCallback(async () => {
-    if (!account.signedIn) {
+    if (!userId) {
       setSubscription(null);
       setHydrated(true);
       return;
     }
-    const { data } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("environment", getStripeEnvironment())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    setSubscription((data as SubscriptionRow | null) ?? null);
-    setHydrated(true);
-  }, [account.signedIn]);
+    try {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("environment", getStripeEnvironment())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setSubscription((data as SubscriptionRow | null) ?? null);
+    } catch {
+      setSubscription(null);
+    } finally {
+      setHydrated(true);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    if (!account.hydrated) return;
+    if (!authReady) return;
     fetchSub();
-  }, [account.hydrated, fetchSub]);
+  }, [authReady, fetchSub]);
 
-  // Realtime subscription updates
+  // Realtime subscription updates — only after auth is ready and a user exists.
   useEffect(() => {
-    if (!account.signedIn) return;
+    if (!authReady || !userId) return;
     const channel = supabase
-      .channel("subscriptions-changes")
+      .channel(`subscriptions-changes-${userId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "subscriptions" },
+        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${userId}` },
         () => {
           fetchSub();
         },
@@ -89,7 +96,7 @@ export function useSubscription(): UseSubscriptionResult {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [account.signedIn, fetchSub]);
+  }, [authReady, userId, fetchSub]);
 
   const status = subscription?.status;
   const periodEndFuture = subscription?.current_period_end
