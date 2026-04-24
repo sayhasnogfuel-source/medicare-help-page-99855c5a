@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { signInWithEmail, signInWithGoogle } from "@/lib/account";
+import { signInWithEmail, signInWithGoogle, useAccount } from "@/lib/account";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -25,11 +25,36 @@ export const Route = createFileRoute("/signin")({
 
 function SigninPage() {
   const { transitionTo } = usePageTransition();
+  const account = useAccount();
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetting, setResetting] = useState(false);
   const [showReset, setShowReset] = useState(false);
+
+  useEffect(() => {
+    if (account.hydrated && account.signedIn) {
+      transitionTo({ to: "/builder" });
+    }
+  }, [account.hydrated, account.signedIn, transitionTo]);
+
+  if (account.hydrated && account.signedIn) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <AppHeader />
+        <main className="flex flex-1 items-center justify-center px-5">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--surface-mocha)] border-t-transparent" />
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">Finishing sign in…</h1>
+              <p className="mt-1 text-sm text-muted-foreground">Taking you to your builder.</p>
+            </div>
+          </div>
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
