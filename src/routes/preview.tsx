@@ -13,7 +13,7 @@ export const Route = createFileRoute("/preview")({
   component: PreviewPage,
   head: () => ({
     meta: [
-      { title: "Preview your landing page — Lumen.pages" },
+      { title: "Preview your landing page — Diploofly" },
       { name: "description", content: "Preview the landing page generated from your business details." },
     ],
   }),
@@ -115,7 +115,7 @@ function PreviewPage() {
               <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.85_0.13_85)]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.78_0.13_145)]" />
               <span className="ml-3 truncate rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
-                {data.businessName.toLowerCase().replace(/\s+/g, "")}.lumen.pages
+                {data.businessName.toLowerCase().replace(/\s+/g, "")}.diploofly
               </span>
             </div>
             <div className={device === "mobile" ? "flex justify-center bg-[var(--surface-sand)]/30 py-8" : ""}>

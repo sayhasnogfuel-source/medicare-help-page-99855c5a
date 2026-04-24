@@ -37,13 +37,13 @@ export const Route = createFileRoute("/support")({
   component: SupportPage,
   head: () => ({
     meta: [
-      { title: "Support — Lumen.pages" },
+      { title: "Support — Diploofly" },
       {
         name: "description",
         content:
-          "Get help with your Lumen.pages account, billing, builder, or live website. Our support team is here to help.",
+          "Get help with your Diploofly account, billing, builder, or live website. Our support team is here to help.",
       },
-      { property: "og:title", content: "Support — Lumen.pages" },
+      { property: "og:title", content: "Support — Diploofly" },
       {
         property: "og:description",
         content:

@@ -30,14 +30,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumen.pages — A modern website builder for insurance agents" },
+      { title: "Diploofly — A modern website builder for insurance agents" },
       {
         name: "description",
         content:
           "A clean, modern platform for insurance agents to launch beautiful lead-generation websites in minutes — Medicare, ACA, Life, Health, Auto, Home, and more.",
       },
-      { name: "author", content: "Lumen.pages" },
-      { property: "og:title", content: "Lumen.pages — A modern website builder for insurance agents" },
+      { name: "author", content: "Diploofly" },
+      { property: "og:title", content: "Diploofly — A modern website builder for insurance agents" },
       {
         property: "og:description",
         content:
@@ -51,6 +51,11 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/diploofly-icon.png",
       },
     ],
   }),

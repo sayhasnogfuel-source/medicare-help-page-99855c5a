@@ -1,18 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import diploofly from "@/assets/diploofly-logo.png";
 
 export function AppFooter() {
   return (
     <footer className="border-t border-border/60 bg-[var(--surface-cream)]">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-4">
         <div className="md:col-span-2">
-          <Link to="/" className="inline-flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
-              <Sparkles className="h-4.5 w-4.5" />
-            </span>
-            <span className="text-base font-semibold tracking-tight text-foreground">
-              Lumen<span className="text-muted-foreground">.pages</span>
-            </span>
+          <Link to="/" className="inline-flex items-center">
+            <img src={diploofly} alt="Diploofly" className="h-9 w-auto" />
           </Link>
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
             The simplest way for Medicare and ACA agents to launch beautiful, modern
@@ -44,7 +39,7 @@ export function AppFooter() {
       </div>
       <div className="border-t border-border/60">
         <p className="mx-auto max-w-6xl px-5 py-5 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Lumen.pages — Built for independent insurance agents.
+          © {new Date().getFullYear()} Diploofly — Built for independent insurance agents.
         </p>
       </div>
     </footer>
