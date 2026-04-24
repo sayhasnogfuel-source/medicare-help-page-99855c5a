@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { BuilderData } from "@/lib/builder-storage";
+import { getThemeById } from "@/lib/builder-storage";
 
 function initials(name: string) {
   return name
@@ -91,9 +92,26 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
   const CIcon = ContactIcon[data.contactMethod];
   const cta = data.ctaText || "Request Help";
   const typeLabel = data.insuranceType?.trim() || "Insurance";
+  const theme = getThemeById(data.themeId);
+
+  // Override the warm-neutral surface tokens with the selected theme's palette
+  // so the generated landing visibly reflects the theme choice.
+  const themeStyle = {
+    ["--surface-cream" as string]: theme.palette.surface,
+    ["--surface-sand" as string]: theme.palette.surface,
+    ["--surface-mocha" as string]: theme.palette.primary,
+    ["--surface-espresso" as string]: theme.palette.primary,
+    ["--surface-camel" as string]: theme.palette.accent,
+    ["--surface-beige" as string]: theme.palette.surface,
+    color: theme.palette.text,
+  } as React.CSSProperties;
 
   return (
-    <div className="bg-[var(--surface-cream)] text-foreground">
+    <div
+      className="bg-[var(--surface-cream)] text-foreground"
+      style={themeStyle}
+      data-theme={theme.id}
+    >
       {/* Header */}
       <header className="border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">

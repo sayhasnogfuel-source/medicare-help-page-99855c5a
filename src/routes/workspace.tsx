@@ -191,8 +191,8 @@ function applyTweak(
   // sees their input has been captured.
   return {
     patch: {
-      freestyleInstructions:
-        (data.freestyleInstructions ? data.freestyleInstructions + "\n• " : "• ") +
+      workspaceNotes:
+        (data.workspaceNotes ? data.workspaceNotes + "\n• " : "• ") +
         message.trim(),
     },
     reply:
@@ -485,10 +485,11 @@ function WorkspacePage() {
             <div className="flex-1 overflow-auto">
               {device === "mobile" ? (
                 <div className="flex min-h-full justify-center bg-[var(--surface-sand)]/30 px-4 py-6">
-                  <div className="w-full max-w-[390px] overflow-hidden rounded-[2rem] border border-border bg-background shadow-[var(--shadow-md)]">
-                    <div className="origin-top">
-                      <GeneratedLanding data={data} />
-                    </div>
+                  <div className="w-[390px] overflow-hidden rounded-[2rem] border border-border bg-background shadow-[var(--shadow-md)]">
+                    {/* Render the desktop landing scaled into phone width.
+                        Wrap height is compensated so nothing gets clipped or
+                        leaves a giant empty space below. */}
+                    <ScaledMobilePreview data={data} />
                   </div>
                 </div>
               ) : (
@@ -602,6 +603,50 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         }`}
       >
         {message.text}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Scales the full desktop landing into a 390px-wide phone frame.
+ * Measures the rendered height and compensates the wrapper so the
+ * scaled content doesn't leave empty whitespace below.
+ */
+function ScaledMobilePreview({ data }: { data: BuilderData }) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [innerH, setInnerH] = useState<number>(2200);
+  const SOURCE_WIDTH = 1024;
+  const TARGET_WIDTH = 390;
+  const scale = TARGET_WIDTH / SOURCE_WIDTH;
+
+  useEffect(() => {
+    if (!innerRef.current) return;
+    const ro = new ResizeObserver(() => {
+      if (innerRef.current) setInnerH(innerRef.current.offsetHeight);
+    });
+    ro.observe(innerRef.current);
+    return () => ro.disconnect();
+  }, [data]);
+
+  return (
+    <div
+      style={{
+        width: TARGET_WIDTH,
+        height: innerH * scale,
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <div
+        ref={innerRef}
+        style={{
+          width: SOURCE_WIDTH,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+        }}
+      >
+        <GeneratedLanding data={data} />
       </div>
     </div>
   );
