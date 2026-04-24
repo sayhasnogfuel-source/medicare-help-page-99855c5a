@@ -486,7 +486,18 @@ function WorkspacePage() {
               {device === "mobile" ? (
                 <div className="flex min-h-full justify-center bg-[var(--surface-sand)]/30 px-4 py-6">
                   <div className="w-full max-w-[390px] overflow-hidden rounded-[2rem] border border-border bg-background shadow-[var(--shadow-md)]">
-                    <div className="origin-top">
+                    {/* Render the full desktop landing inside a 1024px frame
+                        and visually scale it down to phone width so layout
+                        breakpoints stay correct and nothing overflows. */}
+                    <div
+                      className="origin-top-left"
+                      style={{
+                        width: "1024px",
+                        transform: "scale(0.381)", // 390 / 1024
+                        transformOrigin: "top left",
+                        height: "auto",
+                      }}
+                    >
                       <GeneratedLanding data={data} />
                     </div>
                   </div>
