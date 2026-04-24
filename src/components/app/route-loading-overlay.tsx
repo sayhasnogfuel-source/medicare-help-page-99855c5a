@@ -1,43 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import diploofly from "@/assets/diploofly-logo.png";
 
 /**
- * Full-screen loading overlay with the Diploofly logo, shown while the
- * router is transitioning between routes. We delay the show by a small
- * amount so instant navigations don't flicker the overlay, and keep it
- * mounted briefly so the new page has time to paint before we hide it.
+ * Full-screen loading overlay with the Diploofly logo. Shown immediately
+ * when the router begins a transition and removed as soon as the new
+ * route is committed — no artificial delays so navigation feels snappy.
+ *
+ * We do enforce a tiny minimum visible time (80ms) ONLY once the overlay
+ * has actually appeared, so it doesn't flash off mid-fade.
  */
 export function RouteLoadingOverlay() {
   const status = useRouterState({ select: (s) => s.status });
   const isPending = status === "pending";
   const [visible, setVisible] = useState(false);
+  const shownAtRef = useRef<number | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    let showTimer: ReturnType<typeof setTimeout> | undefined;
-    let hideTimer: ReturnType<typeof setTimeout> | undefined;
-
     if (isPending) {
-      // Only show the overlay if navigation takes longer than a frame —
-      // avoids a flash on instant transitions.
-      showTimer = setTimeout(() => setVisible(true), 80);
-    } else {
-      // Keep the overlay around for a moment so the new route has time
-      // to render before we fade it out (prevents the "old page flashes
-      // first" perception the user described).
-      hideTimer = setTimeout(() => setVisible(false), 120);
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+      if (!visible) {
+        shownAtRef.current = Date.now();
+        setVisible(true);
+      }
+      return;
     }
 
+    // Pending finished — hide immediately, but enforce a tiny min display
+    // so the overlay doesn't strobe on extremely fast transitions.
+    const shownFor = shownAtRef.current ? Date.now() - shownAtRef.current : 0;
+    const remaining = Math.max(0, 80 - shownFor);
+    hideTimerRef.current = setTimeout(() => {
+      setVisible(false);
+      shownAtRef.current = null;
+    }, remaining);
+
     return () => {
-      if (showTimer) clearTimeout(showTimer);
-      if (hideTimer) clearTimeout(hideTimer);
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
     };
-  }, [isPending]);
+  }, [isPending, visible]);
 
   return (
     <div
       aria-hidden={!visible}
-      className={`pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-background transition-opacity duration-200 ${
+      className={`pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-background transition-opacity duration-100 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -45,7 +58,7 @@ export function RouteLoadingOverlay() {
         <img
           src={diploofly}
           alt=""
-          className="h-14 w-14 animate-pulse object-contain"
+          className="h-16 w-16 animate-pulse object-contain"
         />
         <span className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Loading…
