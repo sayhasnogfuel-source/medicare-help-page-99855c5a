@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { z } from "zod";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
@@ -31,6 +31,7 @@ export const Route = createFileRoute("/signin")({
 
 function SigninPage() {
   const { transitionTo } = usePageTransition();
+  const navigate = useNavigate();
   const { hydrated, user } = useAuth();
   const { redirect } = useSearch({ from: "/signin" });
   const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/dashboard";
@@ -107,7 +108,14 @@ function SigninPage() {
                         email: String(data.get("email") || ""),
                         password: String(data.get("password") || ""),
                       });
-                      transitionTo({ to: safeRedirect });
+                      // Route through the auth callback so the auth provider
+                      // has a chance to hydrate the new session before any
+                      // protected page mounts.
+                      navigate({
+                        to: "/auth/callback",
+                        search: { redirect: safeRedirect } as never,
+                        replace: true,
+                      });
                     } catch (err) {
                       toast.error(err instanceof Error ? err.message : "Sign in failed");
                       setSubmitting(false);
