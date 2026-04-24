@@ -1,103 +1,56 @@
 
 
-## Reposition Lumen.pages for all insurance niches + add "Build for me / Build my own" choice + page transitions
+## Why "Continue with Google" doesn't open Google
 
-### 1. Broaden positioning (Medicare/ACA → all insurance agents)
+Right now there is no real authentication in the project. The whole account system is a mock that writes a flag to `localStorage` (`src/lib/account.ts`). The Google buttons do one of two things:
 
-Update copy across the site so Medicare/ACA become *examples*, not the focus.
+- On `/` (home) and `/start`: they just navigate to `/signup` — no Google call at all.
+- On `/signup`: they call `signIn({ provider: "google" })` which only sets a local flag and pushes the user to `/builder`.
 
-- **`src/routes/__root.tsx`** — meta title/description: "for insurance agents" instead of "Medicare and ACA agents".
-- **`src/routes/index.tsx`** — Hero subhead, Features card "Medicare & ACA templates" → "Templates for every niche", How-it-works step copy, Showcase blurb, Final CTA copy.
-- **`src/routes/signup.tsx`** — left panel copy and bullet list.
-- **`src/components/app/app-header.tsx`** — no copy changes needed (brand only).
+There is no OAuth redirect, no Google consent screen, no backend session. That is why nothing happens with Google.
 
-Add a niches strip on the homepage (under Hero/SocialProof) listing: Medicare, ACA, Life, Health, Final Expense, Auto, Home, Commercial, Independent agencies — as small pill chips.
+## Fix: wire up real Google sign-in via Lovable Cloud
 
-### 2. Broaden the builder's "Insurance type" / niche field
+Lovable Cloud (Supabase) supports Google natively. The plan replaces the mock with a real auth flow while keeping the existing UI.
 
-**`src/lib/builder-storage.ts`**
-- Replace the strict `InsuranceType = "medicare" | "aca"` with `InsuranceNiche` string (free-form) backed by a preset list. Keep `insuranceType` field name for backward compatibility but type as `string`.
-- Add preset constant `INSURANCE_NICHES` = Medicare, ACA, Life, Health, Final Expense, Auto, Home, Commercial, Independent Agency, Other.
-- Default sample `businessType` stays "Medicare insurance agency" (a friendly default), but new niche selector defaults to "Medicare".
-- Bump storage key to `lp_builder_data_v3` with safe migration from v2.
+### 1. Enable Lovable Cloud + Google provider
+- Turn on Lovable Cloud for the project (creates the Supabase backend and `VITE_SUPABASE_*` env vars).
+- Enable the Google provider in Auth settings (uses Lovable's shared Google OAuth credentials by default — no Google Cloud Console setup required).
 
-**`src/routes/builder.tsx`**
-- Replace the 2-card Medicare/ACA RadioCardGroup with a `Select` (or grid of pill buttons) sourced from `INSURANCE_NICHES` so all niches are choosable. Label: "Insurance niche".
+### 2. Add a Supabase client
+- New file `src/lib/supabase.ts` exporting a browser client built from `import.meta.env.VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
-**`src/components/generated/generated-landing.tsx`**
-- Extend `benefitsByType` to a fallback map that returns generic insurance benefits when the niche isn't medicare/aca (e.g. Life, Auto, Home, etc.) so the generated page always renders sensible copy. Key on lowercased niche; default to a generic "Personalized coverage / Local expert / Easy enrollment" set.
-- Header subtitle uses the chosen niche label instead of hardcoded "Medicare/ACA Insurance".
+### 3. Replace the mock account store
+- Rewrite `src/lib/account.ts` so `useAccount` subscribes to `supabase.auth.onAuthStateChange` (set listener BEFORE calling `getSession()` to avoid race conditions).
+- Replace the `signIn(...)` helper with two real functions:
+  - `signInWithGoogle()` → `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/builder" } })`. This is what triggers the real Google redirect.
+  - `signUpWithEmail({ email, password, firstName })` → `supabase.auth.signUp({ email, password, options: { data: { first_name }, emailRedirectTo: window.location.origin } })`.
+  - `signInWithEmail({ email, password })` → `supabase.auth.signInWithPassword(...)`.
+- Keep the same `useAccount()` shape (`signedIn`, `email`, `firstName`, `hydrated`) so no consumers break.
 
-### 3. New "How would you like to get started?" section + route
+### 4. Wire the Google buttons to the real call
+- `src/routes/index.tsx` hero "Continue with Google" → `onClick={signInWithGoogle}` (no longer routes to `/signup`).
+- `src/routes/start.tsx` hero "Continue with Google" → same.
+- `src/routes/signup.tsx` "Continue with Google" → same (remove the `signIn({ provider: "google" })` mock + manual `transitionTo`).
+- The email form on `/signup` calls `signUpWithEmail(...)` and then routes to `/builder` only after success.
 
-**Homepage section** (insert in `src/routes/index.tsx` between SocialProof and Features):
+### 5. Add a `/reset-password` route (required when email auth is on)
+- Public route that reads `type=recovery` from the URL hash and calls `supabase.auth.updateUser({ password })`. Without it, password resets silently log users in.
 
-```text
-                How would you like to get started?
-                It only takes 5 minutes
- ┌──────────────────────────────┐  ┌──────────────────────────────┐
- │  ✋  Have Us Build It For You │  │  ⚡  Build Your Own Website   │
- │  Submit an inquiry and let   │  │  Use our platform to create  │
- │  our team create a pro site. │  │  your own site in minutes.   │
- │  [ Submit Inquiry → ]        │  │  [ Start Building → ]        │
- └──────────────────────────────┘  └──────────────────────────────┘
-```
+### 6. Sign-out + AuthGuard
+- `src/components/app/app-header.tsx` "Sign out" → `await supabase.auth.signOut()`.
+- `src/components/app/auth-guard.tsx` keeps working unchanged because `useAccount()` keeps the same surface.
 
-Two equal cards, side-by-side on desktop, stacked on mobile. Premium card styling consistent with current shadows/radii. The "It only takes 5 minutes" line sits as a small chip directly under the section heading.
+### 7. (Optional) Profiles table
+- I'll ask whether to store user profile data (first name, agency name, avatar, etc.). If yes, I'll add a `profiles` table linked to `auth.users` with RLS + an auto-insert trigger on signup. If no, we use only `auth.users` and skip the table.
 
-**New route `src/routes/inquiry.tsx`** for the "Have Us Build It For You" path. Fields:
-- Full name, Business name, Email, Phone
-- Insurance niche (Select with `INSURANCE_NICHES`)
-- Website goals (Textarea)
-- Preferred contact method (Call / Text / Email radio)
-- Optional notes (Textarea)
-- Submit button "Submit Inquiry" → on submit, show inline success state ("Thanks — we'll reach out within 1 business day") and persist to localStorage key `lp_inquiry_submissions` (since we're local-only, per earlier scope).
+## Files touched
 
-Page uses AppHeader/AppFooter, the same warm neutral card styling as the builder, max-w-2xl.
+- New: `src/lib/supabase.ts`, `src/routes/reset-password.tsx`
+- Edited: `src/lib/account.ts`, `src/routes/index.tsx`, `src/routes/start.tsx`, `src/routes/signup.tsx`, `src/components/app/app-header.tsx`
+- Possibly: a migration for the `profiles` table if you want stored profile data
 
-**Header nav** (`src/components/app/app-header.tsx`) — add "Have us build it" link pointing to `/inquiry`. Keep Home, Builder, Preview.
+## What you'll see after this ships
 
-### 4. Smooth float-away → fade page transitions
-
-Add reusable transition primitives in `src/styles.css`:
-
-```css
-@keyframes lp-page-in {
-  0%   { opacity: 0; transform: translateY(14px) scale(0.992); }
-  100% { opacity: 1; transform: translateY(0)    scale(1); }
-}
-@keyframes lp-page-out {
-  0%   { opacity: 1; transform: translateY(0)    scale(1); }
-  100% { opacity: 0; transform: translateY(-10px) scale(0.996); }
-}
-.lp-page-enter { animation: lp-page-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.lp-page-leave { animation: lp-page-out 280ms cubic-bezier(0.4, 0, 0.2, 1) both; }
-@media (prefers-reduced-motion: reduce) {
-  .lp-page-enter, .lp-page-leave { animation: none; }
-}
-```
-
-**New hook `src/hooks/use-page-transition.ts`** exposing `transitionTo(path)`:
-1. Adds `.lp-page-leave` to `document.body` (or a wrapper).
-2. Waits ~280ms.
-3. Calls TanStack `navigate({ to: path })`.
-
-**New component `src/components/app/page-transition.tsx`** that wraps each page's root `<div>` and applies `lp-page-enter` on mount (using `useLocation().pathname` as the key so it re-fires on every route change). Wrap the four main pages: `/`, `/builder`, `/preview`, `/signup`, `/inquiry`.
-
-Wire `transitionTo` into:
-- The two cards in "How would you like to get started?" (Submit Inquiry → `/inquiry`, Start Building → `/builder`).
-- All hero CTAs ("Get Started", "Make it yours", "Start building", "Create an account").
-- Builder's "Generate My Website" submit (after `saveBuilder`, transition to `/preview`).
-- Signup's submit (transition to `/builder` instead of `setTimeout`).
-
-This produces the requested float-away (current page slides up and fades) → fade-in (next page settles down into place). Subtle, ~700ms total, honoring `prefers-reduced-motion`.
-
-### 5. Files touched
-
-- Edit: `src/routes/__root.tsx`, `src/routes/index.tsx`, `src/routes/builder.tsx`, `src/routes/signup.tsx`, `src/routes/preview.tsx`, `src/components/app/app-header.tsx`, `src/components/generated/generated-landing.tsx`, `src/lib/builder-storage.ts`, `src/styles.css`
-- Create: `src/routes/inquiry.tsx`, `src/components/app/page-transition.tsx`, `src/hooks/use-page-transition.ts`
-
-### Out of scope (per earlier decisions)
-
-No backend, no real auth, no CRM/analytics/billing, no team accounts. Inquiry submissions are stored locally only.
+Clicking "Continue with Google" on the home page, start page, or signup page will redirect to the real Google account-chooser screen, then return the user to `/builder` already signed in with a real session.
 
