@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
+import { TestModeBanner } from "@/components/app/test-mode-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { INSURANCE_NICHES } from "@/lib/builder-storage";
 
 export const Route = createFileRoute("/inquiry")({
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/inquiry")({
   }),
 });
 
-const STORAGE_KEY = "lp_inquiry_submissions";
+const PENDING_KEY = "lp_inquiry_pending";
 
 type ContactPref = "call" | "text" | "email";
 type BrandingState = "yes" | "no" | "partial";
@@ -71,9 +72,9 @@ const DEFAULT_FORM: InquiryForm = {
 };
 
 function InquiryPage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState<InquiryForm>(DEFAULT_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
 
   function update<K extends keyof InquiryForm>(k: K, v: InquiryForm[K]) {
     setForm((p) => ({ ...p, [k]: v }));
@@ -102,18 +103,20 @@ function InquiryPage() {
     }
     try {
       if (typeof window !== "undefined") {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        const list = raw ? (JSON.parse(raw) as unknown[]) : [];
-        list.push({ ...form, submittedAt: new Date().toISOString() });
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        const inquiryId = `inq_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const payload = {
+          ...form,
+          inquiryId,
+          email: form.email,
+          businessName: form.businessName,
+          submittedAt: new Date().toISOString(),
+        };
+        window.localStorage.setItem(PENDING_KEY, JSON.stringify(payload));
       }
     } catch {
-      // ignore quota errors — local-only persistence
+      // ignore quota errors
     }
-    setSubmitted(true);
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    navigate({ to: "/inquiry/deposit" });
   }
 
   return (
@@ -122,7 +125,7 @@ function InquiryPage() {
       <PageTransition>
         <main className="flex-1">
           <div className="mx-auto max-w-2xl px-5 py-10 sm:py-14">
-            <div className="mb-8">
+          <div className="mb-6">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70">
                 <Sparkles className="h-3 w-3" />
                 Have us build it for you
@@ -136,30 +139,16 @@ function InquiryPage() {
               </p>
             </div>
 
-            {submitted ? (
-              <Card className="rounded-3xl border-border/60 bg-background p-8 text-center shadow-[var(--shadow-md)] sm:p-12">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
-                  <CheckCircle2 className="h-7 w-7" />
-                </span>
-                <h2 className="mt-5 text-2xl font-semibold tracking-tight text-foreground">
-                  Thanks — we got your inquiry
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-                  We'll reach out within 1 business day to start building your website.
-                </p>
-                <Button
-                  type="button"
-                  className="mt-7 rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
-                  onClick={() => {
-                    setSubmitted(false);
-                    setForm(DEFAULT_FORM);
-                  }}
-                >
-                  Submit another
-                </Button>
-              </Card>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-[var(--surface-mocha)]/30 bg-[var(--surface-sand)]/60 p-4">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[var(--surface-mocha)]" />
+              <div className="text-sm text-foreground/80">
+                <span className="font-semibold text-foreground">$206 deposit secures your build.</span>{" "}
+                After submitting, you'll be taken to a secure Stripe checkout. The
+                remaining balance depends on final scope and is invoiced before launch.
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                 <Card className="rounded-2xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)] sm:p-7">
                   <h2 className="text-base font-semibold text-foreground">Your details</h2>
                   <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -297,12 +286,11 @@ function InquiryPage() {
                     size="lg"
                     className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
                   >
-                    Submit Inquiry
+                    Continue to deposit
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
-              </form>
-            )}
+            </form>
           </div>
         </main>
       </PageTransition>

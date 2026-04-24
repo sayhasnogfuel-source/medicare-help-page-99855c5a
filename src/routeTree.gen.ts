@@ -22,7 +22,9 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InquiryDepositRouteImport } from './routes/inquiry.deposit'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as InquiryDepositReturnRouteImport } from './routes/inquiry.deposit.return'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
@@ -89,10 +91,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InquiryDepositRoute = InquiryDepositRouteImport.update({
+  id: '/deposit',
+  path: '/deposit',
+  getParentRoute: () => InquiryRoute,
+} as any)
 const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/return',
   path: '/return',
   getParentRoute: () => CheckoutRoute,
+} as any)
+const InquiryDepositReturnRoute = InquiryDepositReturnRouteImport.update({
+  id: '/return',
+  path: '/return',
+  getParentRoute: () => InquiryDepositRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -101,7 +113,7 @@ export interface FileRoutesByFullPath {
   '/builder': typeof BuilderRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
-  '/inquiry': typeof InquiryRoute
+  '/inquiry': typeof InquiryRouteWithChildren
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -110,6 +122,8 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/inquiry/deposit': typeof InquiryDepositRouteWithChildren
+  '/inquiry/deposit/return': typeof InquiryDepositReturnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -117,7 +131,7 @@ export interface FileRoutesByTo {
   '/builder': typeof BuilderRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
-  '/inquiry': typeof InquiryRoute
+  '/inquiry': typeof InquiryRouteWithChildren
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -126,6 +140,8 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/inquiry/deposit': typeof InquiryDepositRouteWithChildren
+  '/inquiry/deposit/return': typeof InquiryDepositReturnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,7 +150,7 @@ export interface FileRoutesById {
   '/builder': typeof BuilderRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
-  '/inquiry': typeof InquiryRoute
+  '/inquiry': typeof InquiryRouteWithChildren
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -143,6 +159,8 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/inquiry/deposit': typeof InquiryDepositRouteWithChildren
+  '/inquiry/deposit/return': typeof InquiryDepositReturnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +179,8 @@ export interface FileRouteTypes {
     | '/support'
     | '/workspace'
     | '/checkout/return'
+    | '/inquiry/deposit'
+    | '/inquiry/deposit/return'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +197,8 @@ export interface FileRouteTypes {
     | '/support'
     | '/workspace'
     | '/checkout/return'
+    | '/inquiry/deposit'
+    | '/inquiry/deposit/return'
   id:
     | '__root__'
     | '/'
@@ -193,6 +215,8 @@ export interface FileRouteTypes {
     | '/support'
     | '/workspace'
     | '/checkout/return'
+    | '/inquiry/deposit'
+    | '/inquiry/deposit/return'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -201,7 +225,7 @@ export interface RootRouteChildren {
   BuilderRoute: typeof BuilderRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
   DashboardRoute: typeof DashboardRoute
-  InquiryRoute: typeof InquiryRoute
+  InquiryRoute: typeof InquiryRouteWithChildren
   PreviewRoute: typeof PreviewRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -304,12 +328,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inquiry/deposit': {
+      id: '/inquiry/deposit'
+      path: '/deposit'
+      fullPath: '/inquiry/deposit'
+      preLoaderRoute: typeof InquiryDepositRouteImport
+      parentRoute: typeof InquiryRoute
+    }
     '/checkout/return': {
       id: '/checkout/return'
       path: '/return'
       fullPath: '/checkout/return'
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
+    }
+    '/inquiry/deposit/return': {
+      id: '/inquiry/deposit/return'
+      path: '/return'
+      fullPath: '/inquiry/deposit/return'
+      preLoaderRoute: typeof InquiryDepositReturnRouteImport
+      parentRoute: typeof InquiryDepositRoute
     }
   }
 }
@@ -326,13 +364,36 @@ const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
   CheckoutRouteChildren,
 )
 
+interface InquiryDepositRouteChildren {
+  InquiryDepositReturnRoute: typeof InquiryDepositReturnRoute
+}
+
+const InquiryDepositRouteChildren: InquiryDepositRouteChildren = {
+  InquiryDepositReturnRoute: InquiryDepositReturnRoute,
+}
+
+const InquiryDepositRouteWithChildren = InquiryDepositRoute._addFileChildren(
+  InquiryDepositRouteChildren,
+)
+
+interface InquiryRouteChildren {
+  InquiryDepositRoute: typeof InquiryDepositRouteWithChildren
+}
+
+const InquiryRouteChildren: InquiryRouteChildren = {
+  InquiryDepositRoute: InquiryDepositRouteWithChildren,
+}
+
+const InquiryRouteWithChildren =
+  InquiryRoute._addFileChildren(InquiryRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
   BuilderRoute: BuilderRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
   DashboardRoute: DashboardRoute,
-  InquiryRoute: InquiryRoute,
+  InquiryRoute: InquiryRouteWithChildren,
   PreviewRoute: PreviewRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
