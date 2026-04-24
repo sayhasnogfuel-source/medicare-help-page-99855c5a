@@ -92,8 +92,13 @@ export function useSubscription(): UseSubscriptionResult {
   // Realtime subscription updates — only after auth is ready and a user exists.
   useEffect(() => {
     if (!authReady || !userId) return;
+    // Use a unique topic per mount so React StrictMode / re-mounts can never
+    // collide on the same channel topic. Supabase throws if you call
+    // `.on('postgres_changes', ...)` on a channel topic that is already
+    // joining/joined.
+    const topic = `subscriptions:${userId}:${Math.random().toString(36).slice(2, 10)}`;
     const channel = supabase
-      .channel(`subscriptions-changes-${userId}`)
+      .channel(topic)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${userId}` },

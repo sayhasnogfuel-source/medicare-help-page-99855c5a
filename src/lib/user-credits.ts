@@ -111,8 +111,10 @@ export function useUserCredits(): UseUserCreditsResult {
   // Realtime updates — only after auth is ready and a user exists.
   useEffect(() => {
     if (!authReady || !userId) return;
+    // Unique topic per mount avoids collisions in StrictMode/re-renders.
+    const topic = `user_credits:${userId}:${Math.random().toString(36).slice(2, 10)}`;
     const channel = supabase
-      .channel(`user_credits-changes-${userId}`)
+      .channel(topic)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "user_credits", filter: `user_id=eq.${userId}` },
