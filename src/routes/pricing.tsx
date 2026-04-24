@@ -117,7 +117,7 @@ function PricingPage() {
       transitionTo({ to: "/billing" });
       return;
     }
-    transitionTo({ to: "/checkout", search: { plan: tier.id } } as Parameters<typeof transitionTo>[0]);
+    transitionTo(`/checkout?plan=${tier.id}`);
   }
 
   return (
