@@ -267,12 +267,9 @@ function DashboardPage() {
             <OnboardingChecklist
               hasBuilderDraft={hasBuilderDraft}
               hasCustomized={hasCustomized}
-              hasCard={billing.hasCard}
-              isLive={billing.siteStatus === "live"}
-              hasSubscription={
-                billing.subStatus === "active" ||
-                billing.subStatus === "trialing"
-              }
+              hasCard={hasActiveSub}
+              isLive={hasActiveSub && !sub.isPastDue}
+              hasSubscription={hasActiveSub}
             />
 
             {/* Cards grid */}
