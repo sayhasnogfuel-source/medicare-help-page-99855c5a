@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Check } from "lucide-react";
-import { signIn } from "@/lib/account";
+import { signUpWithEmail, signInWithGoogle } from "@/lib/account";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/signup")({
 function SignupPage() {
   const { transitionTo } = usePageTransition();
   const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -72,17 +74,24 @@ function SignupPage() {
 
             <form
               className="mt-7 space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
+                if (submitting) return;
                 setSubmitting(true);
                 const form = e.currentTarget as HTMLFormElement;
                 const data = new FormData(form);
-                signIn({
-                  email: String(data.get("email") || ""),
-                  firstName: String(data.get("firstName") || ""),
-                  provider: "email",
-                });
-                transitionTo({ to: "/builder" });
+                try {
+                  await signUpWithEmail({
+                    email: String(data.get("email") || ""),
+                    password: String(data.get("password") || ""),
+                    firstName: String(data.get("firstName") || ""),
+                    lastName: String(data.get("lastName") || ""),
+                  });
+                  transitionTo({ to: "/builder" });
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Sign up failed");
+                  setSubmitting(false);
+                }
               }}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -122,14 +131,21 @@ function SignupPage() {
                 type="button"
                 size="lg"
                 variant="outline"
+                disabled={googleLoading}
                 className="w-full rounded-full border-foreground/20 bg-background text-base font-semibold text-foreground hover:bg-secondary"
-                onClick={() => {
-                  signIn({ provider: "google" });
-                  transitionTo({ to: "/builder" });
+                onClick={async () => {
+                  if (googleLoading) return;
+                  setGoogleLoading(true);
+                  try {
+                    await signInWithGoogle();
+                  } catch (err) {
+                    toast.error(err instanceof Error ? err.message : "Google sign-in failed");
+                    setGoogleLoading(false);
+                  }
                 }}
               >
                 <SignupGoogleGlyph />
-                Continue with Google
+                {googleLoading ? "Connecting…" : "Continue with Google"}
               </Button>
               <p className="text-center text-xs text-muted-foreground">
                 By continuing you agree to our Terms and Privacy Policy.
