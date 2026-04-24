@@ -3,7 +3,7 @@ import { useRouterState } from "@tanstack/react-router";
 import diploofly from "@/assets/diploofly-logo.png";
 
 /**
- * Full-screen loading overlay with the Diploofly logo. Shown immediately
+ * Full-screen loading overlay with the Diploo logo. Shown immediately
  * when the router begins a transition and removed as soon as the new
  * route is committed — no artificial delays so navigation feels snappy.
  *

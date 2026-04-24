@@ -16,8 +16,8 @@ export const Route = createFileRoute("/signup")({
   component: SignupPage,
   head: () => ({
     meta: [
-      { title: "Sign up — Diploofly" },
-      { name: "description", content: "Create your Diploofly account and launch your first insurance landing page in minutes." },
+      { title: "Sign up — Diploo" },
+      { name: "description", content: "Create your Diploo account and launch your first insurance landing page in minutes." },
     ],
   }),
 });

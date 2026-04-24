@@ -37,7 +37,7 @@ export const Route = createFileRoute("/builder")({
   component: GuardedBuilderPage,
   head: () => ({
     meta: [
-      { title: "Page Builder — Diploofly" },
+      { title: "Page Builder — Diploo" },
       { name: "description", content: "Enter your business details, upload your branding, and generate your insurance landing page." },
     ],
   }),

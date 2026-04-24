@@ -34,13 +34,13 @@ export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: [
-      { title: "Diploofly — A modern website builder for insurance agents" },
+      { title: "Diploo — A modern website builder for insurance agents" },
       {
         name: "description",
         content:
           "A clean, simple website builder for insurance agents — Medicare, ACA, Life, Health, Auto, Home, and more. Launch a modern lead-gen site in minutes.",
       },
-      { property: "og:title", content: "Diploofly — A modern website builder for insurance agents" },
+      { property: "og:title", content: "Diploo — A modern website builder for insurance agents" },
       {
         property: "og:description",
         content:
@@ -351,7 +351,7 @@ function Benefits() {
     <section className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Why agents choose Diploofly
+          Why agents choose Diploo
         </p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Everything you need, nothing you don't

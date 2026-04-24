@@ -20,7 +20,7 @@ export const Route = createFileRoute("/inquiry/deposit")({
   component: InquiryDepositPage,
   head: () => ({
     meta: [
-      { title: "Pay your $206 deposit — Diploofly" },
+      { title: "Pay your $206 deposit — Diploo" },
       {
         name: "description",
         content:

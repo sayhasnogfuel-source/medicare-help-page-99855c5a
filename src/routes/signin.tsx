@@ -23,8 +23,8 @@ export const Route = createFileRoute("/signin")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Sign in — Diploofly" },
-      { name: "description", content: "Sign in to your Diploofly account to manage your insurance landing pages." },
+      { title: "Sign in — Diploo" },
+      { name: "description", content: "Sign in to your Diploo account to manage your insurance landing pages." },
     ],
   }),
 });
@@ -77,7 +77,7 @@ function SigninPage() {
                 Welcome back
               </span>
               <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
-                Sign in to your Diploofly account.
+                Sign in to your Diploo account.
               </h1>
               <p className="mt-5 max-w-md text-lg text-muted-foreground">
                 Pick up right where you left off — manage your pages, leads, and

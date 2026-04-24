@@ -10,7 +10,7 @@ import { useSubscription } from "@/lib/subscription";
 export const Route = createFileRoute("/checkout/return")({
   component: CheckoutReturnPage,
   head: () => ({
-    meta: [{ title: "Welcome — Diploofly" }],
+    meta: [{ title: "Welcome — Diploo" }],
   }),
 });
 
@@ -45,7 +45,7 @@ function CheckoutReturnPage() {
               You're in! Your trial has started.
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Welcome to Diploofly. You have 7 days to build, edit, and publish your website. Your card won't be charged until the trial ends — cancel anytime.
+              Welcome to Diploo. You have 7 days to build, edit, and publish your website. Your card won't be charged until the trial ends — cancel anytime.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Button

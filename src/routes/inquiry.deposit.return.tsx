@@ -12,7 +12,7 @@ const PENDING_KEY = "lp_inquiry_pending";
 export const Route = createFileRoute("/inquiry/deposit/return")({
   component: DepositReturnPage,
   head: () => ({
-    meta: [{ title: "Deposit received — Diploofly" }],
+    meta: [{ title: "Deposit received — Diploo" }],
   }),
 });
 

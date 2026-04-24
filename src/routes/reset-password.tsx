@@ -13,8 +13,8 @@ export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
   head: () => ({
     meta: [
-      { title: "Reset password — Diploofly" },
-      { name: "description", content: "Set a new password for your Diploofly account." },
+      { title: "Reset password — Diploo" },
+      { name: "description", content: "Set a new password for your Diploo account." },
     ],
   }),
 });

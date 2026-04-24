@@ -37,13 +37,13 @@ export const Route = createFileRoute("/support")({
   component: SupportPage,
   head: () => ({
     meta: [
-      { title: "Support — Diploofly" },
+      { title: "Support — Diploo" },
       {
         name: "description",
         content:
-          "Get help with your Diploofly account, billing, builder, or live website. Our support team is here to help.",
+          "Get help with your Diploo account, billing, builder, or live website. Our support team is here to help.",
       },
-      { property: "og:title", content: "Support — Diploofly" },
+      { property: "og:title", content: "Support — Diploo" },
       {
         property: "og:description",
         content:

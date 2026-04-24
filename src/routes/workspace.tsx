@@ -40,7 +40,7 @@ export const Route = createFileRoute("/workspace")({
   component: GuardedWorkspace,
   head: () => ({
     meta: [
-      { title: "Builder workspace — Diploofly" },
+      { title: "Builder workspace — Diploo" },
       {
         name: "description",
         content:
@@ -292,7 +292,7 @@ function WorkspacePage() {
       <header className="flex h-12 items-center justify-between gap-3 border-b border-white/10 bg-[var(--surface-espresso)] px-3 text-[var(--surface-cream)] sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
           <Link to="/" className="flex items-center gap-2">
-            <img src={diploofly} alt="Diploofly" className="h-6 w-6 rounded-md" />
+            <img src={diploofly} alt="Diploo" className="h-6 w-6 rounded-md" />
           </Link>
           <span className="text-white/30">/</span>
           <span className="truncate text-sm font-medium text-white/90">
@@ -381,7 +381,7 @@ function WorkspacePage() {
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/10">
               <Sparkles className="h-3.5 w-3.5" />
             </span>
-            <p className="text-sm font-semibold">Diploofly AI</p>
+            <p className="text-sm font-semibold">Diploo AI</p>
             <span className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-white/60">
               Gemini 3 Flash
             </span>
@@ -436,7 +436,7 @@ function WorkspacePage() {
                 rows={2}
                 maxLength={500}
                 autoFocus
-                placeholder="Ask Diploofly to edit your site…"
+                placeholder="Ask Diploo to edit your site…"
                 className="min-h-[60px] resize-none border-0 bg-transparent px-3 py-2.5 pr-11 text-sm text-white placeholder:text-white/35 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <button
@@ -488,7 +488,7 @@ function WorkspacePage() {
               <div className="flex flex-1 items-center justify-center">
                 <div className="flex max-w-[420px] items-center gap-1.5 rounded-md border border-border/70 bg-background px-2.5 py-1 font-mono text-[11px] text-muted-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/70" />
-                  <span className="truncate">{slug}.diploofly.app</span>
+                  <span className="truncate">{slug}.diploo.app</span>
                 </div>
               </div>
               <div className="flex items-center gap-1">
