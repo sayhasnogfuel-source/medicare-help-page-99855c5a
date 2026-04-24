@@ -119,10 +119,11 @@ function Hero() {
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
             size="lg"
-            onClick={() => transitionTo({ to: "/start" })}
+            onClick={() => transitionTo({ to: "/signup" })}
             className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
           >
-            Get Started
+            <UserPlus className="mr-1 h-4 w-4" />
+            Create Your Account
             <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
           <Button
@@ -131,7 +132,8 @@ function Hero() {
             onClick={() => transitionTo({ to: "/signup" })}
             className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
           >
-            See it in action
+            <HeroGoogleGlyph />
+            Continue with Google
           </Button>
         </div>
 
