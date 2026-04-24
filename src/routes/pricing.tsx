@@ -5,7 +5,7 @@ import { PageTransition } from "@/components/app/page-transition";
 import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Sparkles, Zap, ArrowRight, HandHelping } from "lucide-react";
+import { Check, Sparkles, Zap, ArrowRight, HandHelping, Star } from "lucide-react";
 import { useCredits, ACTION_COSTS, ACTION_LABELS, type Plan } from "@/lib/credits";
 import { toast } from "sonner";
 
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/pricing")({
 });
 
 interface Tier {
-  id: Plan;
+  id: Exclude<Plan, "dfy">;
   name: string;
   price: string;
   period?: string;
@@ -38,7 +38,7 @@ interface Tier {
   features: string[];
   cta: string;
   highlight?: boolean;
-  variant: "outline" | "primary" | "dark" | "ghost";
+  variant: "outline" | "primary" | "dark";
 }
 
 const TIERS: Tier[] = [
@@ -47,12 +47,13 @@ const TIERS: Tier[] = [
     name: "Free Trial",
     price: "$0",
     period: "to start",
-    tagline: "Try the AI builder with 10 trial credits.",
+    tagline: "Try the AI builder, build your site, and explore before upgrading.",
     features: [
       "10 trial credits",
       "AI website generation",
+      "Edit copy, sections & branding",
       "Mobile-friendly preview",
-      "All insurance niches",
+      "Publish unlocked after upgrade",
     ],
     cta: "Start Free Trial",
     variant: "outline",
@@ -76,7 +77,7 @@ const TIERS: Tier[] = [
   {
     id: "pro",
     name: "Pro",
-    price: "$80",
+    price: "$44",
     period: "/ month",
     tagline: "More credits and room to iterate for agents who want to grow fast.",
     features: [
@@ -90,20 +91,6 @@ const TIERS: Tier[] = [
     variant: "dark",
     highlight: true,
   },
-  {
-    id: "dfy",
-    name: "Done-For-You",
-    price: "Custom",
-    tagline: "Our team designs, writes, and launches your site for you.",
-    features: [
-      "Strategy call with our team",
-      "Custom design & insurance copy",
-      "Lead-focused page structure",
-      "Launch + 30 days of support",
-    ],
-    cta: "Contact Us",
-    variant: "ghost",
-  },
 ];
 
 function PricingPage() {
@@ -111,10 +98,6 @@ function PricingPage() {
   const { plan, upgrade } = useCredits();
 
   function onChoose(tier: Tier) {
-    if (tier.id === "dfy") {
-      transitionTo({ to: "/inquiry" });
-      return;
-    }
     if (tier.id === "trial") {
       transitionTo({ to: "/start" });
       return;
@@ -146,7 +129,7 @@ function PricingPage() {
             </div>
 
             {/* Tiers */}
-            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
               {TIERS.map((tier) => (
                 <Card
                   key={tier.id}
@@ -192,13 +175,10 @@ function PricingPage() {
                         ? "bg-foreground text-background hover:bg-foreground/90"
                         : tier.variant === "primary"
                           ? "bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
-                          : tier.variant === "ghost"
-                            ? "border border-border bg-background text-foreground hover:bg-secondary"
-                            : "bg-[var(--surface-sand)] text-foreground hover:bg-[var(--surface-beige)]"
+                          : "bg-[var(--surface-sand)] text-foreground hover:bg-[var(--surface-beige)]"
                     }`}
                   >
-                    {plan === tier.id && tier.id !== "dfy" ? "Current plan" : tier.cta}
-                    {tier.id === "dfy" && <ArrowRight className="ml-1 h-4 w-4" />}
+                    {plan === tier.id ? "Current plan" : tier.cta}
                   </Button>
                 </Card>
               ))}
@@ -239,28 +219,98 @@ function PricingPage() {
               </div>
             </div>
 
-            {/* DFY footnote */}
-            <Card className="mt-16 flex flex-col items-center gap-4 rounded-3xl border-border/60 bg-[var(--surface-cream)] p-8 text-center shadow-[var(--shadow-sm)] sm:flex-row sm:text-left">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
-                <HandHelping className="h-6 w-6" />
-              </span>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground">
-                  Don't want to build it yourself?
-                </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Our team will design, write, and launch a polished website for your
-                  insurance practice — usually within a week.
+            {/* Custom Website — premium done-for-you offer */}
+            <div className="mt-20">
+              <div className="mx-auto max-w-2xl text-center">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-background">
+                  <Star className="h-3 w-3" />
+                  Done-for-you
+                </span>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                  Need us to build it for you?
+                </h2>
+                <p className="mt-3 text-muted-foreground">
+                  Skip the builder. Our team designs, writes, and launches a polished
+                  insurance website for you — built to convert.
                 </p>
               </div>
-              <Button
-                onClick={() => transitionTo({ to: "/inquiry" })}
-                className="rounded-full bg-foreground text-background hover:bg-foreground/90"
-              >
-                Talk to our team
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            </Card>
+
+              <Card className="relative mt-8 overflow-hidden rounded-3xl border-foreground/15 bg-gradient-to-br from-[var(--surface-espresso)] to-[var(--surface-mocha)] p-0 text-[var(--surface-cream)] shadow-[var(--shadow-lg)]">
+                <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr]">
+                  <div className="p-8 sm:p-10">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--surface-cream)]/15 text-[var(--surface-cream)]">
+                        <HandHelping className="h-5 w-5" />
+                      </span>
+                      <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--surface-cream)]/70">
+                        Custom Website
+                      </span>
+                    </div>
+                    <h3 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
+                      Best for agents who want a professional website built for them.
+                    </h3>
+                    <div className="mt-5 flex flex-wrap items-baseline gap-2">
+                      <span className="text-xs font-medium uppercase tracking-wider text-[var(--surface-cream)]/60">
+                        Starting at
+                      </span>
+                      <span className="text-4xl font-semibold tracking-tight">$206</span>
+                      <span className="text-sm text-[var(--surface-cream)]/70">
+                        + active monthly subscription
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm text-[var(--surface-cream)]/70">
+                      Final price may vary based on scope, pages, features, and support
+                      needs.
+                    </p>
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                      <Button
+                        onClick={() => transitionTo({ to: "/inquiry" })}
+                        size="lg"
+                        className="rounded-full bg-[var(--surface-cream)] text-[var(--surface-espresso)] hover:bg-[var(--surface-cream)]/90"
+                      >
+                        Submit Inquiry
+                        <ArrowRight className="ml-1 h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => transitionTo({ to: "/support" })}
+                        size="lg"
+                        variant="outline"
+                        className="rounded-full border-[var(--surface-cream)]/30 bg-transparent text-[var(--surface-cream)] hover:bg-[var(--surface-cream)]/10 hover:text-[var(--surface-cream)]"
+                      >
+                        Ask a question
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="border-t border-[var(--surface-cream)]/15 p-8 sm:p-10 lg:border-l lg:border-t-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--surface-cream)]/60">
+                      What's included
+                    </p>
+                    <ul className="mt-4 space-y-3">
+                      {[
+                        "We build it for you, end to end",
+                        "Customized to your brand",
+                        "Built specifically for insurance agents",
+                        "Mobile-friendly and lead-focused design",
+                        "Revisions and launch support included",
+                        "Hosting and live website tied to subscription",
+                      ].map((f) => (
+                        <li
+                          key={f}
+                          className="flex items-start gap-2.5 text-sm text-[var(--surface-cream)]/90"
+                        >
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--surface-cream)]" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-5 rounded-2xl border border-[var(--surface-cream)]/15 bg-[var(--surface-cream)]/5 px-4 py-3 text-xs text-[var(--surface-cream)]/75">
+                      An active monthly subscription keeps your website live, hosted, and
+                      managed through the platform after launch.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
 
             <p className="mt-10 text-center text-xs text-muted-foreground">
               <Sparkles className="mr-1 inline h-3 w-3" />
