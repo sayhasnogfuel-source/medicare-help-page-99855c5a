@@ -12,6 +12,7 @@ import {
   Sparkles,
   Smartphone,
   Monitor,
+  CreditCard,
   Loader2,
   Zap,
   ShieldCheck,
