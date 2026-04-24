@@ -190,7 +190,7 @@ function PricingPage() {
                           : "bg-[var(--surface-sand)] text-foreground hover:bg-[var(--surface-beige)]"
                     }`}
                   >
-                    {plan === tier.id ? "Current plan" : tier.cta}
+                    {currentPlan === tier.id && sub.isActive ? "Current plan" : tier.cta}
                   </Button>
                 </Card>
               ))}
