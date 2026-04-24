@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { z } from "zod";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
@@ -9,12 +10,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { signInWithEmail, signInWithGoogle, useAccount } from "@/lib/account";
+import { signInWithEmail, signInWithGoogle, useAuth } from "@/lib/account";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const searchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/signin")({
   component: SigninPage,
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Sign in — Diploofly" },
