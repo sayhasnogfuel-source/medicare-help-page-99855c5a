@@ -147,32 +147,32 @@ function Hero() {
         </div>
 
         {/* Floating mini UI accent cards (decorative) */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 mx-auto hidden max-w-6xl sm:block">
+        {/* Floating mini UI accent cards — anchored to lower hero edges so they never cover headline copy */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-6 mx-auto hidden max-w-6xl lg:block">
           <div
-            className="lp-float absolute left-4 top-32 rounded-2xl border border-border/60 bg-background/85 p-3 shadow-[var(--shadow-md)] backdrop-blur"
-            style={{ width: "180px" }}
+            className="lp-float absolute -left-2 bottom-2 rounded-2xl border border-border/60 bg-background/90 p-3.5 shadow-[var(--shadow-md)] backdrop-blur"
+            style={{ width: "210px" }}
           >
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
-                <Sparkles className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
+                <Sparkles className="h-4 w-4" />
               </span>
               <div className="flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AI generating</p>
-                <p className="text-xs font-semibold text-foreground">Hero · Trust · CTA</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AI building your site</p>
+                <p className="text-xs font-semibold text-foreground">Hero · Services · Lead form</p>
               </div>
             </div>
           </div>
           <div
-            className="lp-float-slow absolute right-6 top-44 rounded-2xl border border-border/60 bg-background/85 p-3 shadow-[var(--shadow-md)] backdrop-blur"
-            style={{ width: "200px" }}
+            className="lp-float-slow absolute -right-2 bottom-10 rounded-2xl border border-border/60 bg-background/90 p-3.5 shadow-[var(--shadow-md)] backdrop-blur"
+            style={{ width: "230px" }}
           >
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Live preview</p>
-            <p className="mt-1 text-xs font-semibold text-foreground">sterlinginsurance.lumen.pages</p>
-            <div className="mt-2 flex items-center gap-1">
-              <span className="h-1.5 w-12 rounded-full bg-[var(--surface-mocha)]" />
-              <span className="h-1.5 w-6 rounded-full bg-[var(--surface-tan)]" />
-              <span className="h-1.5 w-3 rounded-full bg-[var(--surface-beige)]" />
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">New lead captured</p>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </div>
+            <p className="mt-1.5 text-xs font-semibold text-foreground">Maria R. · Medicare quote request</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">2 minutes ago · from your live site</p>
           </div>
         </div>
       </div>
