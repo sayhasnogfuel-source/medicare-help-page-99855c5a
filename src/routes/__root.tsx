@@ -3,6 +3,7 @@ import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { RouteLoadingOverlay } from "@/components/app/route-loading-overlay";
 
 function NotFoundComponent() {
   return (
@@ -92,6 +93,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
+      <RouteLoadingOverlay />
       <Toaster richColors position="top-right" />
     </>
   );
