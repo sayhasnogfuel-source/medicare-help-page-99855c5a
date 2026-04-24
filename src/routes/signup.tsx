@@ -141,7 +141,7 @@ function SignupPage() {
                 size="lg"
                 variant="outline"
                 disabled={googleLoading}
-                className="w-full rounded-full border-foreground/20 bg-background text-base font-semibold text-foreground hover:bg-secondary"
+                className="w-full rounded-full border-foreground/20 bg-background text-base font-semibold text-foreground hover:bg-secondary hover:text-foreground"
                 onClick={async () => {
                   if (googleLoading) return;
                   setGoogleLoading(true);
