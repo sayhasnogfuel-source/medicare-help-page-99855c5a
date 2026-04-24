@@ -281,28 +281,30 @@ function DashboardPage() {
                     <Globe className="h-3 w-3" /> Website
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${siteStatusTone(billing.siteStatus)}`}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
+                      hasActiveSub
+                        ? "border-emerald-300/60 bg-emerald-100 text-emerald-900"
+                        : "border-border bg-[var(--surface-sand)] text-foreground/80"
+                    }`}
                   >
-                    {SITE_STATUS_LABEL[billing.siteStatus]}
+                    {hasActiveSub ? "Live" : "Draft"}
                   </span>
                 </div>
                 <h2 className="mt-3 text-lg font-semibold text-foreground">
-                  {billing.siteStatus === "live"
-                    ? "Your site is live"
-                    : billing.siteStatus === "ready"
-                      ? "Ready to launch"
-                      : billing.siteStatus === "suspended"
-                        ? "Paused due to billing"
+                  {sub.isPastDue
+                    ? "Paused due to billing"
+                    : hasActiveSub
+                      ? "Your site is live"
+                      : hasBuilderDraft
+                        ? "Ready to launch"
                         : "In progress"}
                 </h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  {billing.siteStatus === "live"
-                    ? "Your subscription keeps the site online."
-                    : billing.siteStatus === "ready"
-                      ? "Publish whenever you're ready."
-                      : billing.siteStatus === "suspended"
-                        ? "Update billing to bring your site back online."
-                        : "Keep building or mark it ready when done."}
+                  {sub.isPastDue
+                    ? "Update billing to bring your site back online."
+                    : hasActiveSub
+                      ? "Your subscription keeps the site online."
+                      : "Keep building, then choose a plan to go live."}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="outline" className="rounded-full">
