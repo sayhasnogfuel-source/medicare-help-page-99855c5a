@@ -98,9 +98,11 @@ export function useAuth(): AuthContextValue {
   return useAuthContext();
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(redirectAfter?: string) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const target = encodeURIComponent(redirectAfter || "/dashboard");
   const result = await lovable.auth.signInWithOAuth("google", {
-    redirect_uri: typeof window !== "undefined" ? `${window.location.origin}/signin` : undefined,
+    redirect_uri: origin ? `${origin}/auth/callback?redirect=${target}` : undefined,
   });
   if (result.error) {
     throw result.error instanceof Error ? result.error : new Error(String(result.error));

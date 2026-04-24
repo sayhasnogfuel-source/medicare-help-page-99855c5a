@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { RouteLoadingOverlay } from "@/components/app/route-loading-overlay";
+import { AuthProvider } from "@/lib/account";
 
 function NotFoundComponent() {
   return (
@@ -91,10 +92,10 @@ function RootComponent() {
   }, [pathname]);
 
   return (
-    <>
+    <AuthProvider>
       <Outlet />
       <RouteLoadingOverlay />
       <Toaster richColors position="top-right" />
-    </>
+    </AuthProvider>
   );
 }
