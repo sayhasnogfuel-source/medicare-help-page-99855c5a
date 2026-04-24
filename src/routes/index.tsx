@@ -169,7 +169,7 @@ function Hero() {
           >
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">New lead captured</p>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--surface-mocha)]" />
             </div>
             <p className="mt-1.5 text-xs font-semibold text-foreground">Maria R. · Medicare quote request</p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">Just now · from your live site</p>

@@ -4,8 +4,15 @@ import { Menu, X, Sparkles, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useBilling } from "@/lib/billing";
+import { useAccount, signOut } from "@/lib/account";
 
-const NAV = [
+const PUBLIC_NAV = [
+  { to: "/", label: "Home" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/support", label: "Support" },
+] as const;
+
+const AUTHED_NAV = [
   { to: "/", label: "Home" },
   { to: "/pricing", label: "Pricing" },
   { to: "/builder", label: "Builder" },
@@ -16,6 +23,9 @@ const NAV = [
 export function AppHeader() {
   const [open, setOpen] = useState(false);
   const billing = useBilling();
+  const account = useAccount();
+  const signedIn = account.hydrated && account.signedIn;
+  const NAV = signedIn ? AUTHED_NAV : PUBLIC_NAV;
   const showBanner =
     billing.hydrated &&
     (billing.subStatus === "past_due" || billing.siteStatus === "suspended");
@@ -68,12 +78,30 @@ export function AppHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="ghost" size="sm" className="rounded-full text-foreground/80">
-            <Link to="/signup">Sign in</Link>
-          </Button>
-          <Button asChild size="sm" className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-espresso)]">
-            <Link to="/start">Get Started</Link>
-          </Button>
+          {signedIn ? (
+            <>
+              <Button asChild variant="ghost" size="sm" className="rounded-full text-foreground/80">
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => signOut()}
+              >
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm" className="rounded-full text-foreground/80">
+                <Link to="/signup">Sign in</Link>
+              </Button>
+              <Button asChild size="sm" className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-espresso)]">
+                <Link to="/signup">Create account</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -99,14 +127,27 @@ export function AppHeader() {
               {item.label}
             </Link>
           ))}
-          <Button
-            asChild
-            className="mt-2 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
-          >
-            <Link to="/start" onClick={() => setOpen(false)}>
-              Get Started
-            </Link>
-          </Button>
+          {signedIn ? (
+            <Button
+              variant="outline"
+              className="mt-2 w-full rounded-full"
+              onClick={() => {
+                signOut();
+                setOpen(false);
+              }}
+            >
+              Sign out
+            </Button>
+          ) : (
+            <Button
+              asChild
+              className="mt-2 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
+            >
+              <Link to="/signup" onClick={() => setOpen(false)}>
+                Create account
+              </Link>
+            </Button>
+          )}
         </nav>
       </div>
     </header>
