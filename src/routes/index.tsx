@@ -26,6 +26,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { signInWithGoogle } from "@/lib/account";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -70,6 +73,17 @@ function HomePage() {
 /* ---------------- HERO ---------------- */
 function Hero() {
   const { transitionTo } = usePageTransition();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const handleGoogle = async () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Google sign-in failed");
+      setGoogleLoading(false);
+    }
+  };
   return (
     <section
       className="relative overflow-hidden"
@@ -129,11 +143,12 @@ function Hero() {
           <Button
             size="lg"
             variant="outline"
-            onClick={() => transitionTo({ to: "/signup" })}
+            disabled={googleLoading}
+            onClick={handleGoogle}
             className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
           >
             <HeroGoogleGlyph />
-            Continue with Google
+            {googleLoading ? "Connecting…" : "Continue with Google"}
           </Button>
         </div>
 
