@@ -10,3 +10,6 @@ verify_jwt = false
 
 [functions.create-deposit-checkout]
 verify_jwt = false
+
+[functions.submit-inquiry]
+verify_jwt = false
