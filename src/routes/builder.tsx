@@ -15,8 +15,6 @@ import {
   ArrowRight,
   ImageIcon,
   X,
-  Sparkles,
-  Send,
   Lock,
   Globe,
   AlertCircle,
@@ -54,17 +52,6 @@ function GuardedBuilderPage() {
 }
 
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to keep localStorage happy
-
-const FREESTYLE_SUGGESTIONS = [
-  "Modern and clean",
-  "Luxury and warm",
-  "Add testimonials",
-  "Add services section",
-  "Add booking form",
-  "Family-oriented feel",
-  "Focus on Medicare clients turning 65",
-  "Use my headshot prominently",
-] as const;
 
 function BuilderPage() {
   const { transitionTo } = usePageTransition();
