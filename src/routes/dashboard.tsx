@@ -395,39 +395,35 @@ function DashboardPage() {
                   </span>
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-                      billing.hasCard
+                      hasActiveSub
                         ? "border-emerald-300/60 bg-emerald-100 text-emerald-900"
                         : "border-amber-300/60 bg-amber-100 text-amber-900"
                     }`}
                   >
-                    {billing.hasCard ? "On file" : "Required"}
+                    {hasActiveSub ? "On file" : "Required"}
                   </span>
                 </div>
-                {billing.card ? (
+                {hasActiveSub ? (
                   <div className="mt-4 flex flex-wrap items-center gap-4">
-                    <div className="flex h-12 w-20 items-center justify-center rounded-lg border border-border bg-[var(--surface-sand)]/60 text-xs font-bold uppercase tracking-wider text-foreground/70">
-                      {billing.card.brand}
-                    </div>
                     <div className="flex-1">
-                      <p className="font-mono text-sm text-foreground">
-                        •••• •••• •••• {billing.card.last4}
+                      <p className="text-sm text-foreground">
+                        Your payment method is securely on file.
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Exp {String(billing.card.expMonth).padStart(2, "0")}/
-                        {String(billing.card.expYear).slice(-2)} · {billing.card.name}
+                        Update your card or view invoices in the billing portal.
                       </p>
                     </div>
                     <Button asChild size="sm" variant="outline" className="rounded-full">
-                      <Link to="/billing">Update billing</Link>
+                      <Link to="/billing">Manage billing</Link>
                     </Button>
                   </div>
                 ) : (
                   <div className="mt-4">
                     <p className="text-sm text-muted-foreground">
-                      No card on file yet. Add one to publish your website when it's ready.
+                      No payment method yet. Choose a plan to start your trial and add a card.
                     </p>
                     <Button asChild size="sm" className="mt-4 rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]">
-                      <Link to="/billing">Add payment method</Link>
+                      <Link to="/pricing">Choose a plan</Link>
                     </Button>
                   </div>
                 )}
@@ -441,32 +437,28 @@ function DashboardPage() {
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-foreground">
-                  {billing.siteStatus === "live"
-                    ? "Your website is currently live."
-                    : billing.siteStatus === "suspended"
-                      ? "Your website has been paused due to billing issues."
-                      : billing.canPublish
-                        ? "Your site is ready to publish."
-                        : "Add a valid payment method to publish your website."}
+                  {sub.isPastDue
+                    ? "Your website has been paused due to billing issues."
+                    : hasActiveSub
+                      ? "Your website is live with an active subscription."
+                      : "Choose a plan to publish your website."}
                 </p>
                 <div className="mt-5 space-y-2">
-                  {billing.siteStatus === "live" ? (
-                    <Button onClick={onUnpublish} variant="outline" size="sm" className="w-full rounded-full">
-                      <EyeOff className="mr-1.5 h-3.5 w-3.5" /> Unpublish
+                  {hasActiveSub ? (
+                    <Button asChild variant="outline" size="sm" className="w-full rounded-full">
+                      <Link to="/billing">
+                        <EyeOff className="mr-1.5 h-3.5 w-3.5" /> Manage subscription
+                      </Link>
                     </Button>
                   ) : (
                     <Button
-                      onClick={onPublish}
+                      asChild
                       size="sm"
-                      disabled={!billing.canPublish}
-                      className="w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)] disabled:opacity-50"
+                      className="w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
                     >
-                      <Globe className="mr-1.5 h-3.5 w-3.5" /> Publish website
-                    </Button>
-                  )}
-                  {billing.siteStatus === "draft" && (
-                    <Button onClick={onMarkReady} variant="ghost" size="sm" className="w-full rounded-full">
-                      Mark as ready to publish
+                      <Link to="/pricing">
+                        <Globe className="mr-1.5 h-3.5 w-3.5" /> Choose a plan
+                      </Link>
                     </Button>
                   )}
                 </div>
@@ -477,32 +469,33 @@ function DashboardPage() {
             <Card className="mt-6 rounded-3xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-foreground">
-                  Recent activity
+                  Subscription
                 </h2>
                 <Button asChild variant="ghost" size="sm" className="rounded-full">
-                  <Link to="/billing">View all</Link>
+                  <Link to="/billing">Manage</Link>
                 </Button>
               </div>
-              <ul className="mt-4 divide-y divide-border/60">
-                {billing.history.slice(0, 5).map((e) => (
-                  <li key={e.id} className="flex items-start gap-3 py-3">
-                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-sand)]/70 text-foreground/70">
-                      <Clock className="h-3.5 w-3.5" />
-                    </span>
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">{e.description}</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {formatDate(e.at)}
-                      </p>
-                    </div>
-                    {typeof e.amount === "number" && (
-                      <span className="text-sm font-medium text-foreground">
-                        ${e.amount.toFixed(2)}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-4 flex items-start gap-3">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-sand)]/70 text-foreground/70">
+                  <Clock className="h-3.5 w-3.5" />
+                </span>
+                <div className="flex-1 text-sm">
+                  <p className="text-foreground">
+                    {sub.subscription
+                      ? `${PLAN_LABELS[credits.plan]} — ${SUB_LABEL[status] ?? status}`
+                      : "No active subscription"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {sub.isTrialing && trialEnd
+                      ? `Trial ends ${formatDate(trialEnd)}`
+                      : periodEnd
+                        ? sub.subscription?.cancel_at_period_end
+                          ? `Ends ${formatDate(periodEnd)}`
+                          : `Renews ${formatDate(periodEnd)}`
+                        : "Choose a plan to get started"}
+                  </p>
+                </div>
+              </div>
             </Card>
           </div>
         </main>
