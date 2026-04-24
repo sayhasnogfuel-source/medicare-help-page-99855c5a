@@ -118,6 +118,9 @@ function WorkspacePage() {
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const editFn = useServerFn(editWebsite);
   const autoRanRef = useRef(false);
+  // While the very first AI build is running, hide the (generic) cached
+  // preview so the user never sees a placeholder template.
+  const [firstBuildPending, setFirstBuildPending] = useState(true);
 
   useEffect(() => {
     setData(loadBuilder() ?? DEFAULT_BUILDER);
@@ -144,12 +147,16 @@ function WorkspacePage() {
   useEffect(() => {
     if (autoRanRef.current || !data || thinking) return;
     if (!credits.hydrated) return;
+    // If the AI has already produced a custom version (we mark this via
+    // freestyleInstructions on first build), skip — the preview is real.
     if (data.freestyleInstructions && data.freestyleInstructions.trim().length > 0) {
       autoRanRef.current = true;
+      setFirstBuildPending(false);
       return;
     }
     if (!credits.canAfford("regenerate_section")) {
       autoRanRef.current = true;
+      setFirstBuildPending(false);
       return;
     }
     autoRanRef.current = true;
@@ -162,13 +169,18 @@ function WorkspacePage() {
     const seed: ChatTurn = {
       role: "user",
       text:
-        "This is a fresh build. Use my business details, niche, theme, and contact method to write a complete first version of my website — pick a strong, specific headline tied to my niche and city, write a concrete subheadline, choose a punchy ctaText, set the right themeId for my audience, and decide which sections (showServices, showTestimonials, showFaq, showBookingCta, showAboutAgent) should appear. Save your design direction in freestyleInstructions. Then, if any of phone/email/city/state/insuranceType are blank in my data, ask me for the missing ones in your reply.",
+        "FRESH BUILD. Generate the complete first version of my landing page right now from the data I gave you. Treat the themeId I already selected as the design brief — match its mood, palette and density. Write a custom headline that names my insurance niche AND my city. Write a concrete, specific subheadline (not generic). Pick a punchy ctaText that fits my contact method. Set ALL FIVE section toggles (showServices, showTestimonials, showFaq, showBookingCta, showAboutAgent) opinionatedly for my niche and audience. Save your one-line design rationale in freestyleInstructions so future edits stay consistent. If phone/email/city/state/insuranceType are blank, also ask me for the missing ones at the end of your reply in one short sentence.",
     };
     try {
       const result = await editFn({ data: { messages: [seed], builderData: current } });
       let next = current;
       if (result.patch) {
         next = { ...current, ...result.patch };
+        // Force-mark this build as "generated" so we never re-run it
+        // unnecessarily, even if the model forgot to set freestyleInstructions.
+        if (!next.freestyleInstructions || !next.freestyleInstructions.trim()) {
+          next = { ...next, freestyleInstructions: "ai-first-build" };
+        }
         setData(next);
         saveBuilder(next);
         setSavedAt(Date.now());
@@ -183,6 +195,7 @@ function WorkspacePage() {
       console.error("First-run AI generation failed", err);
     } finally {
       setThinking(false);
+      setFirstBuildPending(false);
     }
   }
 
