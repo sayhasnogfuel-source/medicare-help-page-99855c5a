@@ -77,6 +77,7 @@ function InquiryPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState<InquiryForm>(DEFAULT_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   function update<K extends keyof InquiryForm>(k: K, v: InquiryForm[K]) {
     setForm((p) => ({ ...p, [k]: v }));
@@ -94,8 +95,9 @@ function InquiryPage() {
     return e;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const errs = validate(form);
     setErrors(errs);
     if (Object.keys(errs).length) {
@@ -103,22 +105,28 @@ function InquiryPage() {
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    setSubmitting(true);
     try {
+      const { data, error } = await supabase.functions.invoke("submit-inquiry", {
+        body: form,
+      });
+      if (error) throw new Error(error.message);
+      const inquiryId = (data as { inquiryId?: string } | null)?.inquiryId;
+      if (!inquiryId) throw new Error("Failed to save inquiry");
       if (typeof window !== "undefined") {
-        const inquiryId = `inq_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         const payload = {
-          ...form,
           inquiryId,
           email: form.email,
           businessName: form.businessName,
-          submittedAt: new Date().toISOString(),
         };
         window.localStorage.setItem(PENDING_KEY, JSON.stringify(payload));
       }
-    } catch {
-      // ignore quota errors
+      navigate({ to: "/inquiry/deposit" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to submit inquiry";
+      toast.error(message);
+      setSubmitting(false);
     }
-    navigate({ to: "/inquiry/deposit" });
   }
 
   return (
@@ -286,9 +294,10 @@ function InquiryPage() {
                   <Button
                     type="submit"
                     size="lg"
+                    disabled={submitting}
                     className="rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
                   >
-                    Continue to deposit
+                    {submitting ? "Saving…" : "Continue to deposit"}
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
