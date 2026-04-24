@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import diploofly from "@/assets/diploofly-logo.png";
+import diploofly from "@/assets/diploofly-logo.svg";
 
 export function AppFooter() {
   return (
@@ -7,8 +7,8 @@ export function AppFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-4">
         <div className="md:col-span-2">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src={diploofly} alt="" className="h-8 w-8 object-contain" />
-            <span className="text-base font-semibold tracking-tight text-foreground">
+            <img src={diploofly} alt="" className="-mt-px h-7 w-7 object-contain" />
+            <span className="text-base font-semibold -tracking-[0.01em] text-foreground">
               Diploofly
             </span>
           </Link>
