@@ -287,7 +287,7 @@ function PricingPage() {
 
             <p className="mt-10 text-center text-xs text-muted-foreground">
               <Sparkles className="mr-1 inline h-3 w-3" />
-              Pricing shown for demo purposes. No real charge — checkout isn't wired up.
+              Subscriptions and the $206 deposit are processed securely by Stripe.
             </p>
           </section>
         </main>
