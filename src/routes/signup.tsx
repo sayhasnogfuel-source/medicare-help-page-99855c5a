@@ -87,7 +87,7 @@ function SignupPage() {
                     firstName: String(data.get("firstName") || ""),
                     lastName: String(data.get("lastName") || ""),
                   });
-                  transitionTo({ to: "/builder" });
+                  transitionTo({ to: "/dashboard" });
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : "Sign up failed");
                   setSubmitting(false);
@@ -137,7 +137,7 @@ function SignupPage() {
                   if (googleLoading) return;
                   setGoogleLoading(true);
                   try {
-                    await signInWithGoogle();
+                    await signInWithGoogle("/dashboard");
                   } catch (err) {
                     toast.error(err instanceof Error ? err.message : "Google sign-in failed");
                     setGoogleLoading(false);

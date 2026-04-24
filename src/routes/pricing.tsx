@@ -109,7 +109,7 @@ function PricingPage() {
     }
     if (account.hydrated && !account.signedIn) {
       toast.info("Sign in to start your free trial");
-      transitionTo({ to: "/signup" });
+      transitionTo({ to: "/signin", search: { redirect: `/checkout?plan=${tier.id}` } } as never);
       return;
     }
     if (sub.isActive && currentPlan === tier.id) {
