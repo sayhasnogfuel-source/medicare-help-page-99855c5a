@@ -34,9 +34,10 @@ import {
 import { loadBuilder, DEFAULT_BUILDER } from "@/lib/builder-storage";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { AuthGuard } from "@/components/app/auth-guard";
 
 export const Route = createFileRoute("/dashboard")({
-  component: DashboardPage,
+  component: GuardedDashboardPage,
   head: () => ({
     meta: [
       { title: "Dashboard — Lumen.pages" },
@@ -54,6 +55,14 @@ export const Route = createFileRoute("/dashboard")({
     ],
   }),
 });
+
+function GuardedDashboardPage() {
+  return (
+    <AuthGuard>
+      <DashboardPage />
+    </AuthGuard>
+  );
+}
 
 function siteStatusTone(s: SiteStatus): string {
   switch (s) {

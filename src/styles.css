@@ -257,7 +257,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.18) 50%,
     transparent 100%
   );
   transform: translateX(-120%) skewX(-12deg);
@@ -266,6 +266,8 @@
   z-index: 1;
 }
 .lp-cta-shimmer > * { position: relative; z-index: 2; }
+/* Pause the sweep on hover so it never washes out the label text */
+.lp-cta-shimmer:hover::before { animation-play-state: paused; opacity: 0; }
 
 .lp-cta-glow {
   position: relative;

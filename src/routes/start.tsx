@@ -6,9 +6,10 @@ import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Clock, HandHelping, Rocket, Sparkles, UserPlus } from "lucide-react";
+import { AuthGuard } from "@/components/app/auth-guard";
 
 export const Route = createFileRoute("/start")({
-  component: StartPage,
+  component: GuardedStartPage,
   head: () => ({
     meta: [
       { title: "Get started — Lumen.pages" },
@@ -26,6 +27,14 @@ export const Route = createFileRoute("/start")({
     ],
   }),
 });
+
+function GuardedStartPage() {
+  return (
+    <AuthGuard>
+      <StartPage />
+    </AuthGuard>
+  );
+}
 
 function StartPage() {
   const { transitionTo } = usePageTransition();

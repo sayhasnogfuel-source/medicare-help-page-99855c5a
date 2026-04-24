@@ -33,9 +33,10 @@ import {
 import { useCredits, ACTION_COSTS } from "@/lib/credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
+import { AuthGuard } from "@/components/app/auth-guard";
 
 export const Route = createFileRoute("/builder")({
-  component: BuilderPage,
+  component: GuardedBuilderPage,
   head: () => ({
     meta: [
       { title: "Page Builder — Lumen.pages" },
@@ -43,6 +44,14 @@ export const Route = createFileRoute("/builder")({
     ],
   }),
 });
+
+function GuardedBuilderPage() {
+  return (
+    <AuthGuard>
+      <BuilderPage />
+    </AuthGuard>
+  );
+}
 
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to keep localStorage happy
 
