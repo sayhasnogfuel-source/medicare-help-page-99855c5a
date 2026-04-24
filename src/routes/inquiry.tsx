@@ -19,6 +19,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { INSURANCE_NICHES } from "@/lib/builder-storage";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/inquiry")({
   component: InquiryPage,
