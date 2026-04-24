@@ -33,13 +33,13 @@ export const Route = createFileRoute("/billing")({
   component: BillingPage,
   head: () => ({
     meta: [
-      { title: "Billing & subscription — Lumen.pages" },
+      { title: "Billing & subscription — Diploofly" },
       {
         name: "description",
         content:
           "Manage your subscription, payment method, billing history, and plan options.",
       },
-      { property: "og:title", content: "Billing & subscription — Lumen.pages" },
+      { property: "og:title", content: "Billing & subscription — Diploofly" },
       {
         property: "og:description",
         content:

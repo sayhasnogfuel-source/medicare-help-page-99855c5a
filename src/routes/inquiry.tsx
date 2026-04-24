@@ -23,13 +23,13 @@ export const Route = createFileRoute("/inquiry")({
   component: InquiryPage,
   head: () => ({
     meta: [
-      { title: "Have us build it for you — Lumen.pages" },
+      { title: "Have us build it for you — Diploofly" },
       {
         name: "description",
         content:
           "Submit a quick inquiry and our team will design a modern lead-generation website for your insurance business.",
       },
-      { property: "og:title", content: "Have us build your insurance website — Lumen.pages" },
+      { property: "og:title", content: "Have us build your insurance website — Diploofly" },
       {
         property: "og:description",
         content:

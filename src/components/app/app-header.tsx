@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X, Sparkles, AlertTriangle } from "lucide-react";
+import { Menu, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useBilling } from "@/lib/billing";
 import { useAccount, signOut } from "@/lib/account";
+import diploofly from "@/assets/diploofly-logo.png";
 
 const PUBLIC_NAV = [
   { to: "/", label: "Home" },
@@ -54,13 +55,8 @@ export function AppHeader() {
         </div>
       )}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-        <Link to="/" className="flex items-center gap-2.5" aria-label="Lumen home">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)]">
-            <Sparkles className="h-4.5 w-4.5" strokeWidth={2.2} />
-          </span>
-          <span className="text-[1.05rem] font-semibold tracking-tight text-foreground">
-            Lumen<span className="text-muted-foreground">.pages</span>
-          </span>
+        <Link to="/" className="flex items-center" aria-label="Diploofly home">
+          <img src={diploofly} alt="Diploofly" className="h-9 w-auto" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">

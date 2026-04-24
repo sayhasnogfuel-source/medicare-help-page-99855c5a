@@ -39,7 +39,7 @@ export const Route = createFileRoute("/builder")({
   component: GuardedBuilderPage,
   head: () => ({
     meta: [
-      { title: "Page Builder — Lumen.pages" },
+      { title: "Page Builder — Diploofly" },
       { name: "description", content: "Enter your business details, upload your branding, and generate your insurance landing page." },
     ],
   }),

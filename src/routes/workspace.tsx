@@ -33,7 +33,7 @@ export const Route = createFileRoute("/workspace")({
   component: WorkspacePage,
   head: () => ({
     meta: [
-      { title: "Builder workspace — Lumen.pages" },
+      { title: "Builder workspace — Diploofly" },
       {
         name: "description",
         content:
@@ -451,7 +451,7 @@ function WorkspacePage() {
               <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.85_0.13_85)]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.78_0.13_145)]" />
               <span className="ml-3 truncate rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
-                {data.businessName.toLowerCase().replace(/\s+/g, "")}.lumen.pages
+                {data.businessName.toLowerCase().replace(/\s+/g, "")}.diploofly
               </span>
               <div className="ml-auto inline-flex items-center rounded-full border border-border bg-background p-0.5">
                 <button

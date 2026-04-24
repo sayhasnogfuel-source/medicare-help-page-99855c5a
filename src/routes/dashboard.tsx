@@ -40,13 +40,13 @@ export const Route = createFileRoute("/dashboard")({
   component: GuardedDashboardPage,
   head: () => ({
     meta: [
-      { title: "Dashboard — Lumen.pages" },
+      { title: "Dashboard — Diploofly" },
       {
         name: "description",
         content:
           "Manage your insurance website, credits, subscription, and publish status from a single dashboard.",
       },
-      { property: "og:title", content: "Dashboard — Lumen.pages" },
+      { property: "og:title", content: "Dashboard — Diploofly" },
       {
         property: "og:description",
         content:
