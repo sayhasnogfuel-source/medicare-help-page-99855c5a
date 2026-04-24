@@ -31,7 +31,9 @@ export const Route = createFileRoute("/signin")({
 
 function SigninPage() {
   const { transitionTo } = usePageTransition();
-  const account = useAccount();
+  const { hydrated, user } = useAuth();
+  const { redirect } = useSearch({ from: "/signin" });
+  const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/dashboard";
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -39,12 +41,12 @@ function SigninPage() {
   const [showReset, setShowReset] = useState(false);
 
   useEffect(() => {
-    if (account.hydrated && account.signedIn) {
-      transitionTo({ to: "/builder" });
+    if (hydrated && user) {
+      transitionTo({ to: safeRedirect });
     }
-  }, [account.hydrated, account.signedIn, transitionTo]);
+  }, [hydrated, user, safeRedirect, transitionTo]);
 
-  if (account.hydrated && account.signedIn) {
+  if (hydrated && user) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <AppHeader />
@@ -105,7 +107,7 @@ function SigninPage() {
                         email: String(data.get("email") || ""),
                         password: String(data.get("password") || ""),
                       });
-                      transitionTo({ to: "/builder" });
+                      transitionTo({ to: safeRedirect });
                     } catch (err) {
                       toast.error(err instanceof Error ? err.message : "Sign in failed");
                       setSubmitting(false);
@@ -156,7 +158,7 @@ function SigninPage() {
                       if (googleLoading) return;
                       setGoogleLoading(true);
                       try {
-                        await signInWithGoogle();
+                        await signInWithGoogle(safeRedirect);
                       } catch (err) {
                         toast.error(err instanceof Error ? err.message : "Google sign-in failed");
                         setGoogleLoading(false);
