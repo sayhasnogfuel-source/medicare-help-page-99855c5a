@@ -25,6 +25,7 @@ import { Route as BillingRouteImport } from './routes/billing'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InquiryDepositRouteImport } from './routes/inquiry.deposit'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as InquiryDepositReturnRouteImport } from './routes/inquiry.deposit.return'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
@@ -107,6 +108,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/return',
   getParentRoute: () => CheckoutRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InquiryDepositReturnRoute = InquiryDepositReturnRouteImport.update({
   id: '/return',
   path: '/return',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/inquiry/deposit': typeof InquiryDepositRouteWithChildren
   '/inquiry/deposit/return': typeof InquiryDepositReturnRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/inquiry/deposit': typeof InquiryDepositRouteWithChildren
   '/inquiry/deposit/return': typeof InquiryDepositReturnRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/inquiry/deposit': typeof InquiryDepositRouteWithChildren
   '/inquiry/deposit/return': typeof InquiryDepositReturnRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/support'
     | '/workspace'
+    | '/auth/callback'
     | '/checkout/return'
     | '/inquiry/deposit'
     | '/inquiry/deposit/return'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/support'
     | '/workspace'
+    | '/auth/callback'
     | '/checkout/return'
     | '/inquiry/deposit'
     | '/inquiry/deposit/return'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/support'
     | '/workspace'
+    | '/auth/callback'
     | '/checkout/return'
     | '/inquiry/deposit'
     | '/inquiry/deposit/return'
@@ -246,6 +258,7 @@ export interface RootRouteChildren {
   StartRoute: typeof StartRoute
   SupportRoute: typeof SupportRoute
   WorkspaceRoute: typeof WorkspaceRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inquiry/deposit/return': {
       id: '/inquiry/deposit/return'
       path: '/return'
@@ -422,6 +442,7 @@ const rootRouteChildren: RootRouteChildren = {
   StartRoute: StartRoute,
   SupportRoute: SupportRoute,
   WorkspaceRoute: WorkspaceRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

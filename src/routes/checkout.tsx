@@ -80,7 +80,9 @@ function CheckoutPage() {
                 asChild
                 className="mt-6 rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
               >
-                <Link to="/signup">Sign in or create account</Link>
+                <Link to="/signin" search={{ redirect: `/checkout?plan=${plan}` } as never}>
+                  Sign in or create account
+                </Link>
               </Button>
             </Card>
           ) : (

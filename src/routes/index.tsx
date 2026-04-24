@@ -78,7 +78,7 @@ function Hero() {
     if (googleLoading) return;
     setGoogleLoading(true);
     try {
-      await signInWithGoogle();
+      await signInWithGoogle("/dashboard");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
       setGoogleLoading(false);

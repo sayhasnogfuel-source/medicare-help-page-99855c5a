@@ -105,7 +105,7 @@ function BillingPage() {
                 asChild
                 className="mt-6 rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
               >
-                <Link to="/signup">Sign in</Link>
+                <Link to="/signin" search={{ redirect: "/billing" } as never}>Sign in</Link>
               </Button>
             </Card>
           </div>

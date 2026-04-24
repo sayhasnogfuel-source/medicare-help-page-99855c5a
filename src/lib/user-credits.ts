@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAccount } from "@/lib/account";
+import { useAuth } from "@/lib/account";
 
 export type CreditPlan = "trial" | "starter" | "pro";
 
@@ -65,37 +65,44 @@ export interface UseUserCreditsResult {
 }
 
 export function useUserCredits(): UseUserCreditsResult {
-  const account = useAccount();
+  const { hydrated: authReady, user } = useAuth();
+  const userId = user?.id ?? null;
   const [row, setRow] = useState<UserCreditsRow | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   const fetchRow = useCallback(async () => {
-    if (!account.signedIn) {
+    if (!userId) {
       setRow(null);
       setHydrated(true);
       return;
     }
-    const { data } = await supabase
-      .from("user_credits")
-      .select("*")
-      .maybeSingle();
-    setRow((data as UserCreditsRow | null) ?? null);
-    setHydrated(true);
-  }, [account.signedIn]);
+    try {
+      const { data } = await supabase
+        .from("user_credits")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+      setRow((data as UserCreditsRow | null) ?? null);
+    } catch {
+      setRow(null);
+    } finally {
+      setHydrated(true);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    if (!account.hydrated) return;
+    if (!authReady) return;
     fetchRow();
-  }, [account.hydrated, fetchRow]);
+  }, [authReady, fetchRow]);
 
-  // Realtime updates
+  // Realtime updates — only after auth is ready and a user exists.
   useEffect(() => {
-    if (!account.signedIn) return;
+    if (!authReady || !userId) return;
     const channel = supabase
-      .channel("user_credits-changes")
+      .channel(`user_credits-changes-${userId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "user_credits" },
+        { event: "*", schema: "public", table: "user_credits", filter: `user_id=eq.${userId}` },
         () => {
           fetchRow();
         },
@@ -104,7 +111,7 @@ export function useUserCredits(): UseUserCreditsResult {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [account.signedIn, fetchRow]);
+  }, [authReady, userId, fetchRow]);
 
   const credits = row?.credits ?? 0;
   const planTotal = row?.plan_total ?? 0;

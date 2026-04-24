@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { z } from "zod";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
@@ -9,12 +10,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { signInWithEmail, signInWithGoogle, useAccount } from "@/lib/account";
+import { signInWithEmail, signInWithGoogle, useAuth } from "@/lib/account";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const searchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/signin")({
   component: SigninPage,
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Sign in — Diploofly" },
@@ -25,7 +31,9 @@ export const Route = createFileRoute("/signin")({
 
 function SigninPage() {
   const { transitionTo } = usePageTransition();
-  const account = useAccount();
+  const { hydrated, user } = useAuth();
+  const { redirect } = useSearch({ from: "/signin" });
+  const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/dashboard";
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -33,12 +41,12 @@ function SigninPage() {
   const [showReset, setShowReset] = useState(false);
 
   useEffect(() => {
-    if (account.hydrated && account.signedIn) {
-      transitionTo({ to: "/builder" });
+    if (hydrated && user) {
+      transitionTo({ to: safeRedirect });
     }
-  }, [account.hydrated, account.signedIn, transitionTo]);
+  }, [hydrated, user, safeRedirect, transitionTo]);
 
-  if (account.hydrated && account.signedIn) {
+  if (hydrated && user) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <AppHeader />
@@ -99,7 +107,7 @@ function SigninPage() {
                         email: String(data.get("email") || ""),
                         password: String(data.get("password") || ""),
                       });
-                      transitionTo({ to: "/builder" });
+                      transitionTo({ to: safeRedirect });
                     } catch (err) {
                       toast.error(err instanceof Error ? err.message : "Sign in failed");
                       setSubmitting(false);
@@ -150,7 +158,7 @@ function SigninPage() {
                       if (googleLoading) return;
                       setGoogleLoading(true);
                       try {
-                        await signInWithGoogle();
+                        await signInWithGoogle(safeRedirect);
                       } catch (err) {
                         toast.error(err instanceof Error ? err.message : "Google sign-in failed");
                         setGoogleLoading(false);
