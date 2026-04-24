@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { EditResult } from "./ai-editor.types";
+import type { BuilderPatch, EditResult } from "./ai-editor.types";
 
 const ChatTurnSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -107,21 +107,27 @@ const TOOL_SCHEMA = {
   },
 };
 
-function sanitizePatch(raw: unknown): Record<string, unknown> | null {
+const STRING_FIELDS = [
+  "businessName", "agentName", "phone", "email", "city", "state",
+  "insuranceType", "businessType", "headline", "subheadline",
+  "ctaText", "freestyleInstructions", "authorNotes",
+] as const;
+
+function sanitizePatch(raw: unknown): BuilderPatch | null {
   if (!raw || typeof raw !== "object") return null;
   const patch = raw as Record<string, unknown>;
-  const allowed = new Set([
-    "businessName", "agentName", "phone", "email", "city", "state",
-    "insuranceType", "businessType", "headline", "subheadline",
-    "contactMethod", "ctaText", "freestyleInstructions", "authorNotes", "themeId",
-  ]);
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(patch)) {
-    if (!allowed.has(k)) continue;
-    if (v === null || v === undefined) continue;
-    if (k === "themeId" && !VALID_THEME_IDS.includes(v as (typeof VALID_THEME_IDS)[number])) continue;
-    if (k === "contactMethod" && !["call", "text", "email"].includes(v as string)) continue;
-    out[k] = v;
+  const out: BuilderPatch = {};
+  for (const key of STRING_FIELDS) {
+    const v = patch[key];
+    if (typeof v === "string" && v.length > 0) {
+      (out as Record<string, string>)[key] = v;
+    }
+  }
+  if (typeof patch.themeId === "string" && VALID_THEME_IDS.includes(patch.themeId as (typeof VALID_THEME_IDS)[number])) {
+    out.themeId = patch.themeId;
+  }
+  if (patch.contactMethod === "call" || patch.contactMethod === "text" || patch.contactMethod === "email") {
+    out.contactMethod = patch.contactMethod;
   }
   return Object.keys(out).length ? out : null;
 }
