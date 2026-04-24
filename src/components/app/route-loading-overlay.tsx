@@ -30,10 +30,12 @@ export function RouteLoadingOverlay() {
       return;
     }
 
-    // Pending finished — hide immediately, but enforce a tiny min display
-    // so the overlay doesn't strobe on extremely fast transitions.
+    // Pending finished — enforce a consistent minimum display time so
+    // every navigation feels the same regardless of how fast the next
+    // route resolves. ~450ms reads as "deliberate" without feeling slow.
+    const MIN_VISIBLE_MS = 450;
     const shownFor = shownAtRef.current ? Date.now() - shownAtRef.current : 0;
-    const remaining = Math.max(0, 80 - shownFor);
+    const remaining = Math.max(0, MIN_VISIBLE_MS - shownFor);
     hideTimerRef.current = setTimeout(() => {
       setVisible(false);
       shownAtRef.current = null;
