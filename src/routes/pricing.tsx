@@ -129,7 +129,7 @@ function PricingPage() {
             </div>
 
             {/* Tiers */}
-            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
               {TIERS.map((tier) => (
                 <Card
                   key={tier.id}
@@ -175,13 +175,10 @@ function PricingPage() {
                         ? "bg-foreground text-background hover:bg-foreground/90"
                         : tier.variant === "primary"
                           ? "bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
-                          : tier.variant === "ghost"
-                            ? "border border-border bg-background text-foreground hover:bg-secondary"
-                            : "bg-[var(--surface-sand)] text-foreground hover:bg-[var(--surface-beige)]"
+                          : "bg-[var(--surface-sand)] text-foreground hover:bg-[var(--surface-beige)]"
                     }`}
                   >
-                    {plan === tier.id && tier.id !== "dfy" ? "Current plan" : tier.cta}
-                    {tier.id === "dfy" && <ArrowRight className="ml-1 h-4 w-4" />}
+                    {plan === tier.id ? "Current plan" : tier.cta}
                   </Button>
                 </Card>
               ))}
