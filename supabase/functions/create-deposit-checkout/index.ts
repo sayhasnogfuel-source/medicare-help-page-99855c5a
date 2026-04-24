@@ -1,5 +1,11 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { type StripeEnv, createStripeClient } from "../_shared/stripe.ts";
 import { corsHeaders } from "../_shared/cors.ts";
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
@@ -17,6 +23,15 @@ Deno.serve(async (req) => {
     if (!/^[a-zA-Z0-9_-]+$/.test(priceId)) throw new Error("Invalid priceId");
     if (!returnUrl.startsWith("http")) throw new Error("Invalid returnUrl");
 
+    // Optional: link the deposit to a signed-in user.
+    let userId: string | undefined;
+    const authHeader = req.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data } = await supabase.auth.getUser(token);
+      userId = data.user?.id;
+    }
+
     const stripe = createStripeClient(environment);
 
     const prices = await stripe.prices.list({ lookup_keys: [priceId] });
@@ -33,12 +48,14 @@ Deno.serve(async (req) => {
         type: "custom_website_deposit",
         ...(inquiryId && { inquiryId }),
         ...(businessName && { businessName }),
+        ...(userId && { userId }),
       },
       payment_intent_data: {
         metadata: {
           type: "custom_website_deposit",
           ...(inquiryId && { inquiryId }),
           ...(businessName && { businessName }),
+          ...(userId && { userId }),
         },
       },
     });
