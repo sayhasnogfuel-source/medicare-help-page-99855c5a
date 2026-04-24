@@ -316,7 +316,7 @@ function Faq() {
     },
     {
       q: "How is pricing structured?",
-      a: "Free trial to test the builder, Starter at $26/mo, Pro at $44/mo, and a custom done-for-you option starting at $206 + active subscription if you'd rather we build it.",
+      a: "Free trial to test the builder, Starter at $26/mo, Pro at $80/mo, and a custom done-for-you option starting at $206 + active subscription if you'd rather we build it.",
     },
     {
       q: "What if I need help?",
