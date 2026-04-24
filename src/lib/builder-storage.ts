@@ -176,6 +176,10 @@ export interface BuilderData {
   freestyleInstructions: string;
   authorNotes: string;
   themeId: string;
+  /** Workspace-local tweak notes from the post-generation chat. Kept
+   *  separate from `freestyleInstructions` (the setup prompt) so chats
+   *  don't bleed across stages. */
+  workspaceNotes: string;
 }
 
 export const DEFAULT_BUILDER: BuilderData = {
@@ -197,6 +201,7 @@ export const DEFAULT_BUILDER: BuilderData = {
   freestyleInstructions: "",
   authorNotes: "",
   themeId: "modern-medicare",
+  workspaceNotes: "",
 };
 
 const KEY = "lp_builder_data_v3";

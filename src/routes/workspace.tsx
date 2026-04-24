@@ -191,8 +191,8 @@ function applyTweak(
   // sees their input has been captured.
   return {
     patch: {
-      freestyleInstructions:
-        (data.freestyleInstructions ? data.freestyleInstructions + "\n• " : "• ") +
+      workspaceNotes:
+        (data.workspaceNotes ? data.workspaceNotes + "\n• " : "• ") +
         message.trim(),
     },
     reply:
