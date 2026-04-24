@@ -2,11 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { PageTransition } from "@/components/app/page-transition";
+import { TestModeBanner } from "@/components/app/test-mode-banner";
 import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check, Sparkles, Zap, ArrowRight, Star } from "lucide-react";
-import { useCredits, ACTION_COSTS, ACTION_LABELS, type Plan } from "@/lib/credits";
+import { ACTION_COSTS, ACTION_LABELS, type Plan } from "@/lib/credits";
+import { useAccount } from "@/lib/account";
+import { useSubscription } from "@/lib/subscription";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pricing")({
@@ -95,23 +98,32 @@ const TIERS: Tier[] = [
 
 function PricingPage() {
   const { transitionTo } = usePageTransition();
-  const { plan, upgrade } = useCredits();
+  const account = useAccount();
+  const sub = useSubscription();
+  const currentPlan: Plan = sub.plan === "starter" ? "starter" : sub.plan === "pro" ? "pro" : "trial";
 
   function onChoose(tier: Tier) {
     if (tier.id === "trial") {
       transitionTo({ to: "/start" });
       return;
     }
-    upgrade(tier.id);
-    toast.success(`You're on the ${tier.name} plan`, {
-      description: "Credits topped up. Happy building!",
-    });
-    transitionTo({ to: "/builder" });
+    if (account.hydrated && !account.signedIn) {
+      toast.info("Sign in to start your free trial");
+      transitionTo({ to: "/signup" });
+      return;
+    }
+    if (sub.isActive && currentPlan === tier.id) {
+      toast.info("You're already on this plan");
+      transitionTo({ to: "/billing" });
+      return;
+    }
+    transitionTo(`/checkout?plan=${tier.id}`);
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
+      <TestModeBanner />
       <PageTransition>
         <main className="flex-1">
           <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
@@ -178,7 +190,7 @@ function PricingPage() {
                           : "bg-[var(--surface-sand)] text-foreground hover:bg-[var(--surface-beige)]"
                     }`}
                   >
-                    {plan === tier.id ? "Current plan" : tier.cta}
+                    {currentPlan === tier.id && sub.isActive ? "Current plan" : tier.cta}
                   </Button>
                 </Card>
               ))}

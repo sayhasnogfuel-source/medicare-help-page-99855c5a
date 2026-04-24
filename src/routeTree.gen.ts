@@ -18,9 +18,11 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PreviewRouteImport } from './routes/preview'
 import { Route as InquiryRouteImport } from './routes/inquiry'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
@@ -67,6 +69,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuilderRoute = BuilderRouteImport.update({
   id: '/builder',
   path: '/builder',
@@ -82,11 +89,17 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/return',
+  path: '/return',
+  getParentRoute: () => CheckoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/builder': typeof BuilderRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
@@ -96,11 +109,13 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
+  '/checkout/return': typeof CheckoutReturnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/builder': typeof BuilderRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
@@ -110,12 +125,14 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
+  '/checkout/return': typeof CheckoutReturnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/builder': typeof BuilderRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/inquiry': typeof InquiryRoute
   '/preview': typeof PreviewRoute
@@ -125,6 +142,7 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
   '/workspace': typeof WorkspaceRoute
+  '/checkout/return': typeof CheckoutReturnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/builder'
+    | '/checkout'
     | '/dashboard'
     | '/inquiry'
     | '/preview'
@@ -141,11 +160,13 @@ export interface FileRouteTypes {
     | '/start'
     | '/support'
     | '/workspace'
+    | '/checkout/return'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/billing'
     | '/builder'
+    | '/checkout'
     | '/dashboard'
     | '/inquiry'
     | '/preview'
@@ -155,11 +176,13 @@ export interface FileRouteTypes {
     | '/start'
     | '/support'
     | '/workspace'
+    | '/checkout/return'
   id:
     | '__root__'
     | '/'
     | '/billing'
     | '/builder'
+    | '/checkout'
     | '/dashboard'
     | '/inquiry'
     | '/preview'
@@ -169,12 +192,14 @@ export interface FileRouteTypes {
     | '/start'
     | '/support'
     | '/workspace'
+    | '/checkout/return'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
   BuilderRoute: typeof BuilderRoute
+  CheckoutRoute: typeof CheckoutRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   InquiryRoute: typeof InquiryRoute
   PreviewRoute: typeof PreviewRoute
@@ -251,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/builder': {
       id: '/builder'
       path: '/builder'
@@ -272,13 +304,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof CheckoutRoute
+    }
   }
 }
+
+interface CheckoutRouteChildren {
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
+}
+
+const CheckoutRouteChildren: CheckoutRouteChildren = {
+  CheckoutReturnRoute: CheckoutReturnRoute,
+}
+
+const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
+  CheckoutRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
   BuilderRoute: BuilderRoute,
+  CheckoutRoute: CheckoutRouteWithChildren,
   DashboardRoute: DashboardRoute,
   InquiryRoute: InquiryRoute,
   PreviewRoute: PreviewRoute,
