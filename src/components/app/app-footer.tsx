@@ -6,8 +6,11 @@ export function AppFooter() {
     <footer className="border-t border-border/60 bg-[var(--surface-cream)]">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-4">
         <div className="md:col-span-2">
-          <Link to="/" className="inline-flex items-center">
-            <img src={diploofly} alt="Diploofly" className="h-9 w-auto" />
+          <Link to="/" className="inline-flex items-center gap-2">
+            <img src={diploofly} alt="" className="h-8 w-8 object-contain" />
+            <span className="text-base font-semibold tracking-tight text-foreground">
+              Diploofly
+            </span>
           </Link>
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
             The simplest way for Medicare and ACA agents to launch beautiful, modern
