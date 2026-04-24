@@ -22,14 +22,12 @@ export function AuthGuard({
   useEffect(() => {
     if (!hydrated) return;
     if (user) return;
-    const next = encodeURIComponent(location.pathname + (location.searchStr ?? ""));
     navigate({
       to: redirectTo,
       search: { redirect: location.pathname } as never,
       replace: true,
     });
-    void next;
-  }, [hydrated, user, navigate, redirectTo, location.pathname, location.searchStr]);
+  }, [hydrated, user, navigate, redirectTo, location.pathname]);
 
   if (!hydrated || !user) {
     return (
