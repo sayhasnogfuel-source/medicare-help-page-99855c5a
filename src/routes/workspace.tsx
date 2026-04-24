@@ -28,6 +28,9 @@ import {
 import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { editWebsite } from "@/lib/ai-editor.functions";
+import type { ChatTurn } from "@/lib/ai-editor.types";
 
 export const Route = createFileRoute("/workspace")({
   component: WorkspacePage,
@@ -250,6 +253,7 @@ function WorkspacePage() {
   const credits = useUserCredits();
   const scrollRef = useRef<HTMLDivElement>(null);
   const launchedAt = useRef<number>(Date.now());
+  const editFn = useServerFn(editWebsite);
 
   useEffect(() => {
     setData(loadBuilder() ?? DEFAULT_BUILDER);
@@ -288,7 +292,7 @@ function WorkspacePage() {
     };
   }, [thinking, savedAt]);
 
-  function send() {
+  async function send() {
     const text = input.trim();
     if (!text || thinking || !data) return;
 
@@ -313,38 +317,68 @@ function WorkspacePage() {
       role: "user",
       text,
     };
-    setMessages((m) => [...m, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setInput("");
     setThinking(true);
 
-    // Simulated thinking delay so it feels real.
-    window.setTimeout(() => {
-      const { patch, reply } = applyTweak(data, text);
-      let next: BuilderData = data;
-      if (patch) {
-        next = { ...data, ...patch };
-        void credits.charge("regenerate_section");
+    // Send last 20 turns (excluding the seeded starter) for context, plus current snapshot.
+    const history: ChatTurn[] = nextMessages
+      .filter((m) => m.id !== "starter")
+      .slice(-20)
+      .map((m) => ({ role: m.role, text: m.text }));
+
+    try {
+      const result = await editFn({
+        data: { messages: history, builderData: data },
+      });
+
+      if (result.error) {
+        toast.error(result.reply);
       }
+
+      let next: BuilderData = data;
+      if (result.patch) {
+        next = { ...data, ...result.patch };
+        setData(next);
+        saveBuilder(next);
+        setSavedAt(Date.now());
+        if (!result.error) void credits.charge("regenerate_section");
+      }
+
       // Quality-control pass — auto-fix any obvious issues.
       const qc = selfCheck(next);
       let qcReply = "";
       if (qc.patch) {
         next = { ...next, ...qc.patch };
+        setData(next);
+        saveBuilder(next);
+        setSavedAt(Date.now());
         qcReply =
           "\n\nQuality check: " +
           qc.fixes.map((f) => `✓ ${f}`).join(" · ");
       }
-      if (patch || qc.patch) {
-        setData(next);
-        saveBuilder(next);
-        setSavedAt(Date.now());
-      }
+
       setMessages((m) => [
         ...m,
-        { id: `a-${Date.now()}`, role: "assistant", text: reply + qcReply },
+        { id: `a-${Date.now()}`, role: "assistant", text: result.reply + qcReply },
       ]);
+    } catch (err) {
+      console.error("AI edit failed", err);
+      toast.error("AI request failed", {
+        description: "Check your connection and try again.",
+      });
+      setMessages((m) => [
+        ...m,
+        {
+          id: `a-${Date.now()}`,
+          role: "assistant",
+          text: "Something went wrong reaching the AI. Try again in a moment.",
+        },
+      ]);
+    } finally {
       setThinking(false);
-    }, 650);
+    }
   }
 
   function tryPublish() {
