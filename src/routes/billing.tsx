@@ -52,7 +52,7 @@ export const Route = createFileRoute("/billing")({
 const PLAN_PRICES: Record<Plan, number> = {
   trial: 0,
   starter: 26,
-  pro: 80,
+  pro: 44,
   dfy: 0,
 };
 
