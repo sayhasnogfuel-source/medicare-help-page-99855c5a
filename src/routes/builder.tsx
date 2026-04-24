@@ -98,7 +98,7 @@ function BuilderPage() {
     return errs;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (credits.isEmpty) {
       toast.error("You're out of credits", {
@@ -121,7 +121,7 @@ function BuilderPage() {
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    const charged = credits.charge("generate");
+    const charged = await credits.charge("generate");
     if (!charged) {
       transitionTo({ to: "/pricing" });
       return;

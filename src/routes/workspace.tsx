@@ -323,7 +323,7 @@ function WorkspacePage() {
       let next: BuilderData = data;
       if (patch) {
         next = { ...data, ...patch };
-        credits.charge("regenerate_section");
+        void credits.charge("regenerate_section");
       }
       // Quality-control pass — auto-fix any obvious issues.
       const qc = selfCheck(next);
