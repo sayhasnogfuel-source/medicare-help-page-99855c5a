@@ -10,6 +10,46 @@ function tsToIso(ts: number | null | undefined): string | null {
   return ts ? new Date(ts * 1000).toISOString() : null;
 }
 
+const PLAN_TOTALS: Record<string, number> = {
+  starter_monthly: 100,
+  pro_monthly: 500,
+};
+
+function planNameFromLookup(lookup: string | null | undefined): "starter" | "pro" | null {
+  if (lookup === "starter_monthly") return "starter";
+  if (lookup === "pro_monthly") return "pro";
+  return null;
+}
+
+async function syncCreditsForUser(
+  userId: string,
+  lookupKey: string | null | undefined,
+  cycleEndIso: string | null,
+  status: string,
+) {
+  const planName = planNameFromLookup(lookupKey);
+  // Active or trialing → grant the plan's credit allotment.
+  // Canceled / unpaid / past_due → leave existing credits but downgrade plan label
+  // when the period ends (we just keep what they have).
+  if (!planName) return;
+  if (status === "active" || status === "trialing") {
+    const total = PLAN_TOTALS[lookupKey ?? ""] ?? 0;
+    await supabase
+      .from("user_credits")
+      .upsert(
+        {
+          user_id: userId,
+          plan: planName,
+          credits: total,
+          plan_total: total,
+          cycle_started_at: new Date().toISOString(),
+          cycle_ends_at: cycleEndIso,
+        },
+        { onConflict: "user_id" },
+      );
+  }
+}
+
 async function upsertSubscriptionFromStripe(
   stripe: ReturnType<typeof createStripeClient>,
   environment: StripeEnv,
@@ -42,6 +82,56 @@ async function upsertSubscriptionFromStripe(
     },
     { onConflict: "stripe_subscription_id" },
   );
+
+  // Reset credit allotment on new period / activation.
+  await syncCreditsForUser(userId, lookupKey, periodEnd, sub.status);
+}
+
+async function recordDepositPayment(
+  paymentIntent: {
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    metadata?: Record<string, string>;
+    receipt_email?: string | null;
+    latest_charge?: string | null;
+  },
+  environment: StripeEnv,
+) {
+  const meta = paymentIntent.metadata ?? {};
+  if (meta.type !== "custom_website_deposit") return;
+
+  const inquiryId = meta.inquiryId || null;
+  const businessName = meta.businessName || null;
+  const userId = meta.userId || null;
+
+  await supabase
+    .from("deposits")
+    .upsert(
+      {
+        inquiry_id: inquiryId,
+        user_id: userId,
+        email: paymentIntent.receipt_email ?? null,
+        business_name: businessName,
+        environment,
+        stripe_payment_intent_id: paymentIntent.id,
+        amount_cents: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        status: paymentIntent.status,
+        paid_at: paymentIntent.status === "succeeded" ? new Date().toISOString() : null,
+      },
+      { onConflict: "stripe_payment_intent_id" },
+    );
+
+  if (inquiryId) {
+    await supabase
+      .from("inquiries")
+      .update({
+        deposit_status: paymentIntent.status === "succeeded" ? "paid" : "failed",
+      })
+      .eq("id", inquiryId);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -65,9 +155,29 @@ Deno.serve(async (req) => {
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as { subscription?: string };
+        const session = event.data.object as {
+          subscription?: string;
+          mode?: string;
+          payment_intent?: string;
+          metadata?: Record<string, string>;
+        };
         if (session.subscription) {
           await upsertSubscriptionFromStripe(stripe, environment, session.subscription);
+        }
+        // One-time payment (deposit) flow — fetch the PI and record it.
+        if (session.mode === "payment" && session.payment_intent) {
+          const pi = await stripe.paymentIntents.retrieve(session.payment_intent);
+          await recordDepositPayment(
+            {
+              id: pi.id,
+              amount: pi.amount,
+              currency: pi.currency,
+              status: pi.status,
+              metadata: pi.metadata as Record<string, string>,
+              receipt_email: pi.receipt_email,
+            },
+            environment,
+          );
         }
         break;
       }
@@ -76,6 +186,19 @@ Deno.serve(async (req) => {
       case "customer.subscription.deleted": {
         const sub = event.data.object as { id: string };
         await upsertSubscriptionFromStripe(stripe, environment, sub.id);
+        break;
+      }
+      case "payment_intent.succeeded":
+      case "payment_intent.payment_failed": {
+        const pi = event.data.object as {
+          id: string;
+          amount: number;
+          currency: string;
+          status: string;
+          metadata?: Record<string, string>;
+          receipt_email?: string | null;
+        };
+        await recordDepositPayment(pi, environment);
         break;
       }
       case "invoice.payment_failed": {
