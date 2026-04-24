@@ -1,109 +1,105 @@
 ## Goal
 
-Make the product feel like Lovable for insurance agents:
+Make `/workspace` look and feel like Lovable's builder — same visual language, same panel layout, same affordances. The setup form at `/builder` stays as it is. Business detail collection (phone, email, niche) is moved into the AI chat: when the user opens the workspace, if any of those fields are blank the AI proactively asks for them in chat and writes them to the draft as the user replies.
 
-1. The builder is **one short setup form** (no Part 2 / Part 3).
-2. After submit, users land in a **Lovable-style workspace**: chat on one side, the **actual generated website** on the other — and the preview reflects what *they* described, not the same template every time.
-3. A **fullscreen preview** route lets users open their site in its own tab, away from the builder UI.
-4. When signed in, the home page no longer shows "Sign in" / "Create Your Account" / "Continue with Google" — those CTAs are replaced with "Open Builder" / "Go to Workspace". Sign-up link in the footer is also hidden when signed in.
+## Visual reference
 
----
+Lovable's builder, condensed:
 
-## What changes
+```text
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ◉ Diploofly  /  project-name        Preview ▾   Share   Publish   ◐ avatar│  ← top bar (dark)
+├────────────────────────┬──────────────────────────────────────────────────┤
+│  ✦ Chat                │  ◀  ▶  ⟳   project.diploofly.app    [ Desktop ▾]│
+│  ──────────────        │ ┌────────────────────────────────────────────┐  │
+│  Bot: Hi, ready to     │ │                                            │  │
+│       build…           │ │            (live site preview)             │  │
+│                        │ │                                            │  │
+│  You: Make it warmer   │ │                                            │  │
+│                        │ │                                            │  │
+│  Bot: Done ✓           │ │                                            │  │
+│                        │ │                                            │  │
+│  ┌──────────────────┐  │ └────────────────────────────────────────────┘  │
+│  │ Ask Diploofly…  ↗│  │                                                  │
+│  └──────────────────┘  │  Edits · Version 4 · Saved 2s ago               │
+└────────────────────────┴──────────────────────────────────────────────────┘
+```
 
-### 1. `src/routes/builder.tsx` — collapse to Part 1 only
+## Changes
 
-Keep:
-- Dashboard chrome (credits, save draft, upgrade)
-- Out-of-credits / low-credits banners
-- "Your business" section (name, agent, phone, email, city, state, business type)
-- "Insurance niche" picker
-- "Choose a visual theme" picker
-- "Branding" (logo + headshot upload)
-- "Page copy" (headline, subheadline, CTA text)
-- "Preferred contact method"
-- Submit button → goes to `/workspace`
+### 1. New top bar (replaces current toolbar)
 
-Remove:
-- The `PartHeader` step labels ("Part 1", "Part 2", "Part 3")
-- The entire **Part 2 — Tell our AI how to build your site** block (`<FreestyleChat />` + `FREESTYLE_SUGGESTIONS`)
-- The entire **Part 3 — Notes from author** block (`authorNotes` textarea)
-- The unused `FreestyleChat` and `FREESTYLE_SUGGESTIONS` constants
+Replace the current pill-row toolbar in `src/routes/workspace.tsx` with a Lovable-style dark slim bar:
 
-The page header copy is reworded so it reads as "the only setup step". Submit button label changes from "Generate My Website" to "Open Builder Workspace".
+- Dark background (`bg-[var(--surface-espresso)]` / near-black), white text.
+- Left: small Diploofly logo + breadcrumb `Workspace / {businessName or "Untitled site"}`.
+- Center: nothing (keeps it clean).
+- Right cluster: `Preview ▾` (dropdown: Open in new tab, Copy preview link), `Edit details`, `Share` (disabled w/ tooltip "Publishing required"), `Publish` (primary).
+- Hide the existing `AppHeader` on this route — workspace gets its own chrome (Lovable doesn't show the marketing header in the builder).
+- Move credits + status into a thin sub-bar directly under the dark bar: `● Saved 2s ago · 12 credits left · AI quality-check on`.
 
-The data model (`BuilderData`) still keeps `freestyleInstructions`, `authorNotes`, and `workspaceNotes` — they're just no longer set from the builder. The chat in the workspace becomes the only place users describe the look/feel.
+### 2. Two-pane body, Lovable proportions
 
-### 2. Workspace shows a *real, custom* website
+Currently grid is `1fr 400px`. Lovable uses a narrower chat (~360px) on the LEFT and the preview on the RIGHT. Swap sides and tighten:
 
-Currently the preview is `<GeneratedLanding data={data} />` — a single hard-coded layout with niche-specific text. Same template every time. We change this so the AI actually shapes what's on screen.
+- `lg:grid-cols-[360px_1fr]` — chat left, preview right.
+- Chat panel: dark-tinted background (`bg-[var(--surface-cream)]/30` on a near-black panel), rounded-none, fills full height, scrolls internally.
+- Preview panel: card with browser-chrome header (back/forward/refresh buttons that are visual only + URL pill + device toggle on the right). The dotted-traffic-light pattern moves out; replace with three flat circular buttons that match Lovable's neutral chevrons.
 
-**a) New first-run AI generation pass.** When `/workspace` mounts and detects the user just came from the builder (no prior chat history, fresh draft), it automatically calls `editFn` once with a synthetic first message:
+### 3. Chat panel (left)
 
-> "This is a fresh build. Use the business details, niche, theme, and contact method I provided to write a complete first version of my website — strong headline, subheadline, CTA, and a freestyleInstructions block describing the sections, tone, and visual direction that fit my business. Make it feel custom to me, not generic."
+Compact Lovable-style chat:
 
-The model fills in `headline`, `subheadline`, `ctaText`, `freestyleInstructions`, and (if appropriate) tweaks `themeId`. The first assistant chat bubble shows what it built.
+- Header strip: small sparkle + "Diploofly AI" + tiny model tag chip ("Gemini 3 Flash"). No subtitle.
+- Bubbles tighter, smaller radius (rounded-xl), no big avatar circles. User bubble = solid mocha, assistant bubble = subtle outline only (no fill) — matches Lovable's text-first chat.
+- Render assistant text with `react-markdown` (need to add the dep) so bold/lists/inline-code render the way Lovable's chat does. Bun add `react-markdown`.
+- Composer: single rounded-lg input that auto-grows, with a small ↗ send icon button inside the right edge (no full "Send" button text). Below the composer: `⌘↵ to send · Shift+↵ for newline · 1 credit per edit`.
+- Suggestion chips above the composer when the chat is empty/short: e.g. `Make it warmer`, `Add testimonials`, `Switch theme to coastal`, `Stronger CTA`.
 
-**b) Make the preview reflect AI choices.** `GeneratedLanding` already reads from `BuilderData`. We extend it to honor `freestyleInstructions` for visible structure decisions:
-- Add lightweight section toggles parsed from `freestyleInstructions` (e.g. "testimonials", "services", "booking form", "FAQ", "about-the-agent"). The component conditionally renders those sections based on flags the AI sets.
-- Expose those toggles in the AI tool schema in `src/lib/ai-editor.functions.ts` as new optional patch fields: `showTestimonials`, `showServices`, `showFaq`, `showBookingCta`, `showAboutAgent`. Add matching optional booleans to `BuilderData` (default false except `showServices` true) and to `BuilderPatch` in `src/lib/ai-editor.types.ts`.
-- Update the system prompt: the AI is the designer — for any user request, it should set both copy fields *and* section toggles, so two different agents end up with visibly different sites.
+### 4. Preview panel (right)
 
-This is the key: the layout is still our component (we keep visual quality high), but **which sections appear, the copy, the niche framing, the theme, and the CTA** are all AI-driven — so two different agents get visibly different sites.
+Lovable-style fake browser frame:
 
-**c) Update workspace toolbar.** Add an "Open in new tab" button next to "Edit details" / "Publish" linking to `/preview` (see #3). Remove the amber "Add a payment method to publish" notice from inside the workspace and move it to a smaller pill inside the existing status row (less in-the-way, more Lovable-like).
+- Header row: ◀  ▶  ⟳ (visual buttons, ⟳ actually re-renders by bumping `launchedAt`), URL pill showing `{slug}.diploofly.app`, then device segmented control (Desktop / Tablet / Mobile — adds a 768px tablet width to the existing scaled preview), then a small "Open ↗" icon.
+- Body: white card containing `<GeneratedLanding>` for desktop and the existing `ScaledMobilePreview` for mobile. Add a parallel `ScaledTabletPreview` (~768px frame) reusing the same scale technique.
+- Footer strip inside the preview card: `Version N · Saved Xs ago · {credits} credits` — version increments client-side every time the AI returns a patch (just a counter, no persistence yet).
 
-### 3. New fullscreen preview route
+### 5. Auto-ask for missing business details in chat
 
-`src/routes/preview.tsx` already exists in the project — repurpose it as the fullscreen site preview:
-- No `AppHeader`, no `AppFooter`, no chrome.
-- Reads the builder data from local storage (`loadBuilder()`).
-- Renders `<GeneratedLanding data={data} />` full-bleed.
-- Wrapped in `AuthGuard` so only signed-in users can view it.
-- Add a small floating "← Back to workspace" pill in the top-left and an "Open in new tab" affordance for sharing the live URL.
+In `runFirstGeneration` (currently sends one synthetic message), branch on what's missing in `BuilderData`:
 
-The workspace's "Open in new tab" button uses `<Link to="/preview" target="_blank">` so the preview opens in a separate browser tab, exactly like Lovable's preview pop-out.
+- If `phone`, `email`, `city`, `state`, or `insuranceType` is empty after first AI pass, the assistant's first reply is replaced with a conversational onboarding question:
+  > "Before we polish this, I need a few quick details so the site converts. What's the best phone or email for clients to reach you, and which city/state do you serve?"
+- The AI tool schema (`src/lib/ai-editor.functions.ts`) already supports `phone`, `email`, `city`, `state`, `insuranceType` patches — so when the user replies with that info in normal chat, the existing `editFn` will fill the fields and update the preview. Tighten the system prompt: "If the user has not yet provided contact details (phone/email) or location (city/state) or insuranceType, ALWAYS ask for the missing ones in your reply and fill them via the patch as soon as they answer. Never repeat a question once answered."
+- Track which questions were asked in component state so the seeded onboarding message doesn't replay if the user reloads.
 
-### 4. Hide irrelevant CTAs when signed in
+### 6. Trim noise
 
-**`src/routes/index.tsx` (Hero):**
-- Read `useAccount()` — if `signedIn`, replace the two hero buttons with one primary "Open Builder" → `/builder` and a secondary "Go to Workspace" → `/workspace`.
-- Drop the "Continue with Google" button entirely when signed in.
-- Change the trust-row item "Card on file required" to "You're signed in" when signed in (small touch, removes the awkward marketing copy for an authed user).
+- Remove the standalone "Card-required notice" pill row — fold into the sub-bar as a quiet `Add card to publish →` link next to the credits.
+- Remove the giant `lp-workspace-launch` entry animation (Lovable's builder loads instantly). Keep the chat bubble fade-in.
 
-**`src/routes/index.tsx` (FinalCta):**
-- When signed in, button label changes from "Get Started" → "Open Builder" (links to `/builder` instead of `/start`), and "See pricing" stays.
+### 7. Small details for the Lovable feel
 
-**`src/components/app/app-footer.tsx`:**
-- Hide the `<Link to="/signup">Sign up</Link>` row when signed in. (Sign-in link too if present.)
-
-These all use the existing `useAccount()` hook (`account.hydrated && account.signedIn`) so there's no flash on first paint — render the public version until hydrated, mirroring how `AppHeader` already does it.
-
-### 5. Cleanup
-
-- Remove `FREESTYLE_SUGGESTIONS` and `FreestyleChat` from `builder.tsx`.
-- Remove unused `Send` and `Sparkles` imports if no longer referenced after the cuts.
-- The `authorNotes` field stays in the schema for back-compat but is no longer surfaced; `GeneratedLanding` still renders it if non-empty (so old drafts don't lose data).
-
----
+- Monospace font (`ui-monospace`) for the URL pill.
+- All icons one weight smaller (`h-3.5 w-3.5`).
+- Subtle 1px inner border on both panels (`ring-1 ring-border/40`).
+- Cursor blinks in the composer on mount (`autoFocus`).
+- Keyboard: `⌘K` opens a quick action menu (out of scope for v1 — keep stub: just bind ⌘K to focus the composer).
 
 ## Files touched
 
-- `src/routes/builder.tsx` — strip Part 2 and Part 3, simplify copy, change submit CTA.
-- `src/routes/workspace.tsx` — auto-run first AI generation on entry, add "Open in new tab" button, slim the payment-method banner.
-- `src/routes/preview.tsx` — convert to fullscreen authed preview of the user's generated site.
-- `src/components/generated/generated-landing.tsx` — honor new section-toggle flags from `BuilderData`.
-- `src/lib/builder-storage.ts` — add optional boolean section-toggle fields to `BuilderData` and `DEFAULT_BUILDER`.
-- `src/lib/ai-editor.types.ts` — extend `BuilderPatch` with new optional booleans.
-- `src/lib/ai-editor.functions.ts` — extend tool schema + sanitizer + system prompt so the AI drives sections.
-- `src/routes/index.tsx` — swap hero + final CTA buttons based on signed-in state.
-- `src/components/app/app-footer.tsx` — hide signup link when signed in.
+- `src/routes/workspace.tsx` — main rewrite of the page chrome, panels, composer, version chip, tablet preview, ⌘K focus, hide `AppHeader`.
+- `src/lib/ai-editor.functions.ts` — extend system prompt to proactively ask for missing contact/location/niche fields and never re-ask.
+- `package.json` (via `bun add react-markdown`) — markdown rendering in chat bubbles.
+- `src/styles.css` — tiny utility for the dark workspace bar surface if not already covered by existing tokens.
+
+No changes to `/builder`, `/preview`, builder data shape, credits, or auth.
 
 ## Validation checklist
 
-- `/builder` shows one continuous form, no "Part 2" / "Part 3" headers, no freestyle chat block, no author-notes block.
-- Submitting the builder navigates to `/workspace`, which immediately runs one AI pass and visibly customizes the preview to the agent's business (different niches → visibly different sites).
-- Workspace has an "Open in new tab" button → opens `/preview` in a new tab showing only the website (no app chrome).
-- Signed-in home page shows "Open Builder" instead of "Sign in" / "Create Your Account" / "Continue with Google".
-- Footer no longer offers "Sign up" when already signed in.
-- Existing drafts still load (back-compat preserved on `BuilderData`).
+- `/workspace` no longer shows the marketing `AppHeader`; instead has a dark slim bar with breadcrumb + Preview/Share/Publish.
+- Chat is on the LEFT (~360px), preview on the right with a fake browser URL bar and Desktop/Tablet/Mobile toggle.
+- First-run AI message asks for any missing phone/email/city/state/insuranceType in conversational form; user replies in chat update those fields and re-render the preview.
+- Composer sends on ⌘↵, supports Shift+↵, has an inline ↗ send icon (no big "Send" pill).
+- Assistant bubbles render markdown.
+- A "Version N · Saved Xs ago" strip sits at the bottom of the preview card and bumps after each successful AI patch.
