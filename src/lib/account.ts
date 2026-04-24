@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
+import { createContext, createElement, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 
 export interface AccountState {
   signedIn: boolean;
+  userId?: string;
   email?: string;
   firstName?: string;
   provider?: "email" | "google";
@@ -19,11 +20,82 @@ function fromSession(session: Session | null): AccountState {
     (u.app_metadata?.provider as string | undefined) === "google" ? "google" : "email";
   return {
     signedIn: true,
+    userId: u.id,
     email: u.email ?? undefined,
     firstName: (meta.first_name as string | undefined) ?? undefined,
     provider,
     createdAt: u.created_at ? new Date(u.created_at).getTime() : undefined,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Centralized Auth Provider                                            */
+/* ------------------------------------------------------------------ */
+
+interface AuthContextValue {
+  hydrated: boolean;
+  session: Session | null;
+  user: User | null;
+  account: AccountState;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    // Register listener BEFORE calling getSession to avoid race conditions.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      if (!mounted) return;
+      setSession(next ?? null);
+      setHydrated(true);
+    });
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setSession(data.session ?? null);
+        setHydrated(true);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setHydrated(true);
+      });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  const value = useMemo<AuthContextValue>(() => {
+    const account = fromSession(session);
+    return {
+      hydrated,
+      session,
+      user: session?.user ?? null,
+      account,
+    };
+  }, [session, hydrated]);
+
+  return createElement(AuthContext.Provider, { value }, children);
+}
+
+function useAuthContext(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (ctx) return ctx;
+  // Safe fallback for code paths rendered outside the provider (e.g. error boundaries
+  // before the root mounts). Returns "not signed in, not hydrated".
+  return { hydrated: false, session: null, user: null, account: { signedIn: false } };
+}
+
+export function useAuth(): AuthContextValue {
+  return useAuthContext();
 }
 
 export async function signInWithGoogle() {
@@ -70,24 +142,12 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
+/**
+ * Backwards-compatible hook. Reads from the centralized AuthProvider so
+ * every consumer sees the exact same auth snapshot — no more independent
+ * listeners or race conditions.
+ */
 export function useAccount(): AccountState & { hydrated: boolean } {
-  const [state, setState] = useState<AccountState>({ signedIn: false });
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    // CRITICAL: register listener BEFORE getSession to avoid race conditions.
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState(fromSession(session));
-      setHydrated(true);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      setState(fromSession(data.session));
-      setHydrated(true);
-    });
-    return () => {
-      sub.subscription.unsubscribe();
-    };
-  }, []);
-
-  return { ...state, hydrated };
+  const { account, hydrated } = useAuthContext();
+  return { ...account, hydrated };
 }
