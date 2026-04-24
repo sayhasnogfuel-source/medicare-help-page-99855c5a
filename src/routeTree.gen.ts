@@ -13,6 +13,7 @@ import { Route as WorkspaceRouteImport } from './routes/workspace'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SigninRouteImport } from './routes/signin'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PreviewRouteImport } from './routes/preview'
@@ -44,6 +45,11 @@ const StartRoute = StartRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/preview': typeof PreviewRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
   '/support': typeof SupportRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/preview'
     | '/pricing'
     | '/reset-password'
+    | '/signin'
     | '/signup'
     | '/start'
     | '/support'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/preview'
     | '/pricing'
     | '/reset-password'
+    | '/signin'
     | '/signup'
     | '/start'
     | '/support'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/preview'
     | '/pricing'
     | '/reset-password'
+    | '/signin'
     | '/signup'
     | '/start'
     | '/support'
@@ -229,6 +241,7 @@ export interface RootRouteChildren {
   PreviewRoute: typeof PreviewRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
   StartRoute: typeof StartRoute
   SupportRoute: typeof SupportRoute
@@ -263,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -397,6 +417,7 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewRoute: PreviewRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
   StartRoute: StartRoute,
   SupportRoute: SupportRoute,

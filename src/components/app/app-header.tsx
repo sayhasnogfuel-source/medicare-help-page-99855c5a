@@ -88,7 +88,7 @@ export function AppHeader() {
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="rounded-full text-foreground/80">
-                <Link to="/signup">Sign in</Link>
+                <Link to="/signin">Sign in</Link>
               </Button>
               <Button asChild size="sm" className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-espresso)]">
                 <Link to="/signup">Create account</Link>
@@ -132,14 +132,25 @@ export function AppHeader() {
               Sign out
             </Button>
           ) : (
-            <Button
-              asChild
-              className="mt-2 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
-            >
-              <Link to="/signup" onClick={() => setOpen(false)}>
-                Create account
-              </Link>
-            </Button>
+            <>
+              <Button
+                asChild
+                variant="outline"
+                className="mt-2 w-full rounded-full"
+              >
+                <Link to="/signin" onClick={() => setOpen(false)}>
+                  Sign in
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="mt-2 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
+              >
+                <Link to="/signup" onClick={() => setOpen(false)}>
+                  Create account
+                </Link>
+              </Button>
+            </>
           )}
         </nav>
       </div>

@@ -67,7 +67,7 @@ function SignupPage() {
             <h2 className="text-2xl font-semibold tracking-tight text-foreground">Create your account</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Already have one?{" "}
-              <Link to="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
+              <Link to="/signin" className="font-medium text-foreground underline-offset-4 hover:underline">
                 Sign in
               </Link>
             </p>
