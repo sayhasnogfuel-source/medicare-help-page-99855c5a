@@ -542,6 +542,18 @@ function WorkspacePage() {
 
             {/* Preview body */}
             <div key={refreshKey} className="flex-1 overflow-auto bg-[var(--surface-sand)]/20">
+              {firstBuildPending ? (
+                <div className="flex h-full min-h-[400px] flex-col items-center justify-center gap-3 px-6 text-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-[var(--surface-mocha)]" />
+                  <p className="text-sm font-semibold text-foreground">
+                    Generating your custom site…
+                  </p>
+                  <p className="max-w-sm text-xs text-muted-foreground">
+                    Building from your business details and the theme you picked. This takes a few seconds.
+                  </p>
+                </div>
+              ) : (
+                <>
               {device === "desktop" && <GeneratedLanding data={data} />}
               {device === "tablet" && (
                 <div className="flex min-h-full justify-center px-4 py-6">
@@ -556,6 +568,8 @@ function WorkspacePage() {
                     <ScaledFramePreview data={data} targetWidth={390} />
                   </div>
                 </div>
+              )}
+                </>
               )}
             </div>
 
