@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useBilling } from "@/lib/billing";
 import { useAccount, signOut } from "@/lib/account";
-import diploofly from "@/assets/diploofly-logo.svg";
+import diploofly from "@/assets/diploofly-logo.png";
 
 const PUBLIC_NAV = [
   { to: "/", label: "Home" },
