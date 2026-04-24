@@ -97,8 +97,8 @@ function formatDate(iso: string | null | undefined): string {
 }
 
 function DashboardPage() {
-  const credits = useCredits();
-  const billing = useBilling();
+  const credits = useUserCredits();
+  const sub = useSubscription();
   const [hasBuilderDraft, setHasBuilderDraft] = useState(false);
   const [hasCustomized, setHasCustomized] = useState(false);
 
@@ -116,7 +116,7 @@ function DashboardPage() {
     }
   }, []);
 
-  if (!credits.hydrated || !billing.hydrated) {
+  if (!credits.hydrated || !sub.hydrated) {
     return (
       <div className="flex min-h-screen flex-col bg-[var(--surface-sand)]/40">
         <AppHeader />
@@ -130,13 +130,21 @@ function DashboardPage() {
   const usedPct =
     credits.planTotal > 0 ? Math.round((usedCredits / credits.planTotal) * 100) : 0;
 
+  const status = sub.subscription?.status ?? "none";
+  const periodEnd = sub.subscription?.current_period_end ?? null;
+  const trialEnd = sub.subscription?.trial_end ?? null;
+  const trialDaysLeft = trialEnd
+    ? Math.max(0, Math.ceil((new Date(trialEnd).getTime() - Date.now()) / 86400000))
+    : 0;
+  const hasActiveSub = sub.isActive;
+
   const alerts: Array<{
     tone: "warn" | "danger" | "info" | "success";
     title: string;
     body: string;
     cta?: { label: string; to: "/billing" | "/pricing" | "/workspace" };
   }> = [];
-  if (billing.subStatus === "past_due") {
+  if (sub.isPastDue) {
     alerts.push({
       tone: "danger",
       title: "Your payment could not be processed",
@@ -144,19 +152,19 @@ function DashboardPage() {
       cta: { label: "Fix payment", to: "/billing" },
     });
   }
-  if (!billing.hasCard) {
+  if (!hasActiveSub) {
     alerts.push({
       tone: "warn",
-      title: "Add a payment method to publish",
-      body: "You can build and edit during your trial — going live requires an active subscription and a valid card on file.",
-      cta: { label: "Add card", to: "/billing" },
+      title: "Choose a plan to publish",
+      body: "You can build and edit during your trial — going live requires an active subscription.",
+      cta: { label: "View plans", to: "/pricing" },
     });
   }
   if (credits.isLow && !credits.isEmpty) {
     alerts.push({
       tone: "warn",
       title: "You're running low on credits",
-      body: `You have ${credits.credits} credits left on your ${PLAN_LABELS[credits.plan]} plan. Upgrade to keep building.`,
+      body: `You have ${credits.credits} credits left on your ${PLAN_LABELS[credits.plan as "trial" | "starter" | "pro"]} plan. Upgrade to keep building.`,
       cta: { label: "Upgrade", to: "/pricing" },
     });
   }
@@ -168,39 +176,13 @@ function DashboardPage() {
       cta: { label: "View plans", to: "/pricing" },
     });
   }
-  if (
-    credits.plan === "trial" &&
-    billing.trialDaysLeft <= 2 &&
-    billing.trialDaysLeft > 0
-  ) {
+  if (sub.isTrialing && trialDaysLeft > 0 && trialDaysLeft <= 2) {
     alerts.push({
       tone: "warn",
-      title: `Trial ends in ${billing.trialDaysLeft} day${billing.trialDaysLeft === 1 ? "" : "s"}`,
+      title: `Trial ends in ${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"}`,
       body: "Pick a plan to keep your website online when the trial ends.",
-      cta: { label: "Choose a plan", to: "/pricing" },
+      cta: { label: "Manage subscription", to: "/billing" },
     });
-  }
-  if (billing.siteStatus === "ready" && billing.canPublish) {
-    alerts.push({
-      tone: "success",
-      title: "Your site is ready to publish",
-      body: "Hit publish whenever you're ready — your subscription will keep it live.",
-      cta: { label: "Publish now", to: "/billing" },
-    });
-  }
-
-  function onPublish() {
-    const r = billing.publishSite();
-    if (r.ok) toast.success("Your website is now live");
-    else toast.error("Cannot publish yet", { description: r.reason });
-  }
-  function onUnpublish() {
-    billing.unpublishSite();
-    toast.success("Website unpublished");
-  }
-  function onMarkReady() {
-    billing.markReady();
-    toast.success("Marked as ready to publish");
   }
 
   return (
