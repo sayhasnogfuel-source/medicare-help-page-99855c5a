@@ -1,58 +1,105 @@
-Goal: stop the real crash that happens after login so the app no longer falls into the global error screen when a signed-in page mounts.
+## Goal
 
-What the actual issue is
-- I reproduced the failure by opening a signed-in route.
-- The global error page is not being caused by the login form itself anymore.
-- The immediate crash is this runtime error:
-  `cannot add 'postgres_changes' callbacks for realtime:subscriptions-changes-<userId> after 'subscribe()'`
-- That error comes from `src/lib/subscription.ts`, and it matches Supabase’s newer behavior: once a channel topic is already joining/joined, adding `postgres_changes` listeners to that same topic throws.
-- Because `useSubscription()` is used in shared UI like `AppHeader` and again inside pages like `dashboard` and `billing`, the same channel topic is getting registered more than once. In development/preview, React’s effect behavior makes this easier to hit.
-- `useUserCredits()` uses the same pattern and should be hardened too, even though the visible crash right now is the subscription hook.
+Wire a real AI into the website that:
+- Acts as a focused agent-website builder (not a general chatbot)
+- Edits the live preview in `workspace.tsx` based on natural language
+- Remembers the conversation so it doesn't repeat itself
+- Costs you nothing extra to set up — uses Lovable AI, which is already enabled (LOVABLE_API_KEY is provisioned)
 
-Implementation plan
+## Does it cost money?
 
-1. Fix the realtime channel lifecycle in the shared hooks
-- Update `src/lib/subscription.ts` so it does not create a conflicting channel topic on repeated mounts.
-- Before creating a new subscription channel, clean up any existing channel with the same topic, or switch to a unique topic strategy that cannot collide.
-- Ensure listeners are attached before `subscribe()` and that cleanup always removes the channel reliably.
-- Apply the same hardening to `src/lib/user-credits.ts` to prevent the next identical crash from surfacing there.
+Short answer: **no extra setup cost, but usage is metered.**
 
-2. Reduce duplicate subscriptions from shared UI
-- Review where `useSubscription()` is mounted, especially `src/components/app/app-header.tsx`, `src/routes/dashboard.tsx`, `src/routes/billing.tsx`, `src/routes/pricing.tsx`, and `src/routes/checkout.return.tsx`.
-- Keep the existing UX, but avoid needless duplicate realtime subscriptions where a one-time fetch is enough.
-- If needed, centralize the subscription state the same way auth was centralized so header + pages read one shared source instead of each opening their own realtime channel.
+- Lovable AI is already wired into your project. No API key, no third-party signup, no new billing relationship.
+- It comes with a free monthly allowance included with your Lovable plan.
+- After that allowance, requests draw from workspace credits (top up at Settings → Workspace → Usage). Cheap models (e.g. `google/gemini-3-flash-preview`) are pennies per conversation; expensive reasoning models (e.g. `openai/gpt-5`) cost more.
+- We will default to **`google/gemini-3-flash-preview`** — fast, cheap, more than capable for "tweak this landing page" edits. You can switch models later in one place.
 
-3. Keep auth fixes targeted instead of rebuilding everything again
-- Leave the current sign-in/callback flow in place unless testing shows a second issue after the realtime crash is removed.
-- Re-test `signin`, `auth.callback`, and protected pages only after the hook crash is fixed, so any remaining auth issue can be isolated cleanly instead of being masked by the channel exception.
+If you ever exceed the allowance the user sees a clean toast ("AI usage limit reached, please top up") instead of a crash.
 
-4. Validate the exact user journey that is failing now
-- Test signed-in navigation across:
-  - `/dashboard`
-  - `/billing`
-  - `/pricing`
-  - `/builder`
-  - `/workspace`
-- Confirm that Google/email sign-in can complete without landing on the global error screen.
-- Confirm that clicking around after login no longer triggers the crash.
+## What "not repetitive" means in practice
 
-Files to change
-- `src/lib/subscription.ts`
-- `src/lib/user-credits.ts`
-- likely `src/components/app/app-header.tsx`
-- possibly `src/routes/dashboard.tsx`
-- possibly `src/routes/billing.tsx`
-- possibly `src/routes/pricing.tsx`
-- possibly `src/routes/checkout.return.tsx`
+Three things cause an AI to feel repetitive:
+1. It forgets prior turns → keeps reintroducing itself or re-asking. Fix: send the full chat history every turn.
+2. It has no role/scope → falls back to generic helper phrasing. Fix: a strong system prompt that locks it to insurance-agent-website tasks.
+3. It free-talks instead of acting → repeats "I can help with..." instead of editing. Fix: structured tool-calling so the model returns an *edit patch* (JSON), not chat fluff. The reply text only describes what changed.
 
-Technical details
-- Supabase now throws if `channel.on('postgres_changes', ...)` is called on a channel topic that has already subscribed/joined.
-- React preview/dev behavior can mount effects more than once, so hooks that reuse fixed channel names must be idempotent.
-- The fix is to make channel creation/cleanup collision-safe and avoid multiple independent realtime subscriptions for the same user/topic when shared UI and page UI mount together.
+We will do all three.
 
-Validation checklist
-- Sign in no longer lands on “Something went wrong”.
-- Signed-in navigation to Dashboard and Billing does not crash.
-- Header renders while signed in without opening a conflicting realtime subscription.
-- Credits and subscription state still load correctly.
-- If any auth bug remains after this fix, it will appear as a separate issue rather than the current site-wide crash.
+## Scope
+
+Replace the regex-based `applyTweak` engine in `src/routes/workspace.tsx` with a real AI call. The builder page (`/builder`) stays as-is for initial form input. Workspace becomes the conversational editor.
+
+## Architecture
+
+```text
+Workspace UI (chat input)
+        │  user message + chat history + current BuilderData
+        ▼
+TanStack server function: editWebsite()
+        │  calls Lovable AI Gateway with structured tool call
+        ▼
+Lovable AI (gemini-3-flash-preview)
+        │  returns { patch: Partial<BuilderData>, reply: string }
+        ▼
+Workspace applies patch → preview updates instantly
+```
+
+No edge functions needed. No new env vars. No new tables.
+
+## Changes
+
+### 1. New server function: `src/lib/ai-editor.functions.ts`
+
+- Uses `createServerFn({ method: "POST" })` with Zod input validation.
+- Inputs: `{ messages: ChatMessage[], builderData: BuilderData }`.
+- Calls `https://ai.gateway.lovable.dev/v1/chat/completions` with:
+  - `model: "google/gemini-3-flash-preview"`
+  - System prompt locking the assistant to the role of "senior web designer for US insurance agents" with explicit rules:
+    - Only edit fields that exist on `BuilderData`
+    - Never repeat greetings or re-introduce yourself
+    - Never say "I can help with..." — just do it and describe the change in one sentence
+    - Decline non-website requests politely in one short sentence
+  - `tools: [edit_website]` — a forced tool call with JSON schema mirroring `BuilderData`'s editable fields (headline, subheadline, ctaText, themeId, contactMethod, freestyleInstructions, businessName, agentName, etc.) plus a required `reply` string.
+  - `tool_choice` forces the function call so the model can't drift into pure chat.
+- Handles 429 (rate limit) and 402 (credits exhausted) explicitly and returns a typed error result the UI can toast.
+- Returns `{ patch: Partial<BuilderData> | null, reply: string, error?: string }`.
+
+### 2. Update `src/routes/workspace.tsx`
+
+- Remove the `applyTweak` regex function and its keyword cascade.
+- Add `useServerFn(editWebsite)` and call it on send.
+- Pass full chat history (sliced to last ~20 messages to keep it cheap) plus current `BuilderData`.
+- Keep the existing optimistic UI: append user message, show a "thinking…" assistant bubble, replace it with the real reply when it returns.
+- Apply returned `patch` with the existing `setData` + `saveBuilder` flow.
+- Toast on error result.
+- Keep the credit-cost UX (`ACTION_COSTS`) so each AI tweak still consumes a credit — no behavior change there.
+
+### 3. New file: `src/lib/ai-editor.types.ts`
+
+- Shared `ChatMessage` type and the Zod schema for the tool-call response, used by both the server function and the client.
+
+### 4. Small polish in workspace
+
+- The starter assistant message stays, but we add a one-time "what I can do" hint chip row (Change headline, Switch theme, Add testimonial section, Make it warmer, etc.) so users discover capabilities without the AI having to explain itself every turn.
+
+## What stays out of scope
+
+- Streaming token-by-token responses. Tweaks return in 1–3 seconds with the cheap model, so streaming adds complexity without UX gain. Easy to add later if you want.
+- Letting the AI invent new sections/components beyond what `GeneratedLanding` already renders. The model can only set fields the renderer understands — this prevents broken previews.
+- Image generation. Out of scope for this round; can be a follow-up using Lovable AI's image models against headshots/logos.
+
+## Risks and how we handle them
+
+- **Model returns malformed JSON**: tool-calling with a strict schema + Zod validation on the server — invalid responses become a friendly "Could you rephrase that?" reply with no patch applied.
+- **Off-topic requests** ("write me a poem"): system prompt instructs a one-sentence redirect; tool call is still forced so the patch is just `null`.
+- **Cost runaway**: cheap model by default, history capped at 20 turns, single non-streaming request per send.
+
+## Validation checklist
+
+- "Change the headline to 'Medicare made easy'" → headline updates in preview, reply is one sentence.
+- "Switch to the warm local advisor theme" → `themeId` updates, palette changes in preview.
+- "Make the tone more family-oriented" → `freestyleInstructions` and possibly subheadline update; reply describes the shift without re-greeting.
+- Asking the same thing twice in a row → second reply does not repeat the first verbatim and acknowledges the change is already in place.
+- Asking "what's the weather" → polite one-line redirect, no patch.
+- Network/credit failure → red toast with a clear message, chat input stays usable.

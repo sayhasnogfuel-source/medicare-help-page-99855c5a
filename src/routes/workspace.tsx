@@ -28,6 +28,9 @@ import {
 import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { editWebsite } from "@/lib/ai-editor.functions";
+import type { ChatTurn } from "@/lib/ai-editor.types";
 
 export const Route = createFileRoute("/workspace")({
   component: WorkspacePage,
@@ -55,150 +58,6 @@ const STARTER_MESSAGE: ChatMessage = {
   text:
     "Your website is on the left. If there are any tweaks you would like to make to the website, type here.",
 };
-
-/**
- * Apply a simulated AI tweak to the BuilderData based on the user's message.
- * Pattern-matches keywords and returns the patch + a friendly description.
- */
-function applyTweak(
-  data: BuilderData,
-  message: string,
-): { patch: Partial<BuilderData> | null; reply: string } {
-  const m = message.toLowerCase().trim();
-  if (!m) return { patch: null, reply: "Add a few words and I'll get to work." };
-
-  // Headline change: "change headline to ..." / "headline: ..."
-  const headlineMatch =
-    /(?:change|update|make|set)?\s*(?:the\s+)?headline\s*(?:to|:)\s*["“]?(.+?)["”]?$/i.exec(
-      message,
-    );
-  if (headlineMatch) {
-    return {
-      patch: { headline: headlineMatch[1].trim() },
-      reply: `Updated your headline to "${headlineMatch[1].trim()}".`,
-    };
-  }
-
-  const subMatch =
-    /(?:change|update|make|set)?\s*(?:the\s+)?(?:subheadline|subhead|tagline|description)\s*(?:to|:)\s*["“]?(.+?)["”]?$/i.exec(
-      message,
-    );
-  if (subMatch) {
-    return {
-      patch: { subheadline: subMatch[1].trim() },
-      reply: `Subheadline updated.`,
-    };
-  }
-
-  const ctaMatch =
-    /(?:change|update|make|set)?\s*(?:the\s+)?(?:cta|button|call to action)\s*(?:text)?\s*(?:to|:)\s*["“]?(.+?)["”]?$/i.exec(
-      message,
-    );
-  if (ctaMatch) {
-    return {
-      patch: { ctaText: ctaMatch[1].trim() },
-      reply: `Button text updated to "${ctaMatch[1].trim()}".`,
-    };
-  }
-
-  if (/(more|extra)\s+(friendly|warm|personal)/.test(m)) {
-    return {
-      patch: {
-        subheadline:
-          "Friendly, no-pressure guidance from a real local agent who answers the phone — and actually listens.",
-      },
-      reply: "Made the tone warmer and more personal.",
-    };
-  }
-
-  if (/professional|formal|polished|corporate/.test(m)) {
-    return {
-      patch: {
-        subheadline:
-          "Professional, transparent guidance to help you choose the right coverage with confidence.",
-      },
-      reply: "Tightened the tone to feel more polished and professional.",
-    };
-  }
-
-  if (/urgent|stronger|punchy|bold/.test(m)) {
-    return {
-      patch: {
-        headline: data.headline.endsWith("!")
-          ? data.headline
-          : data.headline.replace(/[.?!]?$/, "!"),
-        ctaText: "Get Started Now",
-      },
-      reply: "Made the headline punchier and the CTA more direct.",
-    };
-  }
-
-  if (/medicare/.test(m)) {
-    return {
-      patch: {
-        insuranceType: "Medicare",
-        businessType: "Medicare insurance agency",
-      },
-      reply: "Reframed the page around Medicare clients.",
-    };
-  }
-  if (/\baca\b|affordable care/.test(m)) {
-    return {
-      patch: { insuranceType: "ACA", businessType: "ACA brokerage" },
-      reply: "Reframed the page around ACA clients.",
-    };
-  }
-  if (/life insurance|life policy|whole life|term life/.test(m)) {
-    return {
-      patch: { insuranceType: "Life", businessType: "Life insurance agency" },
-      reply: "Switched the niche focus to life insurance.",
-    };
-  }
-  if (/auto|car insurance/.test(m)) {
-    return {
-      patch: { insuranceType: "Auto", businessType: "Auto insurance agency" },
-      reply: "Switched the niche focus to auto insurance.",
-    };
-  }
-  if (/home insurance|homeowners/.test(m)) {
-    return {
-      patch: { insuranceType: "Home", businessType: "Home insurance agency" },
-      reply: "Switched the niche focus to home insurance.",
-    };
-  }
-
-  if (/note from|author note|personal note/.test(m)) {
-    return {
-      patch: {
-        authorNotes:
-          `Hi, I'm ${data.agentName}. Thanks for stopping by — I'd love to help you find the right coverage for your family.`,
-      },
-      reply: "Added a warm personal note from you.",
-    };
-  }
-
-  if (/call|phone preferred/.test(m)) {
-    return { patch: { contactMethod: "call" }, reply: "Set the preferred contact method to call." };
-  }
-  if (/text|sms/.test(m)) {
-    return { patch: { contactMethod: "text" }, reply: "Set the preferred contact method to text." };
-  }
-  if (/email preferred|prefer email/.test(m)) {
-    return { patch: { contactMethod: "email" }, reply: "Set the preferred contact method to email." };
-  }
-
-  // Generic fallback — wedge it into the freestyle instructions so the user
-  // sees their input has been captured.
-  return {
-    patch: {
-      workspaceNotes:
-        (data.workspaceNotes ? data.workspaceNotes + "\n• " : "• ") +
-        message.trim(),
-    },
-    reply:
-      "Got it — I've noted that for the next regeneration. Try a more specific tweak like 'change headline to ...' or 'make the tone more friendly' and I'll update the preview right away.",
-  };
-}
 
 /**
  * Quality-control pass. Scans the builder data for common issues
@@ -250,6 +109,7 @@ function WorkspacePage() {
   const credits = useUserCredits();
   const scrollRef = useRef<HTMLDivElement>(null);
   const launchedAt = useRef<number>(Date.now());
+  const editFn = useServerFn(editWebsite);
 
   useEffect(() => {
     setData(loadBuilder() ?? DEFAULT_BUILDER);
@@ -288,7 +148,7 @@ function WorkspacePage() {
     };
   }, [thinking, savedAt]);
 
-  function send() {
+  async function send() {
     const text = input.trim();
     if (!text || thinking || !data) return;
 
@@ -313,38 +173,68 @@ function WorkspacePage() {
       role: "user",
       text,
     };
-    setMessages((m) => [...m, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setInput("");
     setThinking(true);
 
-    // Simulated thinking delay so it feels real.
-    window.setTimeout(() => {
-      const { patch, reply } = applyTweak(data, text);
-      let next: BuilderData = data;
-      if (patch) {
-        next = { ...data, ...patch };
-        void credits.charge("regenerate_section");
+    // Send last 20 turns (excluding the seeded starter) for context, plus current snapshot.
+    const history: ChatTurn[] = nextMessages
+      .filter((m) => m.id !== "starter")
+      .slice(-20)
+      .map((m) => ({ role: m.role, text: m.text }));
+
+    try {
+      const result = await editFn({
+        data: { messages: history, builderData: data },
+      });
+
+      if (result.error) {
+        toast.error(result.reply);
       }
+
+      let next: BuilderData = data;
+      if (result.patch) {
+        next = { ...data, ...result.patch };
+        setData(next);
+        saveBuilder(next);
+        setSavedAt(Date.now());
+        if (!result.error) void credits.charge("regenerate_section");
+      }
+
       // Quality-control pass — auto-fix any obvious issues.
       const qc = selfCheck(next);
       let qcReply = "";
       if (qc.patch) {
         next = { ...next, ...qc.patch };
+        setData(next);
+        saveBuilder(next);
+        setSavedAt(Date.now());
         qcReply =
           "\n\nQuality check: " +
           qc.fixes.map((f) => `✓ ${f}`).join(" · ");
       }
-      if (patch || qc.patch) {
-        setData(next);
-        saveBuilder(next);
-        setSavedAt(Date.now());
-      }
+
       setMessages((m) => [
         ...m,
-        { id: `a-${Date.now()}`, role: "assistant", text: reply + qcReply },
+        { id: `a-${Date.now()}`, role: "assistant", text: result.reply + qcReply },
       ]);
+    } catch (err) {
+      console.error("AI edit failed", err);
+      toast.error("AI request failed", {
+        description: "Check your connection and try again.",
+      });
+      setMessages((m) => [
+        ...m,
+        {
+          id: `a-${Date.now()}`,
+          role: "assistant",
+          text: "Something went wrong reaching the AI. Try again in a moment.",
+        },
+      ]);
+    } finally {
       setThinking(false);
-    }, 650);
+    }
   }
 
   function tryPublish() {
