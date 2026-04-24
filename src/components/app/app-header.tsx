@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useBilling } from "@/lib/billing";
+import { useSubscription } from "@/lib/subscription";
 import { useAccount, signOut } from "@/lib/account";
 import diploofly from "@/assets/diploofly-logo.png";
 
@@ -23,13 +23,11 @@ const AUTHED_NAV = [
 
 export function AppHeader() {
   const [open, setOpen] = useState(false);
-  const billing = useBilling();
+  const sub = useSubscription();
   const account = useAccount();
   const signedIn = account.hydrated && account.signedIn;
   const NAV = signedIn ? AUTHED_NAV : PUBLIC_NAV;
-  const showBanner =
-    billing.hydrated &&
-    (billing.subStatus === "past_due" || billing.siteStatus === "suspended");
+  const showBanner = sub.hydrated && sub.isPastDue;
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
       {showBanner && (
@@ -38,11 +36,7 @@ export function AppHeader() {
             <span className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 shrink-0" />
               <span>
-                Payment issue —{" "}
-                {billing.siteStatus === "suspended"
-                  ? "your live website is paused."
-                  : "your subscription is past due."}{" "}
-                Update your card to restore service.
+                Payment issue — your subscription is past due. Update your card to restore service.
               </span>
             </span>
             <Link

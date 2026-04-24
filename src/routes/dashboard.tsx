@@ -22,15 +22,8 @@ import {
   Circle,
   ListChecks,
 } from "lucide-react";
-import { useCredits, PLAN_LABELS } from "@/lib/credits";
-import {
-  useBilling,
-  SITE_STATUS_LABEL,
-  SUB_STATUS_LABEL,
-  formatDate,
-  type SiteStatus,
-  type SubStatus,
-} from "@/lib/billing";
+import { useUserCredits, PLAN_LABELS } from "@/lib/user-credits";
+import { useSubscription } from "@/lib/subscription";
 import { loadBuilder, DEFAULT_BUILDER } from "@/lib/builder-storage";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -64,20 +57,7 @@ function GuardedDashboardPage() {
   );
 }
 
-function siteStatusTone(s: SiteStatus): string {
-  switch (s) {
-    case "live":
-      return "bg-emerald-100 text-emerald-900 border-emerald-300/60";
-    case "ready":
-      return "bg-sky-100 text-sky-900 border-sky-300/60";
-    case "suspended":
-      return "bg-destructive/10 text-destructive border-destructive/40";
-    default:
-      return "bg-[var(--surface-sand)] text-foreground/80 border-border";
-  }
-}
-
-function subStatusTone(s: SubStatus): string {
+function subStatusTone(s: string): string {
   switch (s) {
     case "active":
       return "bg-emerald-100 text-emerald-900 border-emerald-300/60";
@@ -89,6 +69,30 @@ function subStatusTone(s: SubStatus): string {
       return "bg-muted text-muted-foreground border-border";
     default:
       return "bg-[var(--surface-sand)] text-foreground/80 border-border";
+  }
+}
+
+const SUB_LABEL: Record<string, string> = {
+  trialing: "Trial active",
+  active: "Subscription active",
+  past_due: "Past due",
+  canceled: "Canceled",
+  incomplete: "Incomplete",
+  unpaid: "Unpaid",
+  paused: "Paused",
+  none: "No subscription",
+};
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return iso;
   }
 }
 
