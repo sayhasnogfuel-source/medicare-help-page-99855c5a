@@ -77,12 +77,19 @@ export function useUserCredits(): UseUserCreditsResult {
       return;
     }
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("user_credits")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
-      setRow((data as UserCreditsRow | null) ?? null);
+      if (error) {
+        // Swallow — treat as "no row yet". The signup trigger creates the
+        // row asynchronously and we don't want the UI to crash on a brief
+        // race or RLS hiccup.
+        setRow(null);
+      } else {
+        setRow((data as UserCreditsRow | null) ?? null);
+      }
     } catch {
       setRow(null);
     } finally {
@@ -92,8 +99,14 @@ export function useUserCredits(): UseUserCreditsResult {
 
   useEffect(() => {
     if (!authReady) return;
+    if (!userId) {
+      // Signed out — drop any stale row immediately.
+      setRow(null);
+      setHydrated(true);
+      return;
+    }
     fetchRow();
-  }, [authReady, fetchRow]);
+  }, [authReady, userId, fetchRow]);
 
   // Realtime updates — only after auth is ready and a user exists.
   useEffect(() => {

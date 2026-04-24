@@ -59,7 +59,7 @@ export function useSubscription(): UseSubscriptionResult {
       return;
     }
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
         .eq("user_id", userId)
@@ -67,7 +67,11 @@ export function useSubscription(): UseSubscriptionResult {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      setSubscription((data as SubscriptionRow | null) ?? null);
+      if (error) {
+        setSubscription(null);
+      } else {
+        setSubscription((data as SubscriptionRow | null) ?? null);
+      }
     } catch {
       setSubscription(null);
     } finally {
@@ -77,8 +81,13 @@ export function useSubscription(): UseSubscriptionResult {
 
   useEffect(() => {
     if (!authReady) return;
+    if (!userId) {
+      setSubscription(null);
+      setHydrated(true);
+      return;
+    }
     fetchSub();
-  }, [authReady, fetchSub]);
+  }, [authReady, userId, fetchSub]);
 
   // Realtime subscription updates — only after auth is ready and a user exists.
   useEffect(() => {
