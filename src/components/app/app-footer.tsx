@@ -1,7 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import diploofly from "@/assets/diploofly-logo.png";
+import { useAccount } from "@/lib/account";
 
 export function AppFooter() {
+  const account = useAccount();
+  const signedIn = account.hydrated && account.signedIn;
   return (
     <footer className="border-t border-border/60 bg-[var(--surface-cream)]">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-4">
@@ -25,7 +28,9 @@ export function AppFooter() {
           <ul className="mt-4 space-y-2.5 text-sm text-foreground/80">
             <li><Link to="/builder" className="hover:text-foreground">Builder</Link></li>
             <li><Link to="/preview" className="hover:text-foreground">Preview</Link></li>
-            <li><Link to="/signup" className="hover:text-foreground">Sign up</Link></li>
+            {!signedIn && (
+              <li><Link to="/signup" className="hover:text-foreground">Sign up</Link></li>
+            )}
           </ul>
         </div>
 

@@ -180,6 +180,14 @@ export interface BuilderData {
    *  separate from `freestyleInstructions` (the setup prompt) so chats
    *  don't bleed across stages. */
   workspaceNotes: string;
+  /** AI-driven section toggles. Drive which sections render on the
+   *  generated landing so two different agents get visibly different
+   *  sites. */
+  showServices?: boolean;
+  showTestimonials?: boolean;
+  showFaq?: boolean;
+  showBookingCta?: boolean;
+  showAboutAgent?: boolean;
 }
 
 export const DEFAULT_BUILDER: BuilderData = {
@@ -202,6 +210,11 @@ export const DEFAULT_BUILDER: BuilderData = {
   authorNotes: "",
   themeId: "modern-medicare",
   workspaceNotes: "",
+  showServices: true,
+  showTestimonials: true,
+  showFaq: false,
+  showBookingCta: false,
+  showAboutAgent: true,
 };
 
 const KEY = "lp_builder_data_v3";

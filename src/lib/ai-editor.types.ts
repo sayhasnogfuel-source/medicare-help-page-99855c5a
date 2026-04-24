@@ -19,6 +19,11 @@ export interface BuilderPatch {
   freestyleInstructions?: string;
   authorNotes?: string;
   themeId?: string;
+  showServices?: boolean;
+  showTestimonials?: boolean;
+  showFaq?: boolean;
+  showBookingCta?: boolean;
+  showAboutAgent?: boolean;
 }
 
 export interface EditResult {

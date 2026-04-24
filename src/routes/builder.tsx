@@ -15,8 +15,6 @@ import {
   ArrowRight,
   ImageIcon,
   X,
-  Sparkles,
-  Send,
   Lock,
   Globe,
   AlertCircle,
@@ -54,17 +52,6 @@ function GuardedBuilderPage() {
 }
 
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB to keep localStorage happy
-
-const FREESTYLE_SUGGESTIONS = [
-  "Modern and clean",
-  "Luxury and warm",
-  "Add testimonials",
-  "Add services section",
-  "Add booking form",
-  "Family-oriented feel",
-  "Focus on Medicare clients turning 65",
-  "Use my headshot prominently",
-] as const;
 
 function BuilderPage() {
   const { transitionTo } = usePageTransition();
@@ -236,18 +223,11 @@ function BuilderPage() {
               Your business, your way
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Start with the essentials, then describe how you want your site to look and feel — we'll handle the rest.
+              Tell us about your business — we'll generate your first site instantly. You'll fine-tune the look and copy from the workspace using AI chat.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-10" noValidate>
-            {/* PART 1 — Required business information */}
-            <PartHeader
-              step="Part 1"
-              title="Required business information"
-              description="The core details we need to build your page."
-            />
-
             <Section title="Your business">
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Business name" id="businessName" error={errors.businessName}>
@@ -432,48 +412,6 @@ function BuilderPage() {
               />
             </Section>
 
-            {/* PART 2 — Freestyle AI chat */}
-            <div className="pt-2">
-              <PartHeader
-                step="Part 2"
-                title="Tell our AI how to build your site"
-                description="Describe the look, feel, and sections you want. This is the prompt that guides how your page is built."
-              />
-            </div>
-
-            <FreestyleChat
-              value={data.freestyleInstructions}
-              onChange={(v) => update("freestyleInstructions", v)}
-            />
-
-            {/* PART 3 — Notes from author (visible on the published page) */}
-            <div className="pt-2">
-              <PartHeader
-                step="Part 3"
-                title="Notes from author"
-                description="Optional supporting notes shown on your published page — e.g. a personal welcome message or extra details for visitors."
-              />
-            </div>
-
-            <Section title="A note from you (shown on your page)">
-              <p className="text-sm text-muted-foreground">
-                Keep it warm and personal. This appears as a small note on your live site.
-                Leave blank to hide it.
-              </p>
-              <Textarea
-                id="authorNotes"
-                value={data.authorNotes}
-                onChange={(e) => update("authorNotes", e.target.value)}
-                placeholder="e.g. Thanks for stopping by — I look forward to helping your family find the right coverage."
-                rows={4}
-                maxLength={600}
-                className="min-h-[120px]"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                {data.authorNotes.length}/600
-              </p>
-            </Section>
-
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 {hydrated
@@ -495,7 +433,7 @@ function BuilderPage() {
                   </>
                 ) : (
                   <>
-                    Generate My Website
+                    Open Builder Workspace
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </>
                 )}
@@ -515,103 +453,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <Card className="rounded-2xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)] sm:p-7">
       <h2 className="text-base font-semibold text-foreground">{title}</h2>
       <div className="mt-5 space-y-5">{children}</div>
-    </Card>
-  );
-}
-
-function PartHeader({
-  step,
-  title,
-  description,
-}: {
-  step: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70">
-        {step}
-      </span>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        {title}
-      </h2>
-      <p className="text-sm text-muted-foreground sm:text-base">{description}</p>
-    </div>
-  );
-}
-
-function FreestyleChat({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  function appendSuggestion(s: string) {
-    const next = value.trim().length === 0 ? s : `${value.trim()}\n• ${s}`;
-    onChange(next);
-  }
-
-  return (
-    <Card className="overflow-hidden rounded-3xl border-border/60 bg-background p-0 shadow-[var(--shadow-md)]">
-      {/* Assistant intro bubble */}
-      <div className="flex items-start gap-3 border-b border-border/60 bg-[var(--surface-sand)]/50 p-5 sm:p-6">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-xs)]">
-          <Sparkles className="h-4 w-4" />
-        </span>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-foreground">AI website assistant</p>
-          <p className="mt-1 text-sm leading-relaxed text-foreground/75">
-            Describe how your site should feel, what sections to include, and anything that
-            makes your business unique. I'll combine this with your business details to build
-            your page.
-          </p>
-        </div>
-      </div>
-
-      {/* Chat input */}
-      <div className="p-5 sm:p-6">
-        <div className="rounded-2xl border border-border bg-[var(--surface-cream)]/60 focus-within:border-foreground/30 focus-within:bg-background transition-colors">
-          <Textarea
-            id="freestyle"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Describe how you want your website to look, feel, and what sections you want included..."
-            rows={5}
-            maxLength={1200}
-            className="min-h-[140px] resize-none border-0 bg-transparent p-4 text-base shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-          <div className="flex items-center justify-between gap-3 border-t border-border/60 px-4 py-2.5">
-            <p className="text-[11px] text-muted-foreground">
-              {value.length}/1200 · Optional, but the more you share the better
-            </p>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-sand)] px-2.5 py-1 text-[11px] font-medium text-foreground/70">
-              <Send className="h-3 w-3" />
-              Saved with your website
-            </span>
-          </div>
-        </div>
-
-        {/* Suggestion chips */}
-        <div className="mt-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Try a suggestion
-          </p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
-            {FREESTYLE_SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => appendSuggestion(s)}
-                className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-foreground/30 hover:bg-[var(--surface-sand)]/60 hover:text-foreground"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
     </Card>
   );
 }

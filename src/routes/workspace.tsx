@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft,
   Edit3,
-  Globe,
+  ExternalLink,
   Lock,
   Send,
   Sparkles,
@@ -110,6 +110,7 @@ function WorkspacePage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const launchedAt = useRef<number>(Date.now());
   const editFn = useServerFn(editWebsite);
+  const autoRanRef = useRef(false);
 
   useEffect(() => {
     setData(loadBuilder() ?? DEFAULT_BUILDER);
@@ -119,6 +120,61 @@ function WorkspacePage() {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, thinking]);
+
+  // First-run AI generation: when the workspace opens with a fresh draft
+  // (no prior AI-driven freestyleInstructions yet), automatically run one
+  // generation pass so the preview reflects what THIS agent described,
+  // not the same generic template every time.
+  useEffect(() => {
+    if (autoRanRef.current || !data || thinking) return;
+    if (!credits.hydrated) return;
+    // Only auto-run if the site hasn't been customized by AI yet.
+    if (data.freestyleInstructions && data.freestyleInstructions.trim().length > 0) {
+      autoRanRef.current = true;
+      return;
+    }
+    if (!credits.canAfford("regenerate_section")) {
+      autoRanRef.current = true;
+      return;
+    }
+    autoRanRef.current = true;
+    void runFirstGeneration(data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, credits.hydrated]);
+
+  async function runFirstGeneration(current: BuilderData) {
+    setThinking(true);
+    const seed: ChatTurn = {
+      role: "user",
+      text:
+        "This is a fresh build. Use my business details, niche, theme, and contact method to write a complete first version of my website — pick a strong, specific headline tied to my niche and city, write a concrete subheadline, choose a punchy ctaText, set the right themeId for my audience, and decide which sections (showServices, showTestimonials, showFaq, showBookingCta, showAboutAgent) should appear. Make it feel custom to me, not a generic template. Save your design direction in freestyleInstructions.",
+    };
+    try {
+      const result = await editFn({
+        data: { messages: [seed], builderData: current },
+      });
+      let next = current;
+      if (result.patch) {
+        next = { ...current, ...result.patch };
+        setData(next);
+        saveBuilder(next);
+        setSavedAt(Date.now());
+        if (!result.error) void credits.charge("regenerate_section");
+      }
+      setMessages((m) => [
+        ...m,
+        {
+          id: `a-init-${Date.now()}`,
+          role: "assistant",
+          text: result.reply,
+        },
+      ]);
+    } catch (err) {
+      console.error("First-run AI generation failed", err);
+    } finally {
+      setThinking(false);
+    }
+  }
 
   const statusPill = useMemo(() => {
     if (thinking) {
@@ -294,6 +350,17 @@ function WorkspacePage() {
                 </Link>
               </Button>
               <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="rounded-full"
+              >
+                <a href="/preview" target="_blank" rel="noreferrer">
+                  <ExternalLink className="mr-1 h-3.5 w-3.5" />
+                  Open in new tab
+                </a>
+              </Button>
+              <Button
                 onClick={tryPublish}
                 size="sm"
                 className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
@@ -305,27 +372,16 @@ function WorkspacePage() {
           </div>
         </div>
 
-        {/* Card-required notice */}
+        {/* Card-required notice — slim inline pill */}
         <div className="mx-auto w-full max-w-[1400px] px-4 pt-3 sm:px-6">
-          <div className="flex flex-col items-start gap-2 rounded-2xl border border-amber-300/40 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-2">
-              <CreditCard className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>
-                <span className="font-semibold">
-                  Add a valid payment method to publish your website.
-                </span>{" "}
-                You can build and edit during your trial — going live requires an
-                active subscription.
-              </p>
-            </div>
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="shrink-0 rounded-full border-amber-700/30 bg-background text-amber-900 hover:bg-amber-50"
-            >
-              <Link to="/pricing">Choose a plan</Link>
-            </Button>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-amber-50/70 px-3 py-1 text-amber-900">
+              <CreditCard className="h-3.5 w-3.5" />
+              Add a payment method to publish your site
+            </span>
+            <Link to="/pricing" className="font-medium text-foreground hover:underline">
+              Choose a plan →
+            </Link>
           </div>
         </div>
 

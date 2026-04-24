@@ -9,11 +9,18 @@ import {
   Sparkles,
   MapPin,
   Star,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import type { BuilderData } from "@/lib/builder-storage";
 import { getThemeById } from "@/lib/builder-storage";
 
@@ -93,6 +100,14 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
   const cta = data.ctaText || "Request Help";
   const typeLabel = data.insuranceType?.trim() || "Insurance";
   const theme = getThemeById(data.themeId);
+
+  // Section toggles — undefined means "use a sensible default" so old
+  // drafts and fresh data both render a complete page.
+  const showServices = data.showServices !== false;
+  const showTestimonials = data.showTestimonials !== false;
+  const showAboutAgent = data.showAboutAgent !== false;
+  const showFaq = data.showFaq === true;
+  const showBookingCta = data.showBookingCta === true;
 
   // Override the warm-neutral surface tokens with the selected theme's palette
   // so the generated landing visibly reflects the theme choice.
@@ -202,6 +217,7 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
       </section>
 
       {/* About / trust */}
+      {showAboutAgent && (
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">About {data.businessName}</p>
@@ -224,8 +240,10 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
           )}
         </div>
       </section>
+      )}
 
       {/* Benefits */}
+      {showServices && (
       <section className="bg-[var(--surface-sand)]/60 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-5">
           <div className="mx-auto max-w-2xl text-center">
@@ -247,8 +265,10 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* Testimonial strip */}
+      {showTestimonials && (
       <section className="mx-auto max-w-6xl px-5 py-16">
         <div className="rounded-3xl border border-border/60 bg-background p-8 shadow-[var(--shadow-sm)] sm:p-12">
           <div className="flex items-center gap-1 text-[var(--surface-camel)]">
@@ -263,6 +283,63 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
           <p className="mt-5 text-sm text-muted-foreground">— A happy client in {data.city}</p>
         </div>
       </section>
+      )}
+
+      {/* Booking CTA banner */}
+      {showBookingCta && (
+        <section className="mx-auto max-w-6xl px-5 pb-4">
+          <div className="flex flex-col items-center justify-between gap-4 rounded-3xl border border-border/60 bg-[var(--surface-mocha)] p-7 text-[var(--surface-cream)] shadow-[var(--shadow-md)] sm:flex-row sm:p-9">
+            <div className="flex items-start gap-3">
+              <CalendarCheck className="mt-0.5 h-5 w-5 shrink-0" />
+              <div>
+                <p className="text-lg font-semibold">Book a free 15-minute call</p>
+                <p className="mt-1 text-sm text-[var(--surface-cream)]/80">
+                  Pick a time that works for you — no pressure, just answers.
+                </p>
+              </div>
+            </div>
+            <a href="#lead-form">
+              <Button size="lg" className="rounded-full bg-[var(--surface-cream)] text-foreground hover:bg-white">
+                {cta}
+              </Button>
+            </a>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      {showFaq && (
+        <section className="bg-[var(--surface-sand)]/40 py-16">
+          <div className="mx-auto max-w-3xl px-5">
+            <div className="text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">FAQ</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                Common {typeLabel} questions
+              </h2>
+            </div>
+            <Accordion type="single" collapsible className="mt-8">
+              <AccordionItem value="q1">
+                <AccordionTrigger>How much does {typeLabel.toLowerCase()} guidance cost?</AccordionTrigger>
+                <AccordionContent>
+                  Working with {data.agentName} is free — agents are paid by the carrier, not by you.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="q2">
+                <AccordionTrigger>How long does the consultation take?</AccordionTrigger>
+                <AccordionContent>
+                  Most calls take 15–30 minutes. We'll cover your situation and only the plans that fit.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="q3">
+                <AccordionTrigger>Do you serve clients outside {data.city}?</AccordionTrigger>
+                <AccordionContent>
+                  Yes — we help clients across {data.state} and surrounding areas.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </section>
+      )}
 
       {/* Lead form */}
       <section id="lead-form" className="bg-[var(--surface-beige)]/40 py-16 sm:py-20">
