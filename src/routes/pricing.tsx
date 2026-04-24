@@ -129,7 +129,7 @@ function PricingPage() {
             </div>
 
             {/* Tiers */}
-            <div className="mt-12 grid gap-5 md:grid-cols-3">
+            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {TIERS.map((tier) => (
                 <Card
                   key={tier.id}
@@ -182,6 +182,60 @@ function PricingPage() {
                   </Button>
                 </Card>
               ))}
+
+              {/* Custom Website — premium done-for-you offer, same frame as plans */}
+              <Card className="relative flex flex-col overflow-hidden rounded-3xl border-foreground/20 bg-gradient-to-br from-[var(--surface-espresso)] to-[var(--surface-mocha)] p-7 text-[var(--surface-cream)] shadow-[var(--shadow-lg)] transition-shadow hover:shadow-[var(--shadow-xl)]">
+                <span className="mb-3 inline-flex w-fit items-center gap-1 rounded-full bg-[var(--surface-cream)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--surface-espresso)]">
+                  <Star className="h-3 w-3" />
+                  Done-for-you
+                </span>
+                <h2 className="text-xl font-semibold tracking-tight text-[var(--surface-cream)]">
+                  Custom Website
+                </h2>
+                <div className="mt-3 flex flex-wrap items-baseline gap-1.5">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--surface-cream)]/60">
+                    From
+                  </span>
+                  <span className="text-4xl font-semibold tracking-tight text-[var(--surface-cream)]">
+                    $206
+                  </span>
+                  <span className="text-sm text-[var(--surface-cream)]/70">
+                    + subscription
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-[var(--surface-cream)]/75">
+                  We design, write, and launch a polished website for you.
+                </p>
+                <ul className="mt-5 flex-1 space-y-2.5">
+                  {[
+                    "We build it for you, end to end",
+                    "Customized to your brand",
+                    "Built for insurance agents",
+                    "Mobile-friendly & lead-focused",
+                    "Revisions and launch support",
+                    "Hosting tied to active subscription",
+                  ].map((f) => (
+                    <li
+                      key={f}
+                      className="flex items-start gap-2 text-sm text-[var(--surface-cream)]/90"
+                    >
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--surface-cream)]" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => transitionTo({ to: "/inquiry" })}
+                  size="lg"
+                  className="mt-6 w-full rounded-full bg-[var(--surface-cream)] text-sm font-semibold text-[var(--surface-espresso)] hover:bg-[var(--surface-cream)]/90"
+                >
+                  Submit Inquiry
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+                <p className="mt-3 text-center text-[11px] text-[var(--surface-cream)]/60">
+                  Final price varies by scope, pages & features.
+                </p>
+              </Card>
             </div>
 
             {/* How credits work */}
