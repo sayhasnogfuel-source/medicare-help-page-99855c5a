@@ -312,6 +312,7 @@ function BuilderPage() {
                 themes={INSURANCE_THEMES}
                 selectedId={data.themeId}
                 onSelect={(id) => update("themeId", id)}
+                data={data}
               />
             </Section>
 
