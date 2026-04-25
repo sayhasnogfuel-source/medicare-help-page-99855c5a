@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { signInWithEmail, signInWithGoogle, useAuth } from "@/lib/account";
+import { signInWithEmail, useAuth } from "@/lib/account";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -36,7 +36,6 @@ function SigninPage() {
   const { redirect } = useSearch({ from: "/signin" });
   const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/start";
   const [submitting, setSubmitting] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetting, setResetting] = useState(false);
   const [showReset, setShowReset] = useState(false);
@@ -88,10 +87,7 @@ function SigninPage() {
             <Card className="rounded-3xl border-border/60 bg-background p-7 shadow-[var(--shadow-lg)] sm:p-10">
               <h2 className="text-2xl font-semibold tracking-tight text-foreground">Sign in</h2>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link to="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
-                  Create one
-                </Link>
+                Welcome back — enter your details to continue.
               </p>
 
               {!showReset ? (
@@ -147,34 +143,6 @@ function SigninPage() {
                     className="w-full rounded-full bg-[var(--surface-mocha)] text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
                   >
                     {submitting ? "Signing in…" : "Sign in"}
-                  </Button>
-
-                  <div className="relative my-2">
-                    <div className="h-px bg-border" />
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                      or
-                    </span>
-                  </div>
-
-                  <Button
-                    type="button"
-                    size="lg"
-                    variant="outline"
-                    disabled={googleLoading}
-                    className="w-full rounded-full border-foreground/20 bg-background text-base font-semibold text-foreground hover:bg-secondary hover:text-foreground"
-                    onClick={async () => {
-                      if (googleLoading) return;
-                      setGoogleLoading(true);
-                      try {
-                        await signInWithGoogle(safeRedirect);
-                      } catch (err) {
-                        toast.error(err instanceof Error ? err.message : "Google sign-in failed");
-                        setGoogleLoading(false);
-                      }
-                    }}
-                  >
-                    <SigninGoogleGlyph />
-                    {googleLoading ? "Connecting…" : "Continue with Google"}
                   </Button>
                 </form>
               ) : (
