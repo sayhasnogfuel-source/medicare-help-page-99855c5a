@@ -505,8 +505,6 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
   },
 ];
 
-];
-
 export function getThemeById(id: string | undefined | null): InsuranceTheme {
   return INSURANCE_THEMES.find((t) => t.id === id) ?? INSURANCE_THEMES[0];
 }
