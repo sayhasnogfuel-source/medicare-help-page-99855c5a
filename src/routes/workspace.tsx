@@ -35,6 +35,18 @@ import { editWebsite } from "@/lib/ai-editor.functions";
 import type { ChatTurn } from "@/lib/ai-editor.types";
 import { AuthGuard } from "@/components/app/auth-guard";
 import diploofly from "@/assets/diploofly-logo.png";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/workspace")({
   component: GuardedWorkspace,
