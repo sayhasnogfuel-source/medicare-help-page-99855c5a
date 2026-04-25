@@ -352,6 +352,7 @@ function WorkspacePage() {
               <span className="hidden sm:inline">Edit details</span>
             </Link>
           </Button>
+          <BackToBuilderDialog />
           <Button
             variant="ghost"
             size="sm"
