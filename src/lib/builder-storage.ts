@@ -34,12 +34,18 @@ export interface InsuranceTheme {
   tagline: string;
   bestFor: string;
   recommended?: boolean;
+  /** Use this badge for the flagship theme. */
+  signature?: boolean;
   /** CSS color tokens (oklch or hex) used for previews and the live page. */
   palette: {
     primary: string;
     accent: string;
     surface: string;
     text: string;
+    /** Optional secondary accent for gradients / decorative blocks. */
+    accent2?: string;
+    /** Optional dark contrast surface used by dramatic / luxury themes. */
+    contrast?: string;
   };
   /** Tone words the AI should pick up. */
   tone: string;
@@ -67,6 +73,10 @@ export interface InsuranceTheme {
     headingFontFamily: string;
     /** Body font family stack (CSS value). */
     bodyFontFamily: string;
+    /** Optional eyebrow / kicker font family. Falls back to heading. */
+    eyebrowFontFamily?: string;
+    /** Eyebrow style: uppercase tracked vs lowercase serif. */
+    eyebrowStyle?: "uppercase-wide" | "italic-serif" | "small-caps" | "tag-pill";
   };
   /** Layout instructions: hero shape, image placement, section rhythm. */
   layout: {
@@ -84,6 +94,17 @@ export interface InsuranceTheme {
     imageAspect: string;
     /** Border treatment for cards. */
     cardBorder: "soft" | "hard" | "none";
+    /** Button geometry. "pill" = fully rounded, "rounded" = 12px,
+     *  "square" = 4px, "sharp" = 0px. */
+    buttonShape?: "pill" | "rounded" | "square" | "sharp";
+    /** CTA visual style. */
+    buttonStyle?: "solid" | "gradient" | "outline-bold" | "ghost-underline" | "glow";
+    /** Background flavor for the hero zone. */
+    heroBackground?: "warm-gradient" | "soft-tint" | "dark-luxury" | "pure-white" | "mesh-glow" | "editorial-paper";
+    /** Decorative density (orbs, grids, illuminations). */
+    decoration?: "none" | "subtle" | "rich" | "glow";
+    /** Section divider style. */
+    divider?: "none" | "hairline" | "soft-tint" | "card-shadow";
   };
 }
 
