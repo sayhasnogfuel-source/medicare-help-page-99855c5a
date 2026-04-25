@@ -48,6 +48,11 @@ const VALID_THEME_IDS = [
   "personal-brand",
   "community-family",
   "modern-saas",
+  "editorial-authority",
+  "bold-conversion",
+  "soft-luxury",
+  "strong-local-business",
+  "future-premium",
 ] as const;
 
 const THEME_BRIEFS = INSURANCE_THEMES.map((th) =>

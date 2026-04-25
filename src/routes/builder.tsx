@@ -28,6 +28,7 @@ import {
   type BuilderData,
   type ContactMethod,
 } from "@/lib/builder-storage";
+import type { InsuranceTheme } from "@/lib/builder-storage";
 import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
@@ -302,83 +303,15 @@ function BuilderPage() {
 
             <Section title="Choose a visual theme">
               <p className="text-sm text-muted-foreground">
-                Pick a design direction. The AI uses your theme to guide the
-                color palette, layout, copy tone, and overall mood of your site.
+                Pick a design direction. Your theme drives layout, typography,
+                spacing, button style, and imagery — not just colors. Scroll to
+                browse all 15.
               </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {INSURANCE_THEMES.map((t) => {
-                  const selected = data.themeId === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => update("themeId", t.id)}
-                      aria-pressed={selected}
-                      className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all ${
-                        selected
-                          ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)]/60 shadow-[var(--shadow-md)] ring-2 ring-[var(--surface-mocha)]/30"
-                          : "border-border bg-background hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-[var(--shadow-sm)]"
-                      }`}
-                    >
-                      {t.recommended && (
-                        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[var(--surface-mocha)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--surface-cream)]">
-                          Recommended
-                        </span>
-                      )}
-                      {/* Visual preview */}
-                      <div
-                        className="mb-3 flex h-20 w-full items-center gap-2 overflow-hidden rounded-xl p-2"
-                        style={{ background: t.palette.surface }}
-                      >
-                        <span
-                          className="h-full w-1.5 rounded-full"
-                          style={{ background: t.palette.primary }}
-                        />
-                        <div className="flex-1 space-y-1.5">
-                          <span
-                            className="block h-2 w-3/4 rounded-full"
-                            style={{ background: t.palette.primary, opacity: 0.85 }}
-                          />
-                          <span
-                            className="block h-1.5 w-1/2 rounded-full"
-                            style={{ background: t.palette.text, opacity: 0.35 }}
-                          />
-                          <span
-                            className="mt-1 inline-flex h-4 items-center rounded-full px-2 text-[8px] font-bold uppercase tracking-wider"
-                            style={{
-                              background: t.palette.accent,
-                              color: t.palette.surface,
-                            }}
-                          >
-                            CTA
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <span
-                            className="h-3 w-3 rounded-full"
-                            style={{ background: t.palette.primary }}
-                          />
-                          <span
-                            className="h-3 w-3 rounded-full"
-                            style={{ background: t.palette.accent }}
-                          />
-                          <span
-                            className="h-3 w-3 rounded-full border"
-                            style={{ background: t.palette.surface, borderColor: t.palette.text + "33" }}
-                          />
-                        </div>
-                      </div>
-                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{t.tagline}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                        <span>{t.mood}</span>
-                        <span aria-hidden>·</span>
-                        <span>{t.bestFor}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <ThemePicker
+                themes={INSURANCE_THEMES}
+                selectedId={data.themeId}
+                onSelect={(id) => update("themeId", id)}
+              />
             </Section>
 
             <Section title="Branding">
@@ -617,6 +550,174 @@ function ImageUpload({
         </Button>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+function ThemePicker({
+  themes,
+  selectedId,
+  onSelect,
+}: {
+  themes: readonly InsuranceTheme[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="-mx-1 overflow-x-auto pb-2">
+      <div className="flex gap-3 px-1" style={{ minWidth: "min-content" }}>
+        {themes.map((t) => {
+          const selected = selectedId === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onSelect(t.id)}
+              aria-pressed={selected}
+              className={`group relative flex w-[210px] shrink-0 flex-col overflow-hidden rounded-2xl border p-3 text-left transition-all ${
+                selected
+                  ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)]/60 shadow-[var(--shadow-md)] ring-2 ring-[var(--surface-mocha)]/30"
+                  : "border-border bg-background hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-[var(--shadow-sm)]"
+              }`}
+            >
+              {(t.signature || t.recommended) && (
+                <span
+                  className="absolute right-2 top-2 z-10 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                  style={{
+                    background: t.signature ? t.palette.accent : "var(--surface-mocha)",
+                    color: t.signature ? t.palette.surface : "var(--surface-cream)",
+                  }}
+                >
+                  {t.signature ? "Flagship" : "Recommended"}
+                </span>
+              )}
+              <ThemeThumbnail theme={t} />
+              <p className="mt-2.5 truncate text-[13px] font-semibold text-foreground">{t.name}</p>
+              <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">{t.tagline}</p>
+              <p className="mt-1 line-clamp-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                {t.bestFor}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ThemeThumbnail({ theme: t }: { theme: InsuranceTheme }) {
+  const dark = t.layout.heroBackground === "dark-luxury";
+  const isCentered = t.layout.hero === "centered" || t.layout.hero === "image-bg";
+  const isImageLeft = t.layout.hero === "image-left";
+  const radius =
+    t.layout.buttonShape === "pill"
+      ? "9999px"
+      : t.layout.buttonShape === "sharp"
+        ? "0"
+        : t.layout.buttonShape === "square"
+          ? "3px"
+          : "8px";
+  const cardRadius =
+    t.layout.cardRadius === "rounded-none"
+      ? "0"
+      : t.layout.cardRadius === "rounded-3xl"
+        ? "12px"
+        : t.layout.cardRadius === "rounded-sm" || t.layout.cardRadius === "rounded-md"
+          ? "3px"
+          : "6px";
+  const headlineH = t.density === "airy" ? 5 : t.density === "dense" ? 3 : 4;
+  const bgStyle: React.CSSProperties = dark
+    ? { background: `linear-gradient(135deg, ${t.palette.primary} 0%, ${t.palette.contrast || "#000"} 100%)` }
+    : t.layout.heroBackground === "warm-gradient"
+      ? { background: `linear-gradient(135deg, ${t.palette.surface}, ${t.palette.accent2 || t.palette.accent}33)` }
+      : t.layout.heroBackground === "mesh-glow"
+        ? { background: `radial-gradient(80% 60% at 30% 20%, ${t.palette.accent}33, transparent 70%), ${t.palette.surface}` }
+        : { background: t.palette.surface };
+  const fg = dark ? t.palette.surface : t.palette.text;
+  const showImage = !isCentered;
+
+  return (
+    <div
+      className="relative flex h-[110px] w-full flex-col overflow-hidden rounded-lg border border-border/50 p-2"
+      style={bgStyle}
+    >
+      {/* mini header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: t.palette.primary }} />
+          <span className="block h-1 w-6 rounded-full" style={{ background: fg, opacity: 0.5 }} />
+        </div>
+        <span
+          className="block h-2 w-6"
+          style={{ background: t.palette.accent, borderRadius: radius }}
+        />
+      </div>
+      {/* hero body */}
+      <div className={`mt-2 flex flex-1 gap-2 ${isImageLeft ? "flex-row-reverse" : "flex-row"}`}>
+        <div className={`flex flex-1 flex-col justify-center gap-1 ${isCentered ? "items-center" : "items-start"}`}>
+          {Array.from({ length: headlineH }).map((_, i) => (
+            <span
+              key={i}
+              className="block h-1 rounded-full"
+              style={{
+                width: `${[80, 65, 55, 70, 45][i % 5]}%`,
+                background: fg,
+                opacity: i === 0 ? 0.95 : 0.4,
+              }}
+            />
+          ))}
+          <span
+            className="mt-1 inline-block h-2.5"
+            style={{
+              width: "38%",
+              background:
+                t.layout.buttonStyle === "gradient"
+                  ? `linear-gradient(90deg, ${t.palette.accent}, ${t.palette.accent2 || t.palette.primary})`
+                  : t.layout.buttonStyle === "outline-bold" || t.layout.buttonStyle === "ghost-underline"
+                    ? "transparent"
+                    : t.palette.primary,
+              border:
+                t.layout.buttonStyle === "outline-bold" || t.layout.buttonStyle === "ghost-underline"
+                  ? `1px solid ${fg}`
+                  : "none",
+              borderRadius: radius,
+              boxShadow: t.layout.buttonStyle === "glow" ? `0 0 8px ${t.palette.accent}` : "none",
+            }}
+          />
+        </div>
+        {showImage && (
+          <div
+            className="shrink-0"
+            style={{
+              width: "32%",
+              background: t.palette.accent2 || t.palette.accent,
+              opacity: 0.7,
+              borderRadius:
+                t.layout.imageRadius === "rounded-full"
+                  ? "9999px"
+                  : t.layout.imageRadius === "rounded-none"
+                    ? "0"
+                    : "6px",
+              aspectRatio:
+                t.layout.imageAspect === "aspect-square"
+                  ? "1/1"
+                  : t.layout.imageAspect === "aspect-video"
+                    ? "16/9"
+                    : "3/4",
+            }}
+          />
+        )}
+      </div>
+      {/* trust strip / footer */}
+      <div className="mt-1 flex items-center gap-1">
+        {Array.from({ length: t.density === "dense" ? 5 : 3 }).map((_, i) => (
+          <span
+            key={i}
+            className="block h-0.5 flex-1"
+            style={{ background: fg, opacity: 0.25, borderRadius: cardRadius }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
