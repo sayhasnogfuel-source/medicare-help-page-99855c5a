@@ -679,7 +679,7 @@ function BackToBuilderDialog() {
           <AlertDialogTitle>Go back to edit business details?</AlertDialogTitle>
           <AlertDialogDescription>
             Returning to the details form and re-generating will use{" "}
-            <strong>{ACTION_COSTS.regenerateSite} credits</strong>. Your current
+            <strong>{ACTION_COSTS.generate} credits</strong>. Your current
             site is saved — you can come back to the workspace anytime without
             losing it.
           </AlertDialogDescription>
