@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import {
   Upload,
   ArrowRight,
+  ArrowLeft,
   ImageIcon,
   X,
   Lock,
@@ -146,6 +147,16 @@ function BuilderPage() {
               <CreditsBadge />
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => transitionTo({ to: "/start" })}
+              >
+                <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+                Back to start
+              </Button>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--surface-sand)]/50 px-3 py-1.5 text-xs font-medium text-foreground/75">
                 <Globe className="h-3.5 w-3.5" />
                 Status: Draft
