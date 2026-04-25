@@ -80,7 +80,7 @@ function Hero() {
     if (googleLoading) return;
     setGoogleLoading(true);
     try {
-      await signInWithGoogle("/dashboard");
+      await signInWithGoogle("/start");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
       setGoogleLoading(false);
@@ -137,7 +137,7 @@ function Hero() {
             <>
               <Button
                 size="lg"
-                onClick={() => transitionTo({ to: "/builder" })}
+                onClick={() => transitionTo({ to: "/start" })}
                 className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
               >
                 Open Builder

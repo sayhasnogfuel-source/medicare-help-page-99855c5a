@@ -34,7 +34,7 @@ function SigninPage() {
   const navigate = useNavigate();
   const { hydrated, user } = useAuth();
   const { redirect } = useSearch({ from: "/signin" });
-  const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/dashboard";
+  const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/start";
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -56,7 +56,7 @@ function SigninPage() {
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--surface-mocha)] border-t-transparent" />
             <div>
               <h1 className="text-xl font-semibold text-foreground">Finishing sign in…</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Taking you to your builder.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Taking you to choose how you'd like to get started.</p>
             </div>
           </div>
         </main>
