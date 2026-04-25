@@ -341,17 +341,6 @@ function WorkspacePage() {
               <ChevronDown className="h-3 w-3 opacity-60" />
             </a>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1 px-2.5 text-white/80 hover:bg-white/10 hover:text-white"
-          >
-            <Link to="/builder">
-              <Edit3 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Edit details</span>
-            </Link>
-          </Button>
           <BackToBuilderDialog />
           <Button
             variant="ghost"
