@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import {
   Upload,
   ArrowRight,
+  ArrowLeft,
   ImageIcon,
   X,
   Lock,
