@@ -560,10 +560,12 @@ function ThemePicker({
   themes,
   selectedId,
   onSelect,
+  data,
 }: {
   themes: readonly InsuranceTheme[];
   selectedId: string;
   onSelect: (id: string) => void;
+  data: BuilderData;
 }) {
   return (
     <div className="-mx-1 overflow-x-auto pb-2">
