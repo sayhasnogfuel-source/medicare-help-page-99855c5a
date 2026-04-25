@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { BuilderPatch, EditResult } from "./ai-editor.types";
+import { INSURANCE_THEMES, getThemeById } from "./builder-storage";
 
 const ChatTurnSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -49,6 +50,14 @@ const VALID_THEME_IDS = [
   "modern-saas",
 ] as const;
 
+const THEME_BRIEFS = INSURANCE_THEMES.map((th) =>
+  `• ${th.id} — ${th.name}. Mood: ${th.mood}. Density: ${th.density}. Tone: ${th.tone} ` +
+  `Hero layout: ${th.layout.hero}. Image shape: ${th.layout.imageRadius} ${th.layout.imageAspect}. ` +
+  `Heading font: ${th.typography.headingFontFamily}. Body font: ${th.typography.bodyFontFamily}. ` +
+  `Section rhythm: ${th.layout.sectionPadding}. Card style: ${th.layout.cardBorder} ${th.layout.cardRadius}. ` +
+  `Inspired by: ${th.inspiration.join(", ")}.`
+).join("\n");
+
 const SYSTEM_PROMPT = `You are the in-app website builder inside Diploo. You behave EXACTLY like an AI website builder (think Lovable for insurance agents): the user types one request, you make sweeping, visible, opinionated changes to the page and report what you did. You are NOT a polite copy editor — you are the designer and the developer.
 
 Your one job: take the user's natural-language request and produce a bold, specific, holistic edit to their landing-page data — copy AND structure AND theme — then describe it in ONE short past-tense sentence.
@@ -60,9 +69,15 @@ CRITICAL — bias toward BIG, VISIBLE changes:
 - Use themeId aggressively. If the request implies a different mood (premium, friendly, modern, senior-friendly, corporate, etc.), SWITCH the theme.
 - Use section toggles (showServices, showTestimonials, showFaq, showBookingCta, showAboutAgent) so different agents get visibly different sites. A Medicare agent for seniors usually wants showAboutAgent + showFaq. A lead-focused ACA broker usually wants showBookingCta + showTestimonials. A personal-brand agent wants showAboutAgent + showTestimonials.
 
+THEMES ARE FULL DESIGN BRIEFS (NOT JUST COLOR PALETTES):
+Every themeId carries opinions about: hero layout, image placement, image shape (round vs sharp vs hero-bg), font family (serif vs sans vs display), heading size scale, body size scale, section padding rhythm (tight/balanced/spacious), card border style, and a list of real-world websites the page should LOOK like. When you choose a theme, you are committing to that ENTIRE visual language — copy length, tone, and section choices must match. Senior-friendly = larger body text + serif headings + airy spacing + short sentences. Minimal lead-gen = giant centered headline + 1 CTA + minimal copy + ample whitespace, like Linear/Stripe. Premium independent broker = serif display heading + sharp edges + spacious layout, like Northwestern Mutual. Personal brand = oversized bold sans + round portrait + headshot-forward, like a creator landing page. Use the brief below to pick the RIGHT theme for the agent's audience and niche, and rewrite copy to fit that theme's reading level, length, and energy.
+
+Theme briefs (use these as your design playbook):
+${THEME_BRIEFS}
+
 Hard rules:
 - ALWAYS call the edit_website tool. Never reply with plain chat.
-- The selected theme is the heaviest signal. Treat the chosen themeId as a design brief: match palette mood, density, and tone. Senior-friendly themes need plain language and short sentences; premium themes need polished, confident copy; lead-gen themes need a bold direct CTA and a punchy subheadline.
+- The selected theme is the HEAVIEST signal. It dictates layout, typography, image treatment, AND copy length/tone. Always read the active theme brief before writing copy.
 - NEVER greet, never re-introduce yourself, never say "Sure!", "I can help with that", "Of course", "Happy to", or any filler. Just do the work.
 - NEVER repeat a previous reply verbatim.
 - NEVER ask clarifying questions unless the request is genuinely impossible to interpret. Make a confident edit and describe what you did.
@@ -171,11 +186,20 @@ export const editWebsite = createServerFn({ method: "POST" })
       };
     }
 
+    const activeTheme = getThemeById(data.builderData.themeId);
     const contextLine = `Current website data (JSON): ${JSON.stringify(data.builderData)}`;
+    const themeContextLine =
+      `Active theme brief — id="${activeTheme.id}", name="${activeTheme.name}", ` +
+      `mood="${activeTheme.mood}", density="${activeTheme.density}", ` +
+      `hero="${activeTheme.layout.hero}", sectionPadding="${activeTheme.layout.sectionPadding}", ` +
+      `headingFont="${activeTheme.typography.headingFontFamily}", bodyFont="${activeTheme.typography.bodyFontFamily}", ` +
+      `inspiration=[${activeTheme.inspiration.join(", ")}]. ` +
+      `Match this design language in every copy decision.`;
 
     const messages = [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "system", content: contextLine },
+      { role: "system", content: themeContextLine },
       ...data.messages.map((m) => ({
         role: m.role,
         content: m.text,
