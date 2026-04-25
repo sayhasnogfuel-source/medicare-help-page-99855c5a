@@ -553,3 +553,171 @@ function ImageUpload({
     </div>
   );
 }
+
+function ThemePicker({
+  themes,
+  selectedId,
+  onSelect,
+}: {
+  themes: readonly InsuranceTheme[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="-mx-1 overflow-x-auto pb-2">
+      <div className="flex gap-3 px-1" style={{ minWidth: "min-content" }}>
+        {themes.map((t) => {
+          const selected = selectedId === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onSelect(t.id)}
+              aria-pressed={selected}
+              className={`group relative flex w-[210px] shrink-0 flex-col overflow-hidden rounded-2xl border p-3 text-left transition-all ${
+                selected
+                  ? "border-[var(--surface-mocha)] bg-[var(--surface-sand)]/60 shadow-[var(--shadow-md)] ring-2 ring-[var(--surface-mocha)]/30"
+                  : "border-border bg-background hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-[var(--shadow-sm)]"
+              }`}
+            >
+              {(t.signature || t.recommended) && (
+                <span
+                  className="absolute right-2 top-2 z-10 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                  style={{
+                    background: t.signature ? t.palette.accent : "var(--surface-mocha)",
+                    color: t.signature ? t.palette.surface : "var(--surface-cream)",
+                  }}
+                >
+                  {t.signature ? "Flagship" : "Recommended"}
+                </span>
+              )}
+              <ThemeThumbnail theme={t} />
+              <p className="mt-2.5 truncate text-[13px] font-semibold text-foreground">{t.name}</p>
+              <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">{t.tagline}</p>
+              <p className="mt-1 line-clamp-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                {t.bestFor}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ThemeThumbnail({ theme: t }: { theme: InsuranceTheme }) {
+  const dark = t.layout.heroBackground === "dark-luxury";
+  const isCentered = t.layout.hero === "centered" || t.layout.hero === "image-bg";
+  const isImageLeft = t.layout.hero === "image-left";
+  const radius =
+    t.layout.buttonShape === "pill"
+      ? "9999px"
+      : t.layout.buttonShape === "sharp"
+        ? "0"
+        : t.layout.buttonShape === "square"
+          ? "3px"
+          : "8px";
+  const cardRadius =
+    t.layout.cardRadius === "rounded-none"
+      ? "0"
+      : t.layout.cardRadius === "rounded-3xl"
+        ? "12px"
+        : t.layout.cardRadius === "rounded-sm" || t.layout.cardRadius === "rounded-md"
+          ? "3px"
+          : "6px";
+  const headlineH = t.density === "airy" ? 5 : t.density === "dense" ? 3 : 4;
+  const bgStyle: React.CSSProperties = dark
+    ? { background: `linear-gradient(135deg, ${t.palette.primary} 0%, ${t.palette.contrast || "#000"} 100%)` }
+    : t.layout.heroBackground === "warm-gradient"
+      ? { background: `linear-gradient(135deg, ${t.palette.surface}, ${t.palette.accent2 || t.palette.accent}33)` }
+      : t.layout.heroBackground === "mesh-glow"
+        ? { background: `radial-gradient(80% 60% at 30% 20%, ${t.palette.accent}33, transparent 70%), ${t.palette.surface}` }
+        : { background: t.palette.surface };
+  const fg = dark ? t.palette.surface : t.palette.text;
+  const showImage = !isCentered;
+
+  return (
+    <div
+      className="relative flex h-[110px] w-full flex-col overflow-hidden rounded-lg border border-border/50 p-2"
+      style={bgStyle}
+    >
+      {/* mini header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: t.palette.primary }} />
+          <span className="block h-1 w-6 rounded-full" style={{ background: fg, opacity: 0.5 }} />
+        </div>
+        <span
+          className="block h-2 w-6"
+          style={{ background: t.palette.accent, borderRadius: radius }}
+        />
+      </div>
+      {/* hero body */}
+      <div className={`mt-2 flex flex-1 gap-2 ${isImageLeft ? "flex-row-reverse" : "flex-row"}`}>
+        <div className={`flex flex-1 flex-col justify-center gap-1 ${isCentered ? "items-center" : "items-start"}`}>
+          {Array.from({ length: headlineH }).map((_, i) => (
+            <span
+              key={i}
+              className="block h-1 rounded-full"
+              style={{
+                width: `${[80, 65, 55, 70, 45][i % 5]}%`,
+                background: fg,
+                opacity: i === 0 ? 0.95 : 0.4,
+              }}
+            />
+          ))}
+          <span
+            className="mt-1 inline-block h-2.5"
+            style={{
+              width: "38%",
+              background:
+                t.layout.buttonStyle === "gradient"
+                  ? `linear-gradient(90deg, ${t.palette.accent}, ${t.palette.accent2 || t.palette.primary})`
+                  : t.layout.buttonStyle === "outline-bold" || t.layout.buttonStyle === "ghost-underline"
+                    ? "transparent"
+                    : t.palette.primary,
+              border:
+                t.layout.buttonStyle === "outline-bold" || t.layout.buttonStyle === "ghost-underline"
+                  ? `1px solid ${fg}`
+                  : "none",
+              borderRadius: radius,
+              boxShadow: t.layout.buttonStyle === "glow" ? `0 0 8px ${t.palette.accent}` : "none",
+            }}
+          />
+        </div>
+        {showImage && (
+          <div
+            className="shrink-0"
+            style={{
+              width: "32%",
+              background: t.palette.accent2 || t.palette.accent,
+              opacity: 0.7,
+              borderRadius:
+                t.layout.imageRadius === "rounded-full"
+                  ? "9999px"
+                  : t.layout.imageRadius === "rounded-none"
+                    ? "0"
+                    : "6px",
+              aspectRatio:
+                t.layout.imageAspect === "aspect-square"
+                  ? "1/1"
+                  : t.layout.imageAspect === "aspect-video"
+                    ? "16/9"
+                    : "3/4",
+            }}
+          />
+        )}
+      </div>
+      {/* trust strip / footer */}
+      <div className="mt-1 flex items-center gap-1">
+        {Array.from({ length: t.density === "dense" ? 5 : 3 }).map((_, i) => (
+          <span
+            key={i}
+            className="block h-0.5 flex-1"
+            style={{ background: fg, opacity: 0.25, borderRadius: cardRadius }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
