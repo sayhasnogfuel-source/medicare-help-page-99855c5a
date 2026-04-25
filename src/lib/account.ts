@@ -144,6 +144,56 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
+/* ------------------------------------------------------------------ */
+/* Sign-out overlay broadcaster                                        */
+/* ------------------------------------------------------------------ */
+
+type SignOutListener = (active: boolean) => void;
+const signOutListeners = new Set<SignOutListener>();
+let signOutActive = false;
+
+export function subscribeSignOut(listener: SignOutListener): () => void {
+  signOutListeners.add(listener);
+  listener(signOutActive);
+  return () => {
+    signOutListeners.delete(listener);
+  };
+}
+
+function setSignOutActive(value: boolean) {
+  signOutActive = value;
+  for (const fn of signOutListeners) fn(value);
+}
+
+/**
+ * Sign the user out while showing a full-screen loading overlay, then
+ * navigate them back to the home screen. The overlay is guaranteed to be
+ * visible for ~900ms so the transition feels intentional even if sign-out
+ * resolves instantly.
+ */
+export async function signOutWithRedirect() {
+  if (signOutActive) return;
+  setSignOutActive(true);
+  const startedAt = Date.now();
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    // ignore — we still want to send the user home
+  }
+  const MIN_VISIBLE_MS = 900;
+  const elapsed = Date.now() - startedAt;
+  const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
+  await new Promise((resolve) => setTimeout(resolve, remaining));
+  if (typeof window !== "undefined") {
+    // Hard navigation guarantees a clean state (no stale auth context, no
+    // protected route flicker) before the overlay fades.
+    window.location.assign("/");
+  }
+  // Keep the overlay visible during the navigation; it will unmount on
+  // page load. As a safety net, clear it after a short delay.
+  setTimeout(() => setSignOutActive(false), 1500);
+}
+
 /**
  * Backwards-compatible hook. Reads from the centralized AuthProvider so
  * every consumer sees the exact same auth snapshot — no more independent
