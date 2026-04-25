@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Clock, HandHelping, Rocket, Sparkles, UserPlus } from "lucide-react";
 import { AuthGuard } from "@/components/app/auth-guard";
-import { signInWithGoogle } from "@/lib/account";
+import { signInWithGoogle, useAccount } from "@/lib/account";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -42,6 +42,7 @@ function GuardedStartPage() {
 function StartPage() {
   const { transitionTo } = usePageTransition();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const { signedIn } = useAccount();
   const handleGoogle = async () => {
     if (googleLoading) return;
     setGoogleLoading(true);
@@ -57,7 +58,8 @@ function StartPage() {
       <AppHeader />
       <PageTransition>
         <main className="flex-1">
-          {/* Hero with primary entry CTAs */}
+          {/* Hero with primary entry CTAs — only for signed-out visitors */}
+          {!signedIn && (
           <section
             className="relative overflow-hidden"
             style={{ background: "var(--gradient-hero)" }}
@@ -118,13 +120,16 @@ function StartPage() {
               </p>
             </div>
           </section>
+          )}
 
           {/* Choice section */}
-          <section className="mx-auto max-w-5xl px-5 pb-16 pt-6 sm:pb-24">
+          <section className={`mx-auto max-w-5xl px-5 pb-16 sm:pb-24 ${signedIn ? "pt-16 sm:pt-24" : "pt-6"}`}>
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Or pick a path
-              </p>
+              {!signedIn && (
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Or pick a path
+                </p>
+              )}
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
                 How would you like to get started?
               </h2>
