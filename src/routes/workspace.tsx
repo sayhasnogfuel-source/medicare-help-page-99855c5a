@@ -543,6 +543,9 @@ function WorkspacePage() {
                   className="ml-1 flex h-6 w-6 items-center justify-center rounded text-foreground/55 hover:text-foreground"
                   aria-label="Open preview in new tab"
                   title="Open in new tab"
+                  onClick={() => {
+                    if (data) saveBuilder(data);
+                  }}
                 >
                   <ExternalLink className="h-3 w-3" />
                 </a>
