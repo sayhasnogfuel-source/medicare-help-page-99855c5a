@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { z } from "zod";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { signInWithEmail, signInWithGoogle, useAuth } from "@/lib/account";
+import { signInWithEmail, useAuth } from "@/lib/account";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -36,7 +36,6 @@ function SigninPage() {
   const { redirect } = useSearch({ from: "/signin" });
   const safeRedirect = redirect && redirect.startsWith("/") ? redirect : "/start";
   const [submitting, setSubmitting] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetting, setResetting] = useState(false);
   const [showReset, setShowReset] = useState(false);
@@ -88,10 +87,7 @@ function SigninPage() {
             <Card className="rounded-3xl border-border/60 bg-background p-7 shadow-[var(--shadow-lg)] sm:p-10">
               <h2 className="text-2xl font-semibold tracking-tight text-foreground">Sign in</h2>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link to="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
-                  Create one
-                </Link>
+                Welcome back — enter your details to continue.
               </p>
 
               {!showReset ? (
@@ -147,34 +143,6 @@ function SigninPage() {
                     className="w-full rounded-full bg-[var(--surface-mocha)] text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)]"
                   >
                     {submitting ? "Signing in…" : "Sign in"}
-                  </Button>
-
-                  <div className="relative my-2">
-                    <div className="h-px bg-border" />
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                      or
-                    </span>
-                  </div>
-
-                  <Button
-                    type="button"
-                    size="lg"
-                    variant="outline"
-                    disabled={googleLoading}
-                    className="w-full rounded-full border-foreground/20 bg-background text-base font-semibold text-foreground hover:bg-secondary hover:text-foreground"
-                    onClick={async () => {
-                      if (googleLoading) return;
-                      setGoogleLoading(true);
-                      try {
-                        await signInWithGoogle(safeRedirect);
-                      } catch (err) {
-                        toast.error(err instanceof Error ? err.message : "Google sign-in failed");
-                        setGoogleLoading(false);
-                      }
-                    }}
-                  >
-                    <SigninGoogleGlyph />
-                    {googleLoading ? "Connecting…" : "Continue with Google"}
                   </Button>
                 </form>
               ) : (
@@ -242,13 +210,4 @@ function SigninPage() {
   );
 }
 
-function SigninGoogleGlyph() {
-  return (
-    <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48" aria-hidden>
-      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.7-5.7C33.6 6.1 29.1 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z" />
-      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.4 19 12 24 12c3 0 5.7 1.1 7.8 3l5.7-5.7C33.6 6.1 29.1 4 24 4 16.3 4 9.7 8.4 6.3 14.7z" />
-      <path fill="#4CAF50" d="M24 44c5 0 9.6-1.9 13-5l-6-5.1C29.1 35.5 26.7 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.6 5.1C9.5 39.5 16.2 44 24 44z" />
-      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4-4 5.4l6 5.1C40.7 34.7 44 30.1 44 24c0-1.3-.1-2.3-.4-3.5z" />
-    </svg>
-  );
-}
+

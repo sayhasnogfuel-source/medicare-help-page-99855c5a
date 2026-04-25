@@ -47,6 +47,44 @@ export interface InsuranceTheme {
   density: "airy" | "balanced" | "dense";
   /** Mood label shown in UI. */
   mood: string;
+  /** Real-world sites this theme is inspired by. The AI should mimic their
+   *  layout, typography, and image treatment — not their copy. */
+  inspiration: readonly string[];
+  /** Typographic personality. Affects font sizing, weight, and tracking
+   *  in the generated landing. */
+  typography: {
+    /** Hero headline scale class (Tailwind). */
+    heroHeadline: string;
+    /** Section heading scale class. */
+    sectionHeading: string;
+    /** Body text scale class. */
+    body: string;
+    /** Heading font weight class. */
+    headingWeight: string;
+    /** Letter-spacing on headings. */
+    headingTracking: string;
+    /** Heading font family stack (CSS value). */
+    headingFontFamily: string;
+    /** Body font family stack (CSS value). */
+    bodyFontFamily: string;
+  };
+  /** Layout instructions: hero shape, image placement, section rhythm. */
+  layout: {
+    /** Hero column split. "image-right" | "image-left" | "image-bg" | "centered". */
+    hero: "image-right" | "image-left" | "image-bg" | "centered";
+    /** Vertical rhythm between sections. */
+    sectionPadding: "tight" | "balanced" | "spacious";
+    /** Container max-width class. */
+    maxWidth: string;
+    /** Card radius for benefit/feature cards. */
+    cardRadius: string;
+    /** Image radius for the hero portrait. */
+    imageRadius: string;
+    /** Image aspect ratio for the hero portrait. */
+    imageAspect: string;
+    /** Border treatment for cards. */
+    cardBorder: "soft" | "hard" | "none";
+  };
 }
 
 export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
@@ -60,6 +98,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Educational, clear, calm authority. Plain-language explanations.",
     density: "balanced",
     mood: "Navy / white · trustworthy",
+    inspiration: ["humana.com", "ehealthinsurance.com", "boomerbenefits.com"],
+    typography: {
+      heroHeadline: "text-4xl sm:text-5xl lg:text-6xl",
+      sectionHeading: "text-3xl sm:text-4xl",
+      body: "text-base sm:text-lg",
+      headingWeight: "font-semibold",
+      headingTracking: "tracking-tight",
+      headingFontFamily: "'Inter', system-ui, sans-serif",
+      bodyFontFamily: "'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-right",
+      sectionPadding: "balanced",
+      maxWidth: "max-w-6xl",
+      cardRadius: "rounded-2xl",
+      imageRadius: "rounded-[2rem]",
+      imageAspect: "aspect-[4/5]",
+      cardBorder: "soft",
+    },
   },
   {
     id: "warm-local-advisor",
@@ -70,6 +127,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Warm, neighborly, relationship-first. We answer the phone.",
     density: "airy",
     mood: "Cream / camel · welcoming",
+    inspiration: ["statefarm.com agent micro-sites", "edwardjones.com advisor pages", "allstate.com local agent"],
+    typography: {
+      heroHeadline: "text-4xl sm:text-5xl",
+      sectionHeading: "text-2xl sm:text-3xl",
+      body: "text-lg",
+      headingWeight: "font-semibold",
+      headingTracking: "tracking-normal",
+      headingFontFamily: "'Fraunces', Georgia, serif",
+      bodyFontFamily: "'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-left",
+      sectionPadding: "spacious",
+      maxWidth: "max-w-5xl",
+      cardRadius: "rounded-3xl",
+      imageRadius: "rounded-full",
+      imageAspect: "aspect-square",
+      cardBorder: "soft",
+    },
   },
   {
     id: "premium-independent-broker",
@@ -80,6 +156,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Polished, modern business, confidence without being stuffy.",
     density: "balanced",
     mood: "Charcoal / gold · premium",
+    inspiration: ["northwesternmutual.com", "morganstanley.com fa pages", "jpmorgan.com private bank"],
+    typography: {
+      heroHeadline: "text-5xl sm:text-6xl lg:text-7xl",
+      sectionHeading: "text-3xl sm:text-4xl",
+      body: "text-base sm:text-lg",
+      headingWeight: "font-medium",
+      headingTracking: "-tracking-[0.02em]",
+      headingFontFamily: "'Playfair Display', 'Times New Roman', serif",
+      bodyFontFamily: "'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-bg",
+      sectionPadding: "spacious",
+      maxWidth: "max-w-7xl",
+      cardRadius: "rounded-none",
+      imageRadius: "rounded-none",
+      imageAspect: "aspect-[3/4]",
+      cardBorder: "hard",
+    },
   },
   {
     id: "aca-enrollment",
@@ -90,6 +185,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Action-first, simple steps, deadline-aware, energetic.",
     density: "balanced",
     mood: "Teal / cyan · energetic",
+    inspiration: ["healthsherpa.com", "stride.health", "healthcare.gov"],
+    typography: {
+      heroHeadline: "text-5xl sm:text-6xl",
+      sectionHeading: "text-3xl sm:text-4xl",
+      body: "text-base sm:text-lg",
+      headingWeight: "font-bold",
+      headingTracking: "-tracking-[0.025em]",
+      headingFontFamily: "'Inter', system-ui, sans-serif",
+      bodyFontFamily: "'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "centered",
+      sectionPadding: "tight",
+      maxWidth: "max-w-5xl",
+      cardRadius: "rounded-xl",
+      imageRadius: "rounded-2xl",
+      imageAspect: "aspect-[4/3]",
+      cardBorder: "soft",
+    },
   },
   {
     id: "senior-friendly",
@@ -100,6 +214,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Patient, educational, larger spacing, no jargon.",
     density: "airy",
     mood: "Soft blue · gentle",
+    inspiration: ["aarp.org/medicare", "medicare.gov", "boomerbenefits.com"],
+    typography: {
+      heroHeadline: "text-3xl sm:text-4xl lg:text-5xl",
+      sectionHeading: "text-2xl sm:text-3xl",
+      body: "text-lg sm:text-xl",
+      headingWeight: "font-semibold",
+      headingTracking: "tracking-normal",
+      headingFontFamily: "'Source Serif Pro', Georgia, serif",
+      bodyFontFamily: "'Source Sans Pro', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-right",
+      sectionPadding: "spacious",
+      maxWidth: "max-w-5xl",
+      cardRadius: "rounded-2xl",
+      imageRadius: "rounded-3xl",
+      imageAspect: "aspect-[4/5]",
+      cardBorder: "soft",
+    },
   },
   {
     id: "minimal-leadgen",
@@ -110,6 +243,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Direct, benefit-driven, single bold CTA.",
     density: "airy",
     mood: "White / black · focused",
+    inspiration: ["linear.app", "stripe.com", "vercel.com"],
+    typography: {
+      heroHeadline: "text-6xl sm:text-7xl lg:text-8xl",
+      sectionHeading: "text-4xl sm:text-5xl",
+      body: "text-lg",
+      headingWeight: "font-bold",
+      headingTracking: "-tracking-[0.04em]",
+      headingFontFamily: "'Inter', system-ui, sans-serif",
+      bodyFontFamily: "'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "centered",
+      sectionPadding: "spacious",
+      maxWidth: "max-w-4xl",
+      cardRadius: "rounded-lg",
+      imageRadius: "rounded-lg",
+      imageAspect: "aspect-video",
+      cardBorder: "none",
+    },
   },
   {
     id: "corporate-agency",
@@ -120,6 +272,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Formal, credible, structured services and team sections.",
     density: "dense",
     mood: "Slate / steel · corporate",
+    inspiration: ["marsh.com", "aon.com", "wtwco.com"],
+    typography: {
+      heroHeadline: "text-4xl sm:text-5xl",
+      sectionHeading: "text-2xl sm:text-3xl",
+      body: "text-sm sm:text-base",
+      headingWeight: "font-semibold",
+      headingTracking: "tracking-tight",
+      headingFontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+      bodyFontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-left",
+      sectionPadding: "tight",
+      maxWidth: "max-w-7xl",
+      cardRadius: "rounded-md",
+      imageRadius: "rounded-md",
+      imageAspect: "aspect-[3/4]",
+      cardBorder: "hard",
+    },
   },
   {
     id: "personal-brand",
@@ -131,6 +302,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Personal voice, headshot-forward, story + social proof.",
     density: "balanced",
     mood: "Plum / amber · personal",
+    inspiration: ["alexhormozi.com", "marieforleo.com", "ramit.com"],
+    typography: {
+      heroHeadline: "text-5xl sm:text-6xl lg:text-7xl",
+      sectionHeading: "text-3xl sm:text-4xl",
+      body: "text-lg",
+      headingWeight: "font-bold",
+      headingTracking: "-tracking-[0.03em]",
+      headingFontFamily: "'Cabinet Grotesk', 'Inter', system-ui, sans-serif",
+      bodyFontFamily: "'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-left",
+      sectionPadding: "balanced",
+      maxWidth: "max-w-6xl",
+      cardRadius: "rounded-3xl",
+      imageRadius: "rounded-[3rem]",
+      imageAspect: "aspect-square",
+      cardBorder: "soft",
+    },
   },
   {
     id: "community-family",
@@ -141,6 +331,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Warm, family-oriented, service to the community.",
     density: "balanced",
     mood: "Green / orange · welcoming",
+    inspiration: ["nationwide.com agent pages", "farmers.com agent locator", "country financial advisor pages"],
+    typography: {
+      heroHeadline: "text-4xl sm:text-5xl",
+      sectionHeading: "text-3xl",
+      body: "text-base sm:text-lg",
+      headingWeight: "font-semibold",
+      headingTracking: "tracking-normal",
+      headingFontFamily: "'DM Serif Display', Georgia, serif",
+      bodyFontFamily: "'DM Sans', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "image-right",
+      sectionPadding: "balanced",
+      maxWidth: "max-w-6xl",
+      cardRadius: "rounded-2xl",
+      imageRadius: "rounded-[2rem]",
+      imageAspect: "aspect-[4/5]",
+      cardBorder: "soft",
+    },
   },
   {
     id: "modern-saas",
@@ -151,6 +360,25 @@ export const INSURANCE_THEMES: readonly InsuranceTheme[] = [
     tone: "Sleek, modern, premium cards, subtle motion, clear value.",
     density: "balanced",
     mood: "Indigo / violet · futuristic",
+    inspiration: ["linear.app", "framer.com", "arc.net"],
+    typography: {
+      heroHeadline: "text-5xl sm:text-6xl lg:text-7xl",
+      sectionHeading: "text-3xl sm:text-4xl",
+      body: "text-base sm:text-lg",
+      headingWeight: "font-semibold",
+      headingTracking: "-tracking-[0.035em]",
+      headingFontFamily: "'Geist', 'Inter', system-ui, sans-serif",
+      bodyFontFamily: "'Geist', 'Inter', system-ui, sans-serif",
+    },
+    layout: {
+      hero: "centered",
+      sectionPadding: "spacious",
+      maxWidth: "max-w-6xl",
+      cardRadius: "rounded-2xl",
+      imageRadius: "rounded-2xl",
+      imageAspect: "aspect-[4/5]",
+      cardBorder: "soft",
+    },
   },
 ];
 

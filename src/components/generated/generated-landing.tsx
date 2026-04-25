@@ -119,7 +119,113 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
     ["--surface-camel" as string]: theme.palette.accent,
     ["--surface-beige" as string]: theme.palette.surface,
     color: theme.palette.text,
+    fontFamily: theme.typography.bodyFontFamily,
   } as React.CSSProperties;
+
+  const headingFont = { fontFamily: theme.typography.headingFontFamily } as React.CSSProperties;
+  const t = theme.typography;
+  const L = theme.layout;
+  const sectionPad =
+    L.sectionPadding === "tight"
+      ? "py-10 sm:py-14"
+      : L.sectionPadding === "spacious"
+        ? "py-20 sm:py-28"
+        : "py-16 sm:py-20";
+  const cardBorderClass =
+    L.cardBorder === "none" ? "border-0" : L.cardBorder === "hard" ? "border-2 border-foreground/15" : "border border-border/60";
+
+  // Hero layout permutations driven by the theme
+  const heroGridClass =
+    L.hero === "centered"
+      ? "grid items-center gap-10 px-5 py-14 lg:py-20 text-center"
+      : L.hero === "image-left"
+        ? "grid items-center gap-10 px-5 py-14 lg:grid-cols-[1fr_1.15fr] lg:gap-14 lg:py-20"
+        : L.hero === "image-bg"
+          ? "relative grid items-end gap-10 px-5 py-24 lg:py-32 text-center text-[var(--surface-cream)]"
+          : "grid items-center gap-10 px-5 py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-20";
+
+  const portrait = (
+    <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+      <div
+        className={`relative overflow-hidden ${L.imageRadius} ${cardBorderClass} bg-background shadow-[var(--shadow-lg)]`}
+      >
+        {data.headshotDataUrl ? (
+          <img
+            src={data.headshotDataUrl}
+            alt={data.agentName}
+            className={`${L.imageAspect} h-full w-full object-cover`}
+          />
+        ) : (
+          <div
+            className={`flex ${L.imageAspect} items-center justify-center bg-[var(--gradient-warm)]`}
+          >
+            <span className="flex h-32 w-32 items-center justify-center rounded-full bg-[var(--surface-mocha)] text-3xl font-semibold text-[var(--surface-cream)]">
+              {initials(data.agentName)}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border bg-background px-5 py-2.5 text-center shadow-[var(--shadow-md)]">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Your {typeLabel} guide
+        </p>
+        <p className="text-sm font-semibold text-foreground">{data.agentName}</p>
+      </div>
+    </div>
+  );
+
+  const heroCopy = (
+    <div className={L.hero === "centered" || L.hero === "image-bg" ? "mx-auto max-w-3xl" : ""}>
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-foreground/70 shadow-[var(--shadow-xs)]">
+        <Sparkles className="h-3 w-3" />
+        Local {typeLabel} guidance
+      </span>
+      <h1
+        className={`mt-4 ${t.heroHeadline} ${t.headingWeight} ${t.headingTracking} leading-[1.05]`}
+        style={headingFont}
+      >
+        {data.headline}
+      </h1>
+      <p className={`mt-5 max-w-xl ${t.body} text-foreground/75 ${L.hero === "centered" || L.hero === "image-bg" ? "mx-auto" : ""}`}>
+        {data.subheadline}
+      </p>
+      <div className={`mt-8 flex flex-col gap-3 sm:flex-row ${L.hero === "centered" || L.hero === "image-bg" ? "justify-center" : ""}`}>
+        <a href="#lead-form">
+          <Button
+            size="lg"
+            className="w-full rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)] sm:w-auto"
+          >
+            {cta}
+          </Button>
+        </a>
+        <a href={`tel:${data.phone}`}>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full rounded-full border-foreground/20 bg-background/60 px-7 text-base font-semibold text-foreground hover:bg-background sm:w-auto"
+          >
+            <Phone className="mr-1 h-4 w-4" />
+            {data.phone}
+          </Button>
+        </a>
+      </div>
+      {L.hero !== "image-bg" && (
+        <ul className={`mt-8 grid gap-2.5 sm:grid-cols-2 ${L.hero === "centered" ? "max-w-xl mx-auto text-left" : ""}`}>
+          {[
+            "Free, no-pressure consultation",
+            "Licensed local agent",
+            `Serving ${data.city}, ${data.state}`,
+            "Friendly, plain-language help",
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-2 text-sm text-foreground/80">
+              <Check className="mt-0.5 h-4 w-4 text-[var(--surface-mocha)]" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 
   return (
     <div
@@ -129,7 +235,7 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
     >
       {/* Header */}
       <header className="border-b border-border/60 bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
+        <div className={`mx-auto flex ${L.maxWidth} items-center justify-between gap-4 px-5 py-3.5`}>
           <div className="flex items-center gap-3">
             {data.logoDataUrl ? (
               <img src={data.logoDataUrl} alt={`${data.businessName} logo`} className="h-10 w-auto rounded-md object-contain" />
@@ -156,75 +262,35 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
         className="relative overflow-hidden"
         style={{ background: "var(--gradient-hero)" }}
       >
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-20">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-foreground/70 shadow-[var(--shadow-xs)]">
-              <Sparkles className="h-3 w-3" />
-              Local {typeLabel} guidance
-            </span>
-            <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem]">
-              {data.headline}
-            </h1>
-            <p className="mt-5 max-w-xl text-lg text-foreground/75">{data.subheadline}</p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a href="#lead-form">
-                <Button size="lg" className="w-full rounded-full bg-[var(--surface-mocha)] px-7 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] hover:bg-[var(--surface-espresso)] sm:w-auto">
-                  {cta}
-                </Button>
-              </a>
-              <a href={`tel:${data.phone}`}>
-                <Button size="lg" variant="outline" className="w-full rounded-full border-foreground/20 bg-background/60 px-7 text-base font-semibold text-foreground hover:bg-background sm:w-auto">
-                  <Phone className="mr-1 h-4 w-4" />
-                  {data.phone}
-                </Button>
-              </a>
-            </div>
-
-            <ul className="mt-8 grid gap-2.5 sm:grid-cols-2">
-              {[
-                "Free, no-pressure consultation",
-                "Licensed local agent",
-                `Serving ${data.city}, ${data.state}`,
-                "Friendly, plain-language help",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-foreground/80">
-                  <Check className="mt-0.5 h-4 w-4 text-[var(--surface-mocha)]" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-background shadow-[var(--shadow-lg)]">
-              {data.headshotDataUrl ? (
-                <img src={data.headshotDataUrl} alt={data.agentName} className="aspect-[4/5] h-full w-full object-cover" />
-              ) : (
-                <div className="flex aspect-[4/5] items-center justify-center bg-[var(--gradient-warm)]">
-                  <span className="flex h-32 w-32 items-center justify-center rounded-full bg-[var(--surface-mocha)] text-3xl font-semibold text-[var(--surface-cream)]">
-                    {initials(data.agentName)}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border bg-background px-5 py-2.5 text-center shadow-[var(--shadow-md)]">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Your {typeLabel} guide</p>
-              <p className="text-sm font-semibold text-foreground">{data.agentName}</p>
-            </div>
-          </div>
+        <div className={`mx-auto ${L.maxWidth} ${heroGridClass}`}>
+          {L.hero === "image-left" ? (
+            <>
+              {portrait}
+              {heroCopy}
+            </>
+          ) : L.hero === "centered" || L.hero === "image-bg" ? (
+            heroCopy
+          ) : (
+            <>
+              {heroCopy}
+              {portrait}
+            </>
+          )}
         </div>
       </section>
 
       {/* About / trust */}
       {showAboutAgent && (
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+      <section className={`mx-auto ${L.maxWidth} px-5 ${sectionPad}`}>
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">About {data.businessName}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          <h2
+            className={`mt-3 ${t.sectionHeading} ${t.headingWeight} ${t.headingTracking} text-foreground`}
+            style={headingFont}
+          >
             Real help from a local agent who actually picks up the phone
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className={`mt-4 ${t.body} text-muted-foreground`}>
             Hi, I'm {data.agentName}. I help neighbors in {data.city}, {data.state} navigate {typeLabel} with
             clarity and care — no pressure, no jargon, just straight answers.
           </p>
@@ -244,17 +310,23 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
 
       {/* Benefits */}
       {showServices && (
-      <section className="bg-[var(--surface-sand)]/60 py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-5">
+      <section className={`bg-[var(--surface-sand)]/60 ${sectionPad}`}>
+        <div className={`mx-auto ${L.maxWidth} px-5`}>
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Why work with us</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h2
+              className={`mt-3 ${t.sectionHeading} ${t.headingWeight} ${t.headingTracking} text-foreground`}
+              style={headingFont}
+            >
               Built around what actually matters to you
             </h2>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-3">
             {benefits.map((b) => (
-              <Card key={b.title} className="rounded-2xl border-border/60 bg-background p-7 shadow-[var(--shadow-sm)]">
+              <Card
+                key={b.title}
+                className={`${L.cardRadius} ${cardBorderClass} bg-background p-7 shadow-[var(--shadow-sm)]`}
+              >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--surface-beige)] text-[var(--surface-mocha)]">
                   <b.icon className="h-5 w-5" />
                 </span>
@@ -269,8 +341,8 @@ export function GeneratedLanding({ data }: { data: BuilderData }) {
 
       {/* Testimonial strip */}
       {showTestimonials && (
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <div className="rounded-3xl border border-border/60 bg-background p-8 shadow-[var(--shadow-sm)] sm:p-12">
+      <section className={`mx-auto ${L.maxWidth} px-5 py-16`}>
+        <div className={`${L.cardRadius} ${cardBorderClass} bg-background p-8 shadow-[var(--shadow-sm)] sm:p-12`}>
           <div className="flex items-center gap-1 text-[var(--surface-camel)]">
             {[0, 1, 2, 3, 4].map((i) => (
               <Star key={i} className="h-4.5 w-4.5 fill-current" />
