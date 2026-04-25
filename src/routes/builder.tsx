@@ -592,7 +592,7 @@ function ThemePicker({
                   {t.signature ? "Flagship" : "Recommended"}
                 </span>
               )}
-              <ThemeThumbnail theme={t} />
+              <ThemeThumbnail theme={t} data={data} />
               <p className="mt-2.5 truncate text-[13px] font-semibold text-foreground">{t.name}</p>
               <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">{t.tagline}</p>
               <p className="mt-1 line-clamp-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
