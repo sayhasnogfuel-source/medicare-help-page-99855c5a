@@ -16,16 +16,11 @@ export const Route = createFileRoute("/preview")({
 });
 
 function PreviewPage() {
-  // Read localStorage synchronously on first client render so the new tab
-  // never flashes a "nothing to preview" state when data is actually present.
-  const [data, setData] = useState<BuilderData | null>(() => {
-    if (typeof window === "undefined") return null;
-    return loadBuilder();
-  });
-  const [hydrated, setHydrated] = useState(typeof window !== "undefined");
+  // Always start with `null` on both server and first client render so SSR
+  // and hydration markup match exactly. Then read localStorage in an effect.
+  const [data, setData] = useState<BuilderData | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
-  // Re-read on mount (covers SSR -> client handoff) and listen for cross-tab
-  // updates so the preview tab refreshes when the workspace saves new data.
   useEffect(() => {
     setData(loadBuilder());
     setHydrated(true);
@@ -35,12 +30,20 @@ function PreviewPage() {
       }
     };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    // Also re-read when the tab becomes visible — covers cases where the
+    // workspace saved new data while this tab was in the background.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setData(loadBuilder());
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
-  // Avoid showing the empty state during the very first paint while we
-  // confirm whether localStorage has data — prevents a brown flash when the
-  // user opens preview in a brand new tab.
+  // Render a neutral cream surface during SSR + first paint to avoid a brown
+ // flash before localStorage hydration finishes.
   if (!hydrated) {
     return <div className="min-h-screen bg-background" />;
   }
