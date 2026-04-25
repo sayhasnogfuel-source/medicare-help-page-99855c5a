@@ -609,7 +609,17 @@ function ThemePicker({
   );
 }
 
-function ThemeThumbnail({ theme: t }: { theme: InsuranceTheme }) {
+function ThemeThumbnail({ theme: t, data }: { theme: InsuranceTheme; data: BuilderData }) {
+  // Use the real theme component as a mini preview so each theme's actual
+  // layout/identity shows in the picker. ThemeMini reads data.themeId.
+  return (
+    <div className="relative h-[110px] w-full overflow-hidden rounded-lg border border-border/50">
+      <ThemeMini data={{ ...data, themeId: t.id }} />
+    </div>
+  );
+}
+
+function ThemeThumbnailLegacy({ theme: t }: { theme: InsuranceTheme }) {
   const dark = t.layout.heroBackground === "dark-luxury";
   const isCentered = t.layout.hero === "centered" || t.layout.hero === "image-bg";
   const isImageLeft = t.layout.hero === "image-left";
