@@ -28,6 +28,7 @@ import {
   type BuilderData,
   type ContactMethod,
 } from "@/lib/builder-storage";
+import type { InsuranceTheme } from "@/lib/builder-storage";
 import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
