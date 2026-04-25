@@ -496,7 +496,7 @@ function FinalCta() {
         <div className="mt-2 flex flex-col gap-3 sm:flex-row">
           <Button
             size="lg"
-            onClick={() => transitionTo({ to: signedIn ? "/builder" : "/start" })}
+            onClick={() => transitionTo({ to: "/start" })}
             className="rounded-full bg-[var(--surface-cream)] px-7 text-base font-semibold text-[var(--surface-espresso)] hover:bg-white"
           >
             {signedIn ? "Open Builder" : "Get Started"}
