@@ -34,7 +34,6 @@ import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
 import { AuthGuard } from "@/components/app/auth-guard";
 import { ThemeMini } from "@/components/themes/registry";
-import type { BuilderData } from "@/lib/builder-storage";
 
 export const Route = createFileRoute("/builder")({
   component: GuardedBuilderPage,
