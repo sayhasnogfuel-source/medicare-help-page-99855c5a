@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import { useBuilderData } from "@/lib/builder-storage";
+import { useState, useEffect } from "react";
+import { loadBuilder, type BuilderData } from "@/lib/builder-storage";
 import { ThemeLanding } from "@/components/themes/registry";
-import { AuthGuard } from "@/components/app/auth-guard";
 
 export const Route = createFileRoute("/preview")({
-  component: GuardedPreviewPage,
+  component: PreviewPage,
   head: () => ({
     meta: [
       { title: "Preview — Diploo" },
@@ -15,16 +15,35 @@ export const Route = createFileRoute("/preview")({
   }),
 });
 
-function GuardedPreviewPage() {
-  return (
-    <AuthGuard>
-      <PreviewPage />
-    </AuthGuard>
-  );
-}
-
 function PreviewPage() {
-  const data = useBuilderData();
+  // Read localStorage synchronously on first client render so the new tab
+  // never flashes a "nothing to preview" state when data is actually present.
+  const [data, setData] = useState<BuilderData | null>(() => {
+    if (typeof window === "undefined") return null;
+    return loadBuilder();
+  });
+  const [hydrated, setHydrated] = useState(typeof window !== "undefined");
+
+  // Re-read on mount (covers SSR -> client handoff) and listen for cross-tab
+  // updates so the preview tab refreshes when the workspace saves new data.
+  useEffect(() => {
+    setData(loadBuilder());
+    setHydrated(true);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith("lp_builder_data")) {
+        setData(loadBuilder());
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Avoid showing the empty state during the very first paint while we
+  // confirm whether localStorage has data — prevents a brown flash when the
+  // user opens preview in a brand new tab.
+  if (!hydrated) {
+    return <div className="min-h-screen bg-background" />;
+  }
 
   if (data === null) {
     return (

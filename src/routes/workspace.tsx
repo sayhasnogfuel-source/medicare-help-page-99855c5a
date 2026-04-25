@@ -335,7 +335,14 @@ function WorkspacePage() {
             size="sm"
             className="h-8 gap-1 px-2.5 text-white/80 hover:bg-white/10 hover:text-white"
           >
-            <a href="/preview" target="_blank" rel="noreferrer">
+            <a
+              href="/preview"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => {
+                if (data) saveBuilder(data);
+              }}
+            >
               <ExternalLink className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Preview</span>
               <ChevronDown className="h-3 w-3 opacity-60" />
@@ -536,6 +543,9 @@ function WorkspacePage() {
                   className="ml-1 flex h-6 w-6 items-center justify-center rounded text-foreground/55 hover:text-foreground"
                   aria-label="Open preview in new tab"
                   title="Open in new tab"
+                  onClick={() => {
+                    if (data) saveBuilder(data);
+                  }}
                 >
                   <ExternalLink className="h-3 w-3" />
                 </a>
