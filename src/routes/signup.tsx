@@ -91,10 +91,11 @@ function SignupPage() {
                   // If email confirmation is on the user has no session yet —
                   // the callback page will time out gracefully and send them
                   // to /signin with a toast. If the session is already live
-                  // it will forward straight to /dashboard.
+                  // it will forward straight to the start screen so they can
+                  // pick how they want to launch.
                   navigate({
                     to: "/auth/callback",
-                    search: { redirect: "/dashboard" } as never,
+                    search: { redirect: "/start" } as never,
                     replace: true,
                   });
                 } catch (err) {
@@ -146,7 +147,7 @@ function SignupPage() {
                   if (googleLoading) return;
                   setGoogleLoading(true);
                   try {
-                    await signInWithGoogle("/dashboard");
+                    await signInWithGoogle("/start");
                   } catch (err) {
                     toast.error(err instanceof Error ? err.message : "Google sign-in failed");
                     setGoogleLoading(false);
