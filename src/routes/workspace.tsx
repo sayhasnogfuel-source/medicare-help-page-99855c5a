@@ -21,7 +21,7 @@ import {
   ChevronDown,
   CreditCard,
 } from "lucide-react";
-import { GeneratedLanding } from "@/components/generated/generated-landing";
+import { ThemeLanding } from "@/components/themes/registry";
 import {
   loadBuilder,
   saveBuilder,
@@ -556,7 +556,7 @@ function WorkspacePage() {
                 </div>
               ) : (
                 <>
-              {device === "desktop" && <GeneratedLanding data={data} />}
+              {device === "desktop" && <ThemeLanding data={data} />}
               {device === "tablet" && (
                 <div className="flex min-h-full justify-center px-4 py-6">
                   <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-md)]">
@@ -654,7 +654,7 @@ function ScaledFramePreview({
           transformOrigin: "top left",
         }}
       >
-        <GeneratedLanding data={data} />
+        <ThemeLanding data={data} />
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { useBuilderData } from "@/lib/builder-storage";
-import { GeneratedLanding } from "@/components/generated/generated-landing";
+import { ThemeLanding } from "@/components/themes/registry";
 import { AuthGuard } from "@/components/app/auth-guard";
 
 export const Route = createFileRoute("/preview")({
@@ -62,7 +62,7 @@ function PreviewPage() {
           Back to workspace
         </Link>
       </div>
-      <GeneratedLanding data={data} />
+      <ThemeLanding data={data} />
     </div>
   );
 }
