@@ -33,6 +33,7 @@ import { useUserCredits, ACTION_COSTS } from "@/lib/user-credits";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { toast } from "sonner";
 import { AuthGuard } from "@/components/app/auth-guard";
+import { ThemeMini } from "@/components/themes/registry";
 
 export const Route = createFileRoute("/builder")({
   component: GuardedBuilderPage,
@@ -311,6 +312,7 @@ function BuilderPage() {
                 themes={INSURANCE_THEMES}
                 selectedId={data.themeId}
                 onSelect={(id) => update("themeId", id)}
+                data={data}
               />
             </Section>
 
@@ -558,10 +560,12 @@ function ThemePicker({
   themes,
   selectedId,
   onSelect,
+  data,
 }: {
   themes: readonly InsuranceTheme[];
   selectedId: string;
   onSelect: (id: string) => void;
+  data: BuilderData;
 }) {
   return (
     <div className="-mx-1 overflow-x-auto pb-2">
@@ -591,7 +595,7 @@ function ThemePicker({
                   {t.signature ? "Flagship" : "Recommended"}
                 </span>
               )}
-              <ThemeThumbnail theme={t} />
+              <ThemeThumbnail theme={t} data={data} />
               <p className="mt-2.5 truncate text-[13px] font-semibold text-foreground">{t.name}</p>
               <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">{t.tagline}</p>
               <p className="mt-1 line-clamp-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
@@ -605,7 +609,17 @@ function ThemePicker({
   );
 }
 
-function ThemeThumbnail({ theme: t }: { theme: InsuranceTheme }) {
+function ThemeThumbnail({ theme: t, data }: { theme: InsuranceTheme; data: BuilderData }) {
+  // Use the real theme component as a mini preview so each theme's actual
+  // layout/identity shows in the picker. ThemeMini reads data.themeId.
+  return (
+    <div className="relative h-[110px] w-full overflow-hidden rounded-lg border border-border/50">
+      <ThemeMini data={{ ...data, themeId: t.id }} />
+    </div>
+  );
+}
+
+function ThemeThumbnailLegacy({ theme: t }: { theme: InsuranceTheme }) {
   const dark = t.layout.heroBackground === "dark-luxury";
   const isCentered = t.layout.hero === "centered" || t.layout.hero === "image-bg";
   const isImageLeft = t.layout.hero === "image-left";
