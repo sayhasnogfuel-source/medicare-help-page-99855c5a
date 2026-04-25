@@ -35,6 +35,18 @@ import { editWebsite } from "@/lib/ai-editor.functions";
 import type { ChatTurn } from "@/lib/ai-editor.types";
 import { AuthGuard } from "@/components/app/auth-guard";
 import diploofly from "@/assets/diploofly-logo.png";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/workspace")({
   component: GuardedWorkspace,
@@ -329,17 +341,7 @@ function WorkspacePage() {
               <ChevronDown className="h-3 w-3 opacity-60" />
             </a>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1 px-2.5 text-white/80 hover:bg-white/10 hover:text-white"
-          >
-            <Link to="/builder">
-              <Edit3 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Edit details</span>
-            </Link>
-          </Button>
+          <BackToBuilderDialog />
           <Button
             variant="ghost"
             size="sm"
@@ -655,5 +657,40 @@ function ScaledFramePreview({
         <GeneratedLanding data={data} />
       </div>
     </div>
+  );
+}
+
+function BackToBuilderDialog() {
+  const navigate = useNavigate();
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1 px-2.5 text-white/80 hover:bg-white/10 hover:text-white"
+        >
+          <Edit3 className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Edit details</span>
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Go back to edit business details?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Returning to the details form and re-generating will use{" "}
+            <strong>{ACTION_COSTS.generate} credits</strong>. Your current
+            site is saved — you can come back to the workspace anytime without
+            losing it.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Stay here</AlertDialogCancel>
+          <AlertDialogAction onClick={() => navigate({ to: "/builder" })}>
+            Go to builder
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
