@@ -4,7 +4,7 @@ import { Menu, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/lib/subscription";
-import { useAccount, signOut } from "@/lib/account";
+import { useAccount, signOutWithRedirect } from "@/lib/account";
 import diploofly from "@/assets/diploofly-logo.png";
 
 const PUBLIC_NAV = [
@@ -80,7 +80,7 @@ export function AppHeader() {
                 size="sm"
                 variant="outline"
                 className="rounded-full"
-                onClick={() => signOut()}
+                onClick={() => signOutWithRedirect()}
               >
                 Sign out
               </Button>
@@ -125,7 +125,7 @@ export function AppHeader() {
               variant="outline"
               className="mt-2 w-full rounded-full"
               onClick={() => {
-                signOut();
+                signOutWithRedirect();
                 setOpen(false);
               }}
             >
