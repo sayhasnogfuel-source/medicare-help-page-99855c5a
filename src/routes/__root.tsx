@@ -5,6 +5,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { RouteLoadingOverlay } from "@/components/app/route-loading-overlay";
 import { IntroSplash } from "@/components/app/intro-splash";
+import { SignOutOverlay } from "@/components/app/sign-out-overlay";
 import { AuthProvider } from "@/lib/account";
 
 function NotFoundComponent() {
@@ -97,6 +98,7 @@ function RootComponent() {
       <Outlet />
       <RouteLoadingOverlay />
       <IntroSplash />
+      <SignOutOverlay />
       <Toaster richColors position="top-right" />
     </AuthProvider>
   );
