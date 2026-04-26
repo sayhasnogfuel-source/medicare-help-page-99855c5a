@@ -6,13 +6,12 @@ import { usePageTransition } from "@/hooks/use-page-transition";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Clock, HandHelping, Rocket, Sparkles, UserPlus } from "lucide-react";
-import { AuthGuard } from "@/components/app/auth-guard";
 import { signInWithGoogle, useAccount } from "@/lib/account";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/start")({
-  component: GuardedStartPage,
+  component: StartPage,
   head: () => ({
     meta: [
       { title: "Get started — Diploo" },
@@ -31,98 +30,106 @@ export const Route = createFileRoute("/start")({
   }),
 });
 
-function GuardedStartPage() {
-  return (
-    <AuthGuard>
-      <StartPage />
-    </AuthGuard>
-  );
-}
-
 function StartPage() {
   const { transitionTo } = usePageTransition();
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { signedIn } = useAccount();
+  const { hydrated, signedIn } = useAccount();
+
   const handleGoogle = async () => {
     if (googleLoading) return;
     setGoogleLoading(true);
     try {
-      await signInWithGoogle("/dashboard");
+      await signInWithGoogle("/start");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
       setGoogleLoading(false);
     }
   };
+
+  // Prevent signed-in users from briefly seeing signed-out intro UI while
+  // auth state is still hydrating.
+  if (!hydrated) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <AppHeader />
+        <main className="flex flex-1 items-center justify-center px-5">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--surface-mocha)] border-t-transparent" />
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
       <PageTransition>
         <main className="flex-1">
-          {/* Hero with primary entry CTAs — only for signed-out visitors */}
           {!signedIn && (
-          <section
-            className="relative overflow-hidden"
-            style={{ background: "var(--gradient-hero)" }}
-          >
-            {/* Ambient orbs */}
-            <div
-              aria-hidden
-              className="lp-orb"
-              style={{
-                top: "-80px", left: "-60px", width: "320px", height: "320px",
-                background: "radial-gradient(circle, var(--surface-camel), transparent 60%)",
-              }}
-            />
-            <div
-              aria-hidden
-              className="lp-orb lp-orb-alt"
-              style={{
-                top: "10%", right: "-80px", width: "360px", height: "360px",
-                background: "radial-gradient(circle, var(--surface-mocha), transparent 65%)",
-                opacity: 0.45,
-              }}
-            />
-            <div className="relative mx-auto max-w-3xl px-5 pt-16 pb-10 text-center sm:pt-24">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70 shadow-[var(--shadow-xs)] backdrop-blur">
-                <Sparkles className="h-3 w-3" />
-                Start in seconds
-              </span>
-              <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
-                Build the website your <span className="text-[var(--surface-mocha)]">insurance practice</span> deserves.
-              </h1>
-              <p className="mx-auto mt-5 max-w-xl text-lg text-foreground/70">
-                Create your account and launch a polished, lead-ready website in
-                under five minutes — no designer required.
-              </p>
-              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  onClick={() => transitionTo({ to: "/signup" })}
-                  className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
-                >
-                  <UserPlus className="mr-1 h-4 w-4" />
-                  Create Your Account
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  disabled={googleLoading}
-                  onClick={handleGoogle}
-                  className="lp-cta-shimmer group rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground shadow-[var(--shadow-sm)] backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
-                >
-                  <GoogleGlyph />
-                  {googleLoading ? "Connecting…" : "Continue with Google"}
-                </Button>
+            <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
+              <div
+                aria-hidden
+                className="lp-orb"
+                style={{
+                  top: "-80px",
+                  left: "-60px",
+                  width: "320px",
+                  height: "320px",
+                  background: "radial-gradient(circle, var(--surface-camel), transparent 60%)",
+                }}
+              />
+              <div
+                aria-hidden
+                className="lp-orb lp-orb-alt"
+                style={{
+                  top: "10%",
+                  right: "-80px",
+                  width: "360px",
+                  height: "360px",
+                  background: "radial-gradient(circle, var(--surface-mocha), transparent 65%)",
+                  opacity: 0.45,
+                }}
+              />
+              <div className="relative mx-auto max-w-3xl px-5 pt-16 pb-10 text-center sm:pt-24">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70 shadow-[var(--shadow-xs)] backdrop-blur">
+                  <Sparkles className="h-3 w-3" />
+                  Start in seconds
+                </span>
+                <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+                  Build the website your <span className="text-[var(--surface-mocha)]">insurance practice</span> deserves.
+                </h1>
+                <p className="mx-auto mt-5 max-w-xl text-lg text-foreground/70">
+                  Create your account and launch a polished, lead-ready website in
+                  under five minutes — no designer required.
+                </p>
+                <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                  <Button
+                    size="lg"
+                    onClick={() => transitionTo({ to: "/signup" })}
+                    className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
+                  >
+                    <UserPlus className="mr-1 h-4 w-4" />
+                    Create Your Account
+                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    disabled={googleLoading}
+                    onClick={handleGoogle}
+                    className="lp-cta-shimmer group rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground shadow-[var(--shadow-sm)] backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
+                  >
+                    <GoogleGlyph />
+                    {googleLoading ? "Connecting…" : "Continue with Google"}
+                  </Button>
+                </div>
+                <p className="mt-4 text-xs text-muted-foreground">
+                  No credit card needed for the trial · Cancel anytime
+                </p>
               </div>
-              <p className="mt-4 text-xs text-muted-foreground">
-                No credit card needed for the trial · Cancel anytime
-              </p>
-            </div>
-          </section>
+            </section>
           )}
 
-          {/* Choice section */}
           <section className={`mx-auto max-w-5xl px-5 pb-16 sm:pb-24 ${signedIn ? "pt-16 sm:pt-24" : "pt-6"}`}>
             <div className="mx-auto max-w-2xl text-center">
               {!signedIn && (
@@ -140,7 +147,6 @@ function StartPage() {
             </div>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2">
-              {/* Option 1 — Have us build it */}
               <Card className="group flex flex-col rounded-3xl border-border/60 bg-background p-7 shadow-[var(--shadow-md)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] sm:p-9">
                 <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
                   <HandHelping className="h-6 w-6" />
@@ -162,7 +168,6 @@ function StartPage() {
                 </Button>
               </Card>
 
-              {/* Option 2 — Build your own */}
               <Card className="group flex flex-col rounded-3xl border-[var(--surface-mocha)]/30 bg-[var(--surface-cream)] p-7 shadow-[var(--shadow-md)] ring-1 ring-[var(--surface-mocha)]/15 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] sm:p-9">
                 <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
                   <Rocket className="h-6 w-6" />
