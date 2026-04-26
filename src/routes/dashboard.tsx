@@ -28,6 +28,7 @@ import { loadBuilder, DEFAULT_BUILDER } from "@/lib/builder-storage";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AuthGuard } from "@/components/app/auth-guard";
+import { ProjectsPanel } from "@/components/app/projects-panel";
 
 export const Route = createFileRoute("/dashboard")({
   component: GuardedDashboardPage,
@@ -271,6 +272,9 @@ function DashboardPage() {
               isLive={hasActiveSub && !sub.isPastDue}
               hasSubscription={hasActiveSub}
             />
+
+            {/* Saved projects */}
+            <ProjectsPanel />
 
             {/* Cards grid */}
             <div className="mt-8 grid gap-4 lg:grid-cols-3">

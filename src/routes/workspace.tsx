@@ -20,6 +20,9 @@ import {
   Share2,
   ChevronDown,
   CreditCard,
+  FolderOpen,
+  Plus,
+  Check,
 } from "lucide-react";
 import { ThemeLanding } from "@/components/themes/registry";
 import {
@@ -35,6 +38,25 @@ import { editWebsite } from "@/lib/ai-editor.functions";
 import type { ChatTurn } from "@/lib/ai-editor.types";
 import { AuthGuard } from "@/components/app/auth-guard";
 import diploofly from "@/assets/diploofly-logo.png";
+import { useAuth } from "@/lib/account";
+import {
+  useProjects,
+  createProject,
+  updateProjectBuilder,
+  touchProjectOpened,
+  setCurrentProjectId,
+  getCurrentProjectId,
+  getProject,
+  type ProjectRow,
+} from "@/lib/projects";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -133,10 +155,140 @@ function WorkspacePage() {
   // While the very first AI build is running, hide the (generic) cached
   // preview so the user never sees a placeholder template.
   const [firstBuildPending, setFirstBuildPending] = useState(true);
+  const { user } = useAuth();
+  const { projects, refresh: refreshProjects } = useProjects();
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(
+    () => getCurrentProjectId()
+  );
+  // Guards re-bootstrapping the active project once we've already done it
+  const projectBootRef = useRef(false);
+  // Debounced cloud save
+  const cloudSaveTimerRef = useRef<number | null>(null);
 
+  // Bootstrap the active project from cloud:
+  // 1. If we have a currentProjectId pointer, load that row.
+  // 2. Otherwise, fall back to the most recently opened project (if any).
+  // 3. Otherwise, create a new project from the existing local draft (so the
+  //    user always has a cloud-saved project as soon as they enter workspace).
   useEffect(() => {
+    if (!user || projectBootRef.current) return;
+    projectBootRef.current = true;
+    let cancelled = false;
+
+    (async () => {
+      const localDraft = loadBuilder() ?? DEFAULT_BUILDER;
+      try {
+        const pointer = getCurrentProjectId();
+        let row: ProjectRow | null = null;
+
+        if (pointer) {
+          row = await getProject(pointer);
+          if (!row) setCurrentProjectId(null);
+        }
+
+        if (!row) {
+          // Look up the most recent project for this user
+          const all = await import("@/lib/projects").then((m) =>
+            m.listProjects(user.id)
+          );
+          row = all[0] ?? null;
+        }
+
+        if (!row) {
+          // Bootstrap: persist the current local draft as a new project
+          row = await createProject(user.id, { builder: localDraft });
+        }
+
+        if (cancelled) return;
+        setCurrentProjectId(row.id);
+        setActiveProjectId(row.id);
+        // Hydrate UI from the cloud row, merge over defaults to be safe.
+        const next: BuilderData = { ...DEFAULT_BUILDER, ...(row.builder_data as BuilderData) };
+        setData(next);
+        saveBuilder(next);
+        // Don't await — fire-and-forget last_opened bump
+        void touchProjectOpened(row.id);
+      } catch (err) {
+        console.error("Project bootstrap failed", err);
+        if (!cancelled) setData(localDraft);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  // If the user is NOT signed in (shouldn't happen behind AuthGuard, but be
+  // safe), still hydrate from local storage so the UI doesn't lock up.
+  useEffect(() => {
+    if (data || user) return;
     setData(loadBuilder() ?? DEFAULT_BUILDER);
-  }, []);
+  }, [data, user]);
+
+  // Debounced cloud-save whenever data changes (after initial bootstrap).
+  useEffect(() => {
+    if (!data || !activeProjectId) return;
+    if (cloudSaveTimerRef.current) {
+      window.clearTimeout(cloudSaveTimerRef.current);
+    }
+    cloudSaveTimerRef.current = window.setTimeout(() => {
+      void updateProjectBuilder(activeProjectId, data)
+        .then(() => refreshProjects())
+        .catch((err) => console.error("Cloud save failed", err));
+    }, 800);
+    return () => {
+      if (cloudSaveTimerRef.current) {
+        window.clearTimeout(cloudSaveTimerRef.current);
+      }
+    };
+  }, [data, activeProjectId, refreshProjects]);
+
+  async function handleSwitchProject(id: string) {
+    if (id === activeProjectId) return;
+    try {
+      const row = await getProject(id);
+      if (!row) {
+        toast.error("Project not found");
+        return;
+      }
+      setCurrentProjectId(id);
+      setActiveProjectId(id);
+      const next: BuilderData = { ...DEFAULT_BUILDER, ...(row.builder_data as BuilderData) };
+      setData(next);
+      saveBuilder(next);
+      setMessages([STARTER_MESSAGE]);
+      autoRanRef.current = true; // don't re-run first-gen on a saved project
+      setFirstBuildPending(false);
+      void touchProjectOpened(id);
+      toast.success(`Opened "${row.name}"`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not open project");
+    }
+  }
+
+  async function handleCreateNewProject() {
+    if (!user) return;
+    try {
+      const proj = await createProject(user.id, {
+        name: "Untitled site",
+        builder: { ...DEFAULT_BUILDER, freestyleInstructions: "" },
+      });
+      setCurrentProjectId(proj.id);
+      setActiveProjectId(proj.id);
+      const next: BuilderData = { ...DEFAULT_BUILDER };
+      setData(next);
+      saveBuilder(next);
+      setMessages([STARTER_MESSAGE]);
+      autoRanRef.current = false; // let first-gen run for the fresh project
+      setFirstBuildPending(true);
+      void refreshProjects();
+      toast.success("New project created");
+    } catch {
+      toast.error("Could not create project");
+    }
+  }
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -320,9 +472,63 @@ function WorkspacePage() {
             <img src={diploofly} alt="Diploo" className="h-6 w-6 rounded-md" />
           </Link>
           <span className="text-white/30">/</span>
-          <span className="truncate text-sm font-medium text-white/90">
-            {data.businessName?.trim() || "Untitled site"}
-          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="flex min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-sm font-medium text-white/90 transition-colors hover:bg-white/10"
+              >
+                <span className="truncate">
+                  {data.businessName?.trim() || "Untitled site"}
+                </span>
+                <ChevronDown className="h-3 w-3 shrink-0 opacity-60" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-72">
+              <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                <FolderOpen className="h-3.5 w-3.5" /> Your projects
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {projects.length === 0 ? (
+                <div className="px-2 py-3 text-xs text-muted-foreground">
+                  No saved projects yet.
+                </div>
+              ) : (
+                <div className="max-h-72 overflow-y-auto">
+                  {projects.map((p) => (
+                    <DropdownMenuItem
+                      key={p.id}
+                      onSelect={() => void handleSwitchProject(p.id)}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {p.name || "Untitled site"}
+                        </p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {p.slug}.diploo.app
+                        </p>
+                      </div>
+                      {p.id === activeProjectId && (
+                        <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => void handleCreateNewProject()}>
+                <Plus className="mr-2 h-3.5 w-3.5" />
+                New project
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard">
+                  <FolderOpen className="mr-2 h-3.5 w-3.5" />
+                  All projects
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <span className="ml-1 hidden rounded-md border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60 sm:inline">
             Draft
           </span>
