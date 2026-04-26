@@ -472,9 +472,63 @@ function WorkspacePage() {
             <img src={diploofly} alt="Diploo" className="h-6 w-6 rounded-md" />
           </Link>
           <span className="text-white/30">/</span>
-          <span className="truncate text-sm font-medium text-white/90">
-            {data.businessName?.trim() || "Untitled site"}
-          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="flex min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-sm font-medium text-white/90 transition-colors hover:bg-white/10"
+              >
+                <span className="truncate">
+                  {data.businessName?.trim() || "Untitled site"}
+                </span>
+                <ChevronDown className="h-3 w-3 shrink-0 opacity-60" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-72">
+              <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                <FolderOpen className="h-3.5 w-3.5" /> Your projects
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {projects.length === 0 ? (
+                <div className="px-2 py-3 text-xs text-muted-foreground">
+                  No saved projects yet.
+                </div>
+              ) : (
+                <div className="max-h-72 overflow-y-auto">
+                  {projects.map((p) => (
+                    <DropdownMenuItem
+                      key={p.id}
+                      onSelect={() => void handleSwitchProject(p.id)}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {p.name || "Untitled site"}
+                        </p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {p.slug}.diploo.app
+                        </p>
+                      </div>
+                      {p.id === activeProjectId && (
+                        <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => void handleCreateNewProject()}>
+                <Plus className="mr-2 h-3.5 w-3.5" />
+                New project
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard">
+                  <FolderOpen className="mr-2 h-3.5 w-3.5" />
+                  All projects
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <span className="ml-1 hidden rounded-md border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60 sm:inline">
             Draft
           </span>
