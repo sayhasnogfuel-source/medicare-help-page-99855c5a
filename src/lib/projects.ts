@@ -101,7 +101,7 @@ export async function createProject(
     user_id: userId,
     name,
     slug: slugFor(name),
-    builder_data: builder as unknown as Record<string, unknown>,
+    builder_data: builder as unknown as never,
     thumbnail_color: pickThumbColor(name),
     last_opened_at: new Date().toISOString(),
   };
@@ -124,7 +124,7 @@ export async function updateProjectBuilder(
     .update({
       name,
       slug: slugFor(name),
-      builder_data: builder as unknown as Record<string, unknown>,
+      builder_data: builder as unknown as never,
     })
     .eq("id", id);
   if (error) throw error;
