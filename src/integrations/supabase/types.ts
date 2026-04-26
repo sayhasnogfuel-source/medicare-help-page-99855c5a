@@ -127,6 +127,42 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          builder_data: Json
+          created_at: string
+          id: string
+          last_opened_at: string
+          name: string
+          slug: string
+          thumbnail_color: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          builder_data?: Json
+          created_at?: string
+          id?: string
+          last_opened_at?: string
+          name?: string
+          slug?: string
+          thumbnail_color?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          builder_data?: Json
+          created_at?: string
+          id?: string
+          last_opened_at?: string
+          name?: string
+          slug?: string
+          thumbnail_color?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
