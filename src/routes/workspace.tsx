@@ -20,6 +20,9 @@ import {
   Share2,
   ChevronDown,
   CreditCard,
+  FolderOpen,
+  Plus,
+  Check,
 } from "lucide-react";
 import { ThemeLanding } from "@/components/themes/registry";
 import {
@@ -35,6 +38,25 @@ import { editWebsite } from "@/lib/ai-editor.functions";
 import type { ChatTurn } from "@/lib/ai-editor.types";
 import { AuthGuard } from "@/components/app/auth-guard";
 import diploofly from "@/assets/diploofly-logo.png";
+import { useAuth } from "@/lib/account";
+import {
+  useProjects,
+  createProject,
+  updateProjectBuilder,
+  touchProjectOpened,
+  setCurrentProjectId,
+  getCurrentProjectId,
+  getProject,
+  type ProjectRow,
+} from "@/lib/projects";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
