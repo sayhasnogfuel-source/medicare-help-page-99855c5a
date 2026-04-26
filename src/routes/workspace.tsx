@@ -155,10 +155,140 @@ function WorkspacePage() {
   // While the very first AI build is running, hide the (generic) cached
   // preview so the user never sees a placeholder template.
   const [firstBuildPending, setFirstBuildPending] = useState(true);
+  const { user } = useAuth();
+  const { projects, refresh: refreshProjects } = useProjects();
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(
+    () => getCurrentProjectId()
+  );
+  // Guards re-bootstrapping the active project once we've already done it
+  const projectBootRef = useRef(false);
+  // Debounced cloud save
+  const cloudSaveTimerRef = useRef<number | null>(null);
 
+  // Bootstrap the active project from cloud:
+  // 1. If we have a currentProjectId pointer, load that row.
+  // 2. Otherwise, fall back to the most recently opened project (if any).
+  // 3. Otherwise, create a new project from the existing local draft (so the
+  //    user always has a cloud-saved project as soon as they enter workspace).
   useEffect(() => {
+    if (!user || projectBootRef.current) return;
+    projectBootRef.current = true;
+    let cancelled = false;
+
+    (async () => {
+      const localDraft = loadBuilder() ?? DEFAULT_BUILDER;
+      try {
+        const pointer = getCurrentProjectId();
+        let row: ProjectRow | null = null;
+
+        if (pointer) {
+          row = await getProject(pointer);
+          if (!row) setCurrentProjectId(null);
+        }
+
+        if (!row) {
+          // Look up the most recent project for this user
+          const all = await import("@/lib/projects").then((m) =>
+            m.listProjects(user.id)
+          );
+          row = all[0] ?? null;
+        }
+
+        if (!row) {
+          // Bootstrap: persist the current local draft as a new project
+          row = await createProject(user.id, { builder: localDraft });
+        }
+
+        if (cancelled) return;
+        setCurrentProjectId(row.id);
+        setActiveProjectId(row.id);
+        // Hydrate UI from the cloud row, merge over defaults to be safe.
+        const next: BuilderData = { ...DEFAULT_BUILDER, ...(row.builder_data as BuilderData) };
+        setData(next);
+        saveBuilder(next);
+        // Don't await — fire-and-forget last_opened bump
+        void touchProjectOpened(row.id);
+      } catch (err) {
+        console.error("Project bootstrap failed", err);
+        if (!cancelled) setData(localDraft);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  // If the user is NOT signed in (shouldn't happen behind AuthGuard, but be
+  // safe), still hydrate from local storage so the UI doesn't lock up.
+  useEffect(() => {
+    if (data || user) return;
     setData(loadBuilder() ?? DEFAULT_BUILDER);
-  }, []);
+  }, [data, user]);
+
+  // Debounced cloud-save whenever data changes (after initial bootstrap).
+  useEffect(() => {
+    if (!data || !activeProjectId) return;
+    if (cloudSaveTimerRef.current) {
+      window.clearTimeout(cloudSaveTimerRef.current);
+    }
+    cloudSaveTimerRef.current = window.setTimeout(() => {
+      void updateProjectBuilder(activeProjectId, data)
+        .then(() => refreshProjects())
+        .catch((err) => console.error("Cloud save failed", err));
+    }, 800);
+    return () => {
+      if (cloudSaveTimerRef.current) {
+        window.clearTimeout(cloudSaveTimerRef.current);
+      }
+    };
+  }, [data, activeProjectId, refreshProjects]);
+
+  async function handleSwitchProject(id: string) {
+    if (id === activeProjectId) return;
+    try {
+      const row = await getProject(id);
+      if (!row) {
+        toast.error("Project not found");
+        return;
+      }
+      setCurrentProjectId(id);
+      setActiveProjectId(id);
+      const next: BuilderData = { ...DEFAULT_BUILDER, ...(row.builder_data as BuilderData) };
+      setData(next);
+      saveBuilder(next);
+      setMessages([STARTER_MESSAGE]);
+      autoRanRef.current = true; // don't re-run first-gen on a saved project
+      setFirstBuildPending(false);
+      void touchProjectOpened(id);
+      toast.success(`Opened "${row.name}"`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not open project");
+    }
+  }
+
+  async function handleCreateNewProject() {
+    if (!user) return;
+    try {
+      const proj = await createProject(user.id, {
+        name: "Untitled site",
+        builder: { ...DEFAULT_BUILDER, freestyleInstructions: "" },
+      });
+      setCurrentProjectId(proj.id);
+      setActiveProjectId(proj.id);
+      const next: BuilderData = { ...DEFAULT_BUILDER };
+      setData(next);
+      saveBuilder(next);
+      setMessages([STARTER_MESSAGE]);
+      autoRanRef.current = false; // let first-gen run for the fresh project
+      setFirstBuildPending(true);
+      void refreshProjects();
+      toast.success("New project created");
+    } catch {
+      toast.error("Could not create project");
+    }
+  }
 
   useEffect(() => {
     const el = scrollRef.current;
