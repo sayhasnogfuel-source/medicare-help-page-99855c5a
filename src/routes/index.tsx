@@ -223,10 +223,10 @@ function HowItWorks() {
         {steps.map((s, i) => (
           <Card
             key={s.title}
-            className="rounded-3xl border-border/60 bg-background p-7 shadow-[var(--shadow-sm)]"
+            className="rounded-xl border-border bg-background p-7 shadow-none"
           >
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary text-foreground">
                 <s.icon className="h-5 w-5" />
               </span>
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -278,9 +278,9 @@ function WhoItsFor() {
           {niches.map((n) => (
             <span
               key={n}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground/80 shadow-[var(--shadow-xs)]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground/80"
             >
-              <Check className="h-3.5 w-3.5 text-[var(--surface-mocha)]" />
+              <Check className="h-3 w-3 text-muted-foreground" />
               {n}
             </span>
           ))}
@@ -314,9 +314,9 @@ function Benefits() {
         {items.map((b) => (
           <Card
             key={b.title}
-            className="rounded-3xl border-border/60 bg-background p-6 shadow-[var(--shadow-sm)]"
+            className="rounded-xl border-border bg-background p-6 shadow-none"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--surface-sand)] text-[var(--surface-mocha)]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary text-foreground">
               <b.icon className="h-5 w-5" />
             </span>
             <h3 className="mt-4 text-base font-semibold tracking-tight text-foreground">
@@ -366,11 +366,11 @@ function BuiltIn() {
           website. You focus on your branding, copy, and photos — we handle the rest.
         </p>
       </div>
-      <Card className="mt-10 rounded-3xl border-border/60 bg-[var(--surface-cream)] p-7 shadow-[var(--shadow-sm)] sm:p-9">
+      <Card className="mt-10 rounded-xl border-border bg-[var(--surface-cream)] p-7 shadow-none sm:p-9">
         <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
             <div key={f} className="flex items-start gap-2.5">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--surface-mocha)]" />
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-foreground/60" />
               <span className="text-sm text-foreground/85">{f}</span>
             </div>
           ))}
@@ -436,7 +436,7 @@ function FinalCta() {
   return (
     <section className="px-5 pb-24">
       <div
-        className="mx-auto flex max-w-5xl flex-col items-center gap-5 rounded-[2rem] px-8 py-14 text-center shadow-[var(--shadow-lg)] sm:px-14 sm:py-20"
+        className="mx-auto flex max-w-5xl flex-col items-center gap-5 rounded-2xl px-8 py-14 text-center shadow-[var(--shadow-md)] sm:px-14 sm:py-20"
         style={{ background: "var(--gradient-cta)" }}
       >
         <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-[var(--surface-cream)] sm:text-4xl">
@@ -450,7 +450,7 @@ function FinalCta() {
           <Button
             size="lg"
             onClick={() => transitionTo({ to: "/start" })}
-            className="rounded-full bg-[var(--surface-cream)] px-7 text-base font-semibold text-[var(--surface-espresso)] hover:bg-white"
+            className="bg-[var(--surface-cream)] px-7 text-sm font-medium text-[var(--surface-espresso)] hover:bg-white"
           >
             {signedIn ? "Open Builder" : "Get Started"}
             <ArrowRight className="ml-1 h-4 w-4" />
@@ -459,7 +459,7 @@ function FinalCta() {
             size="lg"
             variant="ghost"
             onClick={() => transitionTo({ to: "/pricing" })}
-            className="rounded-full border border-[var(--surface-cream)]/30 px-7 text-base font-semibold text-[var(--surface-cream)] hover:bg-[var(--surface-cream)]/10 hover:text-[var(--surface-cream)]"
+            className="border border-[var(--surface-cream)]/30 px-7 text-sm font-medium text-[var(--surface-cream)] hover:bg-[var(--surface-cream)]/10 hover:text-[var(--surface-cream)]"
           >
             See pricing
           </Button>
