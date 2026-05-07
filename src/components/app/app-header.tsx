@@ -48,21 +48,21 @@ export function AppHeader() {
           </div>
         </div>
       )}
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
         <Link to="/" className="flex items-center gap-2" aria-label="Diploo home">
-          <img src={diploofly} alt="" className="-mt-px h-7 w-7 object-contain" />
-          <span className="text-[1.05rem] font-semibold -tracking-[0.01em] text-foreground">
+          <img src={diploofly} alt="" className="-mt-px h-6 w-6 object-contain" />
+          <span className="text-[0.98rem] font-semibold -tracking-[0.015em] text-foreground">
             Diploo
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="rounded-full px-3.5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
-              activeProps={{ className: "bg-secondary text-foreground" }}
+              className="text-sm font-medium text-foreground/60 transition-colors hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
               activeOptions={{ exact: true }}
             >
               {item.label}
@@ -73,13 +73,12 @@ export function AppHeader() {
         <div className="hidden items-center gap-2 md:flex">
           {signedIn ? (
             <>
-              <Button asChild variant="ghost" size="sm" className="rounded-full text-foreground/80">
+              <Button asChild variant="ghost" size="sm" className="text-foreground/70 hover:text-foreground">
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="rounded-full"
                 onClick={() => signOutWithRedirect()}
               >
                 Sign out
@@ -87,10 +86,10 @@ export function AppHeader() {
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm" className="rounded-full text-foreground/80">
+              <Button asChild variant="ghost" size="sm" className="text-foreground/70 hover:text-foreground">
                 <Link to="/signin">Sign in</Link>
               </Button>
-              <Button asChild size="sm" className="rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-espresso)]">
+              <Button asChild size="sm" className="bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]">
                 <Link to="/signup">Create account</Link>
               </Button>
             </>
@@ -99,7 +98,7 @@ export function AppHeader() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border md:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border md:hidden"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
@@ -115,7 +114,7 @@ export function AppHeader() {
               key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-base font-medium text-foreground/80 hover:bg-secondary"
+              className="rounded-md px-3 py-2.5 text-base font-medium text-foreground/80 hover:bg-secondary"
             >
               {item.label}
             </Link>
@@ -123,7 +122,7 @@ export function AppHeader() {
           {signedIn ? (
             <Button
               variant="outline"
-              className="mt-2 w-full rounded-full"
+              className="mt-2 w-full"
               onClick={() => {
                 signOutWithRedirect();
                 setOpen(false);
@@ -136,7 +135,7 @@ export function AppHeader() {
               <Button
                 asChild
                 variant="outline"
-                className="mt-2 w-full rounded-full"
+                className="mt-2 w-full"
               >
                 <Link to="/signin" onClick={() => setOpen(false)}>
                   Sign in
@@ -144,7 +143,7 @@ export function AppHeader() {
               </Button>
               <Button
                 asChild
-                className="mt-2 w-full rounded-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
+                className="mt-2 w-full bg-[var(--surface-mocha)] text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
               >
                 <Link to="/signup" onClick={() => setOpen(false)}>
                   Create account
