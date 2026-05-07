@@ -89,46 +89,29 @@ function Hero() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: "var(--gradient-hero)" }}
+      style={{
+        background: "var(--surface-cream)",
+        backgroundImage:
+          "radial-gradient(oklch(0.85 0.01 75 / 0.5) 1px, transparent 1px)",
+        backgroundSize: "22px 22px",
+      }}
     >
-      {/* Ambient orbs / illumination */}
+      {/* Subtle top fade so the dot grid doesn't fight the header */}
       <div
         aria-hidden
-        className="lp-orb"
-        style={{
-          top: "-120px", left: "-80px", width: "420px", height: "420px",
-          background: "radial-gradient(circle, var(--surface-camel), transparent 60%)",
-          opacity: 0.6,
-        }}
-      />
-      <div
-        aria-hidden
-        className="lp-orb lp-orb-alt"
-        style={{
-          top: "20%", right: "-120px", width: "460px", height: "460px",
-          background: "radial-gradient(circle, var(--surface-mocha), transparent 65%)",
-          opacity: 0.35,
-        }}
-      />
-      <div
-        aria-hidden
-        className="lp-orb"
-        style={{
-          bottom: "-160px", left: "30%", width: "380px", height: "380px",
-          background: "radial-gradient(circle, var(--surface-tan), transparent 65%)",
-          opacity: 0.4,
-        }}
+        className="pointer-events-none absolute inset-x-0 top-0 h-32"
+        style={{ background: "linear-gradient(to bottom, var(--surface-cream), transparent)" }}
       />
 
       <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-24 text-center sm:pt-32 sm:pb-36">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-[var(--shadow-xs)] backdrop-blur">
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/70 backdrop-blur">
           <Sparkles className="h-3 w-3" />
           Built for independent insurance agents
         </span>
-        <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+        <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold leading-[1.02] -tracking-[0.02em] text-foreground sm:text-6xl">
           A modern website builder for insurance agents
         </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-lg text-foreground/70 sm:text-xl">
+        <p className="mx-auto mt-5 max-w-2xl text-base text-foreground/65 sm:text-lg">
           Launch a polished, mobile-friendly website for your insurance practice — Medicare,
           ACA, Life, Health, Auto, Home, and more. No designer, no developer required.
         </p>
@@ -138,7 +121,7 @@ function Hero() {
               <Button
                 size="lg"
                 onClick={() => transitionTo({ to: "/start" })}
-                className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
+                className="group bg-[var(--surface-mocha)] px-7 text-sm font-medium text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
               >
                 Open Builder
                 <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -147,7 +130,7 @@ function Hero() {
                 size="lg"
                 variant="outline"
                 onClick={() => transitionTo({ to: "/workspace" })}
-                className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background"
+                className="border-border bg-background px-7 text-sm font-medium text-foreground hover:bg-secondary"
               >
                 Go to Workspace
               </Button>
@@ -157,7 +140,7 @@ function Hero() {
           <Button
             size="lg"
             onClick={() => transitionTo({ to: "/signup" })}
-            className="lp-cta-shimmer lp-cta-glow group rounded-full bg-[var(--surface-mocha)] px-8 text-base font-semibold text-[var(--surface-cream)] shadow-[var(--shadow-md)] transition-transform hover:-translate-y-0.5 hover:bg-[var(--surface-espresso)]"
+            className="group bg-[var(--surface-mocha)] px-7 text-sm font-medium text-[var(--surface-cream)] hover:bg-[var(--surface-espresso)]"
           >
             <UserPlus className="mr-1 h-4 w-4" />
             Create Your Account
@@ -168,7 +151,7 @@ function Hero() {
             variant="outline"
             disabled={googleLoading}
             onClick={handleGoogle}
-            className="lp-cta-shimmer rounded-full border-foreground/20 bg-background/80 px-8 text-base font-semibold text-foreground backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-background hover:text-foreground"
+            className="border-border bg-background px-7 text-sm font-medium text-foreground hover:bg-secondary hover:text-foreground"
           >
             <HeroGoogleGlyph />
             {googleLoading ? "Connecting…" : "Continue with Google"}
@@ -177,46 +160,16 @@ function Hero() {
           )}
         </div>
 
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-muted-foreground">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
           {(signedIn
             ? ["You're signed in", "5-minute setup", "Mobile-friendly", "Lead-ready"]
             : ["Card on file required", "5-minute setup", "Mobile-friendly", "Lead-ready"]
           ).map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-[var(--surface-mocha)]" />
+              <Check className="h-3.5 w-3.5 text-muted-foreground" />
               {t}
             </span>
           ))}
-        </div>
-
-        {/* Floating mini UI accent cards (decorative) */}
-        {/* Floating mini UI accent cards — anchored to lower hero edges so they never cover headline copy */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-6 mx-auto hidden max-w-6xl lg:block">
-          <div
-            className="lp-float absolute -left-2 bottom-2 rounded-2xl border border-border/60 bg-background/90 p-3.5 shadow-[var(--shadow-md)] backdrop-blur"
-            style={{ width: "210px" }}
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-mocha)] text-[var(--surface-cream)]">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              <div className="flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AI building your site</p>
-                <p className="text-xs font-semibold text-foreground">Hero · Services · Lead form</p>
-              </div>
-            </div>
-          </div>
-          <div
-            className="lp-float-slow absolute -right-2 bottom-10 rounded-2xl border border-border/60 bg-background/90 p-3.5 shadow-[var(--shadow-md)] backdrop-blur"
-            style={{ width: "230px" }}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">New lead captured</p>
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--surface-mocha)]" />
-            </div>
-            <p className="mt-1.5 text-xs font-semibold text-foreground">Maria R. · Medicare quote request</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">Just now · from your live site</p>
-          </div>
         </div>
       </div>
     </section>
